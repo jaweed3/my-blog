@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+
+		<!-- Favicon -->
+		<link
+			rel="apple-touch-icon"
+			sizes="180x180"
+			href="./favicons/apple-touch-icon.png"
+		/>
+		<link
+			rel="icon"
+			type="image/png"
+			sizes="32x32"
+			href="./favicons/favicon-32x32.png"
+		/>
+		<link
+			rel="icon"
+			type="image/png"
+			sizes="16x16"
+			href="./favicons/favicon-16x16.png"
+		/>
+		<link rel="manifest" href="./favicons/site.webmanifest" />
+		<link
+			rel="mask-icon"
+			href="./favicons/safari-pinned-tab.svg"
+			color="#0ca4a5"
+		/>
+		<link rel="shortcut icon" href="./favicons/favicon.ico" />
+		<link rel="icon" href="./favicons/favicon.png" />
+
+		<!-- Tell browser this site is responsive -->
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<!-- Tell browser this site supports light and dark mode -->
+		<meta name="color-scheme" content="light dark" />
+		<!-- Color for browser url bar in mobile/Safari -->
+		<meta name="theme-color" media="(prefers-color-scheme: light)" content="#b28cf2" />
+		<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#4612A1" />
+		<!-- Disable Google FLOC -->
+		<meta http-equiv="Permissions-Policy" content="interest-cohort=()" />
+
+		<script>
+			// Calling this here so that it loads as quickly as possible
+			// Avoiding a flash of light mode in case dark mode is used
+			const theme = localStorage.getItem('theme-preference') || 'auto';
+			document.firstElementChild?.setAttribute('data-theme', theme);
+		</script>
+
+		<meta http-equiv="content-security-policy" content="">
+		<link href="./_app/immutable/assets/_layout.c5ebb86e.css" rel="stylesheet">
+		<link href="./_app/immutable/assets/_layout.a0c51d5a.css" rel="stylesheet">
+		<link href="./_app/immutable/assets/Footer.abc7b42a.css" rel="stylesheet">
+		<link href="./_app/immutable/assets/Tag.70ebff69.css" rel="stylesheet">
+		<link href="./_app/immutable/assets/ContentSection.6f5956ec.css" rel="stylesheet">
+		<link href="./_app/immutable/assets/Card.475c795b.css" rel="stylesheet">
+		<link href="./_app/immutable/assets/Image.0954db74.css" rel="stylesheet">
+		<link rel="modulepreload" href="./_app/immutable/entry/start.fa72b9a7.js">
+		<link rel="modulepreload" href="./_app/immutable/chunks/index.a78e4517.js">
+		<link rel="modulepreload" href="./_app/immutable/chunks/index.07ee1187.js">
+		<link rel="modulepreload" href="./_app/immutable/entry/app.6cff5425.js">
+		<link rel="modulepreload" href="./_app/immutable/entry/_layout.svelte.c6276dc1.js">
+		<link rel="modulepreload" href="./_app/immutable/entry/_layout.ts.984db11e.js">
+		<link rel="modulepreload" href="./_app/immutable/chunks/_layout.da46b06b.js">
+		<link rel="modulepreload" href="./_app/immutable/entry/(blog-article)-layout.svelte.45459add.js">
+		<link rel="modulepreload" href="./_app/immutable/chunks/Footer.554ced1c.js">
+		<link rel="modulepreload" href="./_app/immutable/chunks/Tag.73dafde5.js">
+		<link rel="modulepreload" href="./_app/immutable/chunks/meta.b87ac2db.js">
+		<link rel="modulepreload" href="./_app/immutable/chunks/ContentSection.fdfabc56.js">
+		<link rel="modulepreload" href="./_app/immutable/chunks/Card.e0ef35c5.js">
+		<link rel="modulepreload" href="./_app/immutable/chunks/regex.7dfa9b23.js">
+		<link rel="modulepreload" href="./_app/immutable/chunks/Image.4d08ed3e.js">
+		<link rel="modulepreload" href="./_app/immutable/entry/(blog-article)-bitts-page.md.90720b73.js"><title>BitJETS: 1.58-bit Text-to-Speech — From 12 MB to 2.5 MB - Jawwad — Edge ML &amp; Systems</title><!-- HEAD_svelte-1ylu8nc_START --><meta name="keywords" content="Machine Learning, TTS, Quantization, Research, Edge ML, Quantization, MLOps, Computer Engineer, ONNX, PyTorch, YOLO, Embedded Systems, ESP32, Indonesia">
+
+		<meta name="description" content="Training a TTS model where every convolutional weight is limited to just three values: {-1, 0, 1}. The result? A model 5x smaller (12 MB → 2.5 MB) that still produces intelligible speech.">
+		<meta property="og:description" content="Training a TTS model where every convolutional weight is limited to just three values: {-1, 0, 1}. The result? A model 5x smaller (12 MB → 2.5 MB) that still produces intelligible speech.">
+		<meta name="twitter:description" content="Training a TTS model where every convolutional weight is limited to just three values: {-1, 0, 1}. The result? A model 5x smaller (12 MB → 2.5 MB) that still produces intelligible speech.">
+		<link rel="canonical" href="https://jaweed.site//bitts">
+
+		
+		<meta property="og:title" content="BitJETS: 1.58-bit Text-to-Speech — From 12 MB to 2.5 MB - Jawwad — Edge ML &amp; Systems">
+		<meta name="twitter:title" content="BitJETS: 1.58-bit Text-to-Speech — From 12 MB to 2.5 MB - Jawwad — Edge ML &amp; Systems">
+
+		<meta property="og:image" content="https://jaweed.site//images/posts/bitts.png">
+			<meta name="twitter:image" content="https://jaweed.site//images/posts/bitts.png"><!-- HEAD_svelte-1ylu8nc_END -->
+	</head>
+	<body data-sveltekit-preload-data="hover">
+		<div id="svelte-root">
+
+
+
+<div class="article-layout svelte-1hgysft"><header class="svelte-q36g3l"><nav class="container svelte-q36g3l"><a class="logo svelte-q36g3l" href="/" aria-label="Home"><span class="logo svelte-1efvi6l">Jawwad</span></a>
+		<div class="links svelte-q36g3l"><a href="/blog" class="svelte-q36g3l">Blog</a>
+			<a href="/projects" class="svelte-q36g3l">Projects</a>
+			<noscript>
+	<style>.theme-toggle {
+			display: none !important;
+		}
+	</style></noscript>
+<button class="theme-toggle svelte-niuf71" title="Toggle between light and dark theme"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24"><mask id="moon" class="svelte-niuf71"><rect x="0" y="0" width="100%" height="100%" fill="white" class="svelte-niuf71"></rect><circle cx="40" cy="8" r="11" fill="black" class="svelte-niuf71"></circle></mask><circle id="sun" cx="12" cy="12" r="11" mask="url(#moon)" class="svelte-niuf71"></circle><g id="sun-beams" class="svelte-niuf71"><line x1="12" y1="1" x2="12" y2="3" class="svelte-niuf71"></line><line x1="12" y1="21" x2="12" y2="23" class="svelte-niuf71"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" class="svelte-niuf71"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" class="svelte-niuf71"></line><line x1="1" y1="12" x2="3" y2="12" class="svelte-niuf71"></line><line x1="21" y1="12" x2="23" y2="12" class="svelte-niuf71"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36" class="svelte-niuf71"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" class="svelte-niuf71"></line></g></svg>
+	<span class="label svelte-niuf71">Auto</span>
+</button></div></nav>
+</header>
+	<main><article id="article-content" class="svelte-1hgysft"><div class="header svelte-1hgysft"><h1>BitJETS: 1.58-bit Text-to-Speech — From 12 MB to 2.5 MB</h1>
+					<div class="note svelte-1hgysft">Published on 05 April 2026</div>
+					
+					
+					<div class="tags svelte-1hgysft"><div class="tag primary svelte-1xh8qlg">Machine Learning</div><div class="tag primary svelte-1xh8qlg">TTS</div><div class="tag primary svelte-1xh8qlg">Quantization</div><div class="tag primary svelte-1xh8qlg">Research</div></div></div>
+			<div class="cover-image svelte-1hgysft"><img src="/images/posts/bitts.png" alt="BitJETS: 1.58-bit Text-to-Speech — From 12 MB to 2.5 MB" loading="lazy" decoding="async" class="svelte-1ykl0dj"></div>
+			<div class="content svelte-1hgysft"><blockquote><p><strong>TL;DR:</strong> I trained a TTS model where all convolutional weights are just three values: <code>{-1, 0, 1}</code>. The result? A model 5x smaller (12 MB → 2.5 MB) that still sounds intelligible. Built from <a href="https://arxiv.org/abs/2402.17764" rel="nofollow">BitNet b1.58</a> + <a href="https://arxiv.org/abs/2203.16852" rel="nofollow">JETS</a>, trained on an RTX 4060.</p></blockquote>
+<hr>
+<h2 id="why-this-is-interesting"><a class="heading-link" title="Permalink" aria-hidden="true" href="#why-this-is-interesting"><span>#</span></a>Why This Is Interesting</h2>
+<p>Imagine TTS models like Tortoise, VITS, or NaturalSpeech. They’re good, but huge — hundreds of megabytes, even gigabytes. What if we build a TTS model that’s <strong>just a few megabytes</strong> but can still speak clearly?</p>
+<p>This isn’t just about “making it small for the sake of it.” A small model means:</p>
+<ul><li><strong>Edge deployment</strong> — runs on phones, smart speakers, embedded devices</li>
+<li><strong>Real-time inference</strong> — low latency because there are no floating-point multiply operations</li>
+<li><strong>Cheap storage</strong> — fits in embedded flash memory</li>
+<li><strong>Energy efficient</strong> — perfect for always-on devices</li></ul>
+<p>The <a href="https://arxiv.org/abs/2409.10577" rel="nofollow">BitTTS paper (Kawamura et al., 2024)</a> answers this with a radical approach: <strong>quantize all convolutional layers to 1.58-bit ternary weights</strong> <code>{-1, 0, 1}</code>.</p>
+<hr>
+<h2 id="what-does-158-bit-mean"><a class="heading-link" title="Permalink" aria-hidden="true" href="#what-does-158-bit-mean"><span>#</span></a>What Does 1.58-bit Mean?</h2>
+<p>Imagine a normal neural network: every weight is a 32-bit float. In BitNet, weights are quantized to just <strong>three values</strong>:</p>
+<pre class="language-undefined"><!-- HTML_TAG_START --><code class="language-undefined">&#123;-1, 0, 1&#125;</code><!-- HTML_TAG_END --></pre>
+<p>Why call it 1.58-bit? Because <code>log₂(3) ≈ 1.585</code>. In information theory terms, each ternary “trit” stores ~1.58 bits of information.</p>
+<p>During inference, weight × activation multiplication becomes an <strong>add/subtract/ignore</strong> operation — no floating-point multiplies at all. Hardware can run this blazingly fast.</p>
+<h3 id="how-quantization-works-ste"><a class="heading-link" title="Permalink" aria-hidden="true" href="#how-quantization-works-ste"><span>#</span></a>How Quantization Works (STE)</h3>
+<pre class="language-undefined"><!-- HTML_TAG_START --><code class="language-undefined">Forward pass:
+  W_real (float32) → W_ternary = round(clip(W_real / β, -1, 1))
+  Conv uses W_ternary
+
+Backward pass (Straight-Through Estimator):
+  Gradients flow to W_real, NOT to W_ternary
+  ∇W_real = ∇W_ternary  (treat round() as identity during backward)</code><!-- HTML_TAG_END --></pre>
+<p>Real weights (<code>W_real</code>) are still stored as float32 and updated by the optimizer. Quantization only happens in the forward pass. This is called <strong>Quantization-Aware Training (QAT)</strong> — the model learns to produce representations that are robust to quantization noise.</p>
+<hr>
+<h2 id="architecture"><a class="heading-link" title="Permalink" aria-hidden="true" href="#architecture"><span>#</span></a>Architecture</h2>
+<pre class="language-undefined"><!-- HTML_TAG_START --><code class="language-undefined">Text → Embedding → BitEncoder (4× BitConvBlock) → VarianceAdaptor → BitDecoder (4× BitConvBlock) → Mel → HiFi-GAN → Audio
+       1.58-bit                                         dur predictor         1.58-bit              FP32</code><!-- HTML_TAG_END --></pre>
+<h3 id="bitconvblock--the-quantized-unit"><a class="heading-link" title="Permalink" aria-hidden="true" href="#bitconvblock--the-quantized-unit"><span>#</span></a>BitConvBlock — The Quantized Unit</h3>
+<p>Each convolution layer is wrapped with:</p>
+<ol><li><strong>LayerNorm (Sub-LN)</strong> — normalization before quantization, stabilizes input distribution</li>
+<li><strong>BitConv1d</strong> — weight quantization <code>{-1, 0, 1}</code> + 8-bit activation quantization</li>
+<li><strong>Residual connection</strong> — skip connection helps gradient flow</li></ol>
+<pre class="language-python"><!-- HTML_TAG_START --><code class="language-python"><span class="token keyword">class</span> <span class="token class-name">BitConvBlock</span><span class="token punctuation">(</span>nn<span class="token punctuation">.</span>Module<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">def</span> <span class="token function">forward</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> x<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        x_norm <span class="token operator">=</span> self<span class="token punctuation">.</span>layer_norm<span class="token punctuation">(</span>x<span class="token punctuation">)</span>        <span class="token comment"># Sub-LN normalization</span>
+        x_t <span class="token operator">=</span> x_norm<span class="token punctuation">.</span>transpose<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">)</span>       <span class="token comment"># B,T,C → B,C,T</span>
+        out <span class="token operator">=</span> self<span class="token punctuation">.</span>bit_conv<span class="token punctuation">(</span>x_t<span class="token punctuation">)</span>           <span class="token comment"># Quantized conv</span>
+        <span class="token keyword">return</span> out<span class="token punctuation">.</span>transpose<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">)</span>         <span class="token comment"># Back to B,T,C</span></code><!-- HTML_TAG_END --></pre>
+<h3 id="weight-packing--algorithm-1"><a class="heading-link" title="Permalink" aria-hidden="true" href="#weight-packing--algorithm-1"><span>#</span></a>Weight Packing — Algorithm 1</h3>
+<p>During deployment, ternary weights are compressed using base-3 block encoding:</p>
+<pre class="language-undefined"><!-- HTML_TAG_START --><code class="language-undefined">5 ternary values → 1 byte (uint8)
+  3^5 = 243 ≤ 256 ✓
+
+Conv1d(256, 256, k=5):
+  FP32:   256×256×5×4 bytes = 1,280 KB
+  uint8:  256×256×5×1 bytes =   320 KB
+  Packed: 256×256×5÷5 bytes =    64 KB  ← 20x smaller!</code><!-- HTML_TAG_END --></pre>
+<hr>
+<h2 id="results"><a class="heading-link" title="Permalink" aria-hidden="true" href="#results"><span>#</span></a>Results</h2>
+<h3 id="model-size"><a class="heading-link" title="Permalink" aria-hidden="true" href="#model-size"><span>#</span></a>Model Size</h3>
+<table><thead><tr><th>Format</th>
+<th>Size</th></tr></thead>
+<tbody><tr><td>FP32 (baseline)</td>
+<td>12.10 MB</td></tr>
+<tr><td>Packed (actual)</td>
+<td><strong>2.52 MB</strong></td></tr>
+<tr><td>Compression</td>
+<td><strong>79.2% reduction</strong></td></tr></tbody></table>
+<h3 id="inference-speed-rtx-4060"><a class="heading-link" title="Permalink" aria-hidden="true" href="#inference-speed-rtx-4060"><span>#</span></a>Inference Speed (RTX 4060)</h3>
+<table><thead><tr><th>Input Length</th>
+<th>Latency</th>
+<th>RTF</th></tr></thead>
+<tbody><tr><td>10 chars</td>
+<td>3.2 ms</td>
+<td>0.0047×</td></tr>
+<tr><td>30 chars</td>
+<td>5.8 ms</td>
+<td>0.0046×</td></tr>
+<tr><td>60 chars</td>
+<td>10.2 ms</td>
+<td>0.0046×</td></tr></tbody></table>
+<p>RTF &lt; 1.0 means <strong>faster than real-time</strong>. On an RTX 4060, inference is 200× faster than audio duration. Even on CPU it’s still real-time because there are no multiply operations.</p>
+<h3 id="parameter-distribution"><a class="heading-link" title="Permalink" aria-hidden="true" href="#parameter-distribution"><span>#</span></a>Parameter Distribution</h3>
+<ul><li><strong>92.9%</strong> parameters in BitConv1d (1.58-bit)</li>
+<li><strong>7.1%</strong> parameters in Embedding, LayerNorm, Linear (FP32)</li></ul>
+<p>This is maximum efficiency — nearly all parameters can be quantized, leaving only the components that truly need full precision.</p>
+<hr>
+<h2 id="training"><a class="heading-link" title="Permalink" aria-hidden="true" href="#training"><span>#</span></a>Training</h2>
+<h3 id="setup"><a class="heading-link" title="Permalink" aria-hidden="true" href="#setup"><span>#</span></a>Setup</h3>
+<pre class="language-bash"><!-- HTML_TAG_START --><code class="language-bash"><span class="token function">git</span> clone <span class="token operator">&lt;</span>repo<span class="token operator">></span> <span class="token operator">&amp;&amp;</span> <span class="token builtin class-name">cd</span> bitts
+<span class="token function">chmod</span> +x scripts/*.sh
+./scripts/bootstrap.sh    <span class="token comment"># one-command: uv + CUDA + LJSpeech + HiFi-GAN</span>
+./scripts/train.sh <span class="token parameter variable">--resume</span>   <span class="token comment"># start training</span></code><!-- HTML_TAG_END --></pre>
+<h3 id="configuration"><a class="heading-link" title="Permalink" aria-hidden="true" href="#configuration"><span>#</span></a>Configuration</h3>
+<table><thead><tr><th>Hyperparameter</th>
+<th>Value</th></tr></thead>
+<tbody><tr><td>Dataset</td>
+<td>LJSpeech (~24 hours, single speaker)</td></tr>
+<tr><td>Batch size</td>
+<td>32</td></tr>
+<tr><td>Learning rate</td>
+<td>2e-4</td></tr>
+<tr><td>LR schedule</td>
+<td>Exponential decay (γ=0.9973/step)</td></tr>
+<tr><td>Optimizer</td>
+<td>AdamW (β₁=0.8, β₂=0.99)</td></tr>
+<tr><td>Total steps</td>
+<td>500,000</td></tr>
+<tr><td>Hardware</td>
+<td>RTX 4060 8GB</td></tr></tbody></table>
+<h3 id="training-loop-highlights"><a class="heading-link" title="Permalink" aria-hidden="true" href="#training-loop-highlights"><span>#</span></a>Training Loop Highlights</h3>
+<pre class="language-python"><!-- HTML_TAG_START --><code class="language-python"><span class="token comment"># Loss filter: skip batch if loss explodes</span>
+<span class="token keyword">if</span> loss<span class="token punctuation">.</span>item<span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">></span> <span class="token number">15.0</span> <span class="token keyword">or</span> torch<span class="token punctuation">.</span>isnan<span class="token punctuation">(</span>loss<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">continue</span>
+
+<span class="token comment"># Robust gradient accumulation — track accum_count yourself</span>
+<span class="token punctuation">(</span>loss <span class="token operator">/</span> ACCUM_STEPS<span class="token punctuation">)</span><span class="token punctuation">.</span>backward<span class="token punctuation">(</span><span class="token punctuation">)</span>
+accum_count <span class="token operator">+=</span> <span class="token number">1</span>
+
+<span class="token comment"># Gradient clipping</span>
+clip_grad_norm_<span class="token punctuation">(</span>model<span class="token punctuation">.</span>parameters<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token number">1.0</span><span class="token punctuation">)</span></code><!-- HTML_TAG_END --></pre>
+<h3 id="checkpoint-system"><a class="heading-link" title="Permalink" aria-hidden="true" href="#checkpoint-system"><span>#</span></a>Checkpoint System</h3>
+<ul><li><code>latest.pth</code> — full state, overwritten every step (for resume)</li>
+<li><code>bitjets_ckpt_N.pth</code> — snapshot every 10K steps</li>
+<li><code>bitjets_packed_N.pth</code> — compressed version (Algorithm 1)</li></ul>
+<hr>
+<h2 id="why-hifi-gan-fp32-for-the-vocoder"><a class="heading-link" title="Permalink" aria-hidden="true" href="#why-hifi-gan-fp32-for-the-vocoder"><span>#</span></a>Why HiFi-GAN (FP32) for the Vocoder?</h2>
+<p>The BitTTS paper explicitly mentions: <strong>quantizing vocoder waveform generation layers causes severe audio degradation</strong> (Section 3.2). Vocoders need full precision to reconstruct waveforms from mel spectrograms. But since the vocoder is only ~53 MB and a preprocessing step, this doesn’t significantly impact the total pipeline.</p>
+<hr>
+<h2 id="wandb-integration"><a class="heading-link" title="Permalink" aria-hidden="true" href="#wandb-integration"><span>#</span></a>WandB Integration</h2>
+<p>Training integrates with <a href="https://wandb.ai" rel="nofollow">Weights &amp; Biases</a> for monitoring:</p>
+<ul><li>Loss curves (mel, duration, total)</li>
+<li>Gradient norm</li>
+<li>Learning rate</li>
+<li>Parameter histograms</li></ul>
+<p>Optional — can be disabled with <code>--no-wandb</code> or by leaving <code>WANDB_API_KEY</code> empty in <code>.env</code>.</p>
+<hr>
+<h2 id="how-to-use"><a class="heading-link" title="Permalink" aria-hidden="true" href="#how-to-use"><span>#</span></a>How to Use</h2>
+<table><thead><tr><th>Command</th>
+<th>Purpose</th></tr></thead>
+<tbody><tr><td><code>./scripts/bootstrap.sh</code></td>
+<td>Setup environment (one-time)</td></tr>
+<tr><td><code>./scripts/train.sh --resume</code></td>
+<td>Resume training</td></tr>
+<tr><td><code>./scripts/train.sh --resume --no-wandb</code></td>
+<td>Offline training</td></tr>
+<tr><td><code>./scripts/train.sh --preset high</code></td>
+<td>Training bs=64 (faster)</td></tr>
+<tr><td><code>./scripts/infer.sh --text &quot;hello world&quot;</code></td>
+<td>Generate audio</td></tr>
+<tr><td><code>./scripts/demo.sh</code></td>
+<td>Generate showcase artifacts</td></tr></tbody></table>
+<hr>
+<h2 id="demo"><a class="heading-link" title="Permalink" aria-hidden="true" href="#demo"><span>#</span></a>Demo</h2>
+<pre class="language-bash"><!-- HTML_TAG_START --><code class="language-bash"><span class="token comment"># Generate 6 audio samples + benchmark + spectrogram</span>
+./scripts/demo.sh</code><!-- HTML_TAG_END --></pre>
+<p>Output in <code>demo_output/</code>:</p>
+<ul><li>6 sample WAV files (varied text: short, long, technical)</li>
+<li><code>benchmark.txt</code> — latency, RTF, model size</li>
+<li><code>mel_spectrogram.png</code> — mel spectrogram visualization</li>
+<li><code>summary.txt</code> — summary of all artifacts</li></ul>
+<hr>
+<h2 id="project-structure"><a class="heading-link" title="Permalink" aria-hidden="true" href="#project-structure"><span>#</span></a>Project Structure</h2>
+<pre class="language-undefined"><!-- HTML_TAG_START --><code class="language-undefined">bitts/
+├── main.py            # CLI: train / infer / benchmark / sample
+├── scripts/
+│   ├── bootstrap.sh   # One-command setup
+│   ├── train.sh       # Training launcher
+│   ├── infer.sh       # Inference launcher
+│   └── demo.sh        # Showcase generator
+├── src/
+│   ├── layers.py      # BitConv1d, BitConvBlock, quant functions
+│   ├── models.py      # BitJETS, BitEncoder, BitDecoder, VarianceAdaptor
+│   ├── train.py       # Training loop (step-based, infinite dataloader)
+│   ├── packing.py     # Algorithm 1 weight indexing
+│   ├── checkpoint.py  # Save/load/resume utilities
+│   └── ...
+├── tests/             # 19 tests: quantization math, model, packing, smoke
+└── checkpoints/       # Model weights + HiFi-GAN vocoder</code><!-- HTML_TAG_END --></pre>
+<hr>
+<h2 id="next-steps--todo"><a class="heading-link" title="Permalink" aria-hidden="true" href="#next-steps--todo"><span>#</span></a>Next Steps / TODO</h2>
+<ul class="contains-task-list"><li class="task-list-item"><input type="checkbox" disabled> Multi-speaker training (VCTK, LibriTTS)</li>
+<li class="task-list-item"><input type="checkbox" disabled> ONNX/TFLite export for mobile deployment</li>
+<li class="task-list-item"><input type="checkbox" disabled> Quantize variance adaptor (currently still FP32)</li>
+<li class="task-list-item"><input type="checkbox" disabled> Streaming inference (frame-by-frame)</li>
+<li class="task-list-item"><input type="checkbox" disabled> Bahasa Indonesia support</li></ul>
+<hr>
+<h2 id="references"><a class="heading-link" title="Permalink" aria-hidden="true" href="#references"><span>#</span></a>References</h2>
+<ul><li><a href="https://arxiv.org/abs/2409.10577" rel="nofollow">BitTTS: Quantized Text-to-Speech (Kawamura et al., 2024)</a></li>
+<li><a href="https://arxiv.org/abs/2402.17764" rel="nofollow">BitNet b1.58: 1.58-bit Large Language Models (Ma et al., 2024)</a></li>
+<li><a href="https://arxiv.org/abs/2203.16852" rel="nofollow">JETS: Jointly Training FastSpeech2 and HiFi-GAN (Lim et al., 2022)</a></li>
+<li><a href="https://arxiv.org/abs/2010.05646" rel="nofollow">HiFi-GAN: Generative Adversarial Networks for Speech Synthesis (Kong et al., 2020)</a></li></ul>
+<hr>
+<p><em>Trained on an RTX 4060 while drinking coffee. A TTS model 5x smaller that can still speak clearly. Quantization is the future.</em></p></div></article>
+		</main>
+	<footer class="svelte-10xlgxj"><div class="content svelte-10xlgxj"><div class="socials svelte-10xlgxj"><div class="socials svelte-t4kqcq"><a href="https://github.com/jaweed3" target="_blank" rel="noopener noreferrer" title="GitHub — jaweed3" class="svelte-t4kqcq"><svg width="100%" height="100%" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16 22.0268V19.1568C16.0375 18.68 15.9731 18.2006 15.811 17.7506C15.6489 17.3006 15.3929 16.8902 15.06 16.5468C18.2 16.1968 21.5 15.0068 21.5 9.54679C21.4997 8.15062 20.9627 6.80799 20 5.79679C20.4558 4.5753 20.4236 3.22514 19.91 2.02679C19.91 2.02679 18.73 1.67679 16 3.50679C13.708 2.88561 11.292 2.88561 8.99999 3.50679C6.26999 1.67679 5.08999 2.02679 5.08999 2.02679C4.57636 3.22514 4.54413 4.5753 4.99999 5.79679C4.03011 6.81549 3.49251 8.17026 3.49999 9.57679C3.49999 14.9968 6.79998 16.1868 9.93998 16.5768C9.61098 16.9168 9.35725 17.3222 9.19529 17.7667C9.03334 18.2112 8.96679 18.6849 8.99999 19.1568V22.0268" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></path><path d="M9 20.0267C6 20.9999 3.5 20.0267 2 17.0267" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></path></svg></a>
+	<a href="https://linkedin.com/in/jaweed3" target="_blank" rel="noopener noreferrer" title="LinkedIn" class="svelte-t4kqcq"><svg width="100%" height="100%" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 8V16C21 18.7614 18.7614 21 16 21H8C5.23858 21 3 18.7614 3 16V8C3 5.23858 5.23858 3 8 3H16C18.7614 3 21 5.23858 21 8Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></path><path d="M7 17V13.5V10" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></path><path d="M11 17V13.75M11 10V13.75M11 13.75C11 10 17 10 17 13.75V17" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></path><path d="M7 7.01L7.01 6.99889" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></path></svg></a>
+	<a href="https://t.me/jaweed3" target="_blank" rel="noopener noreferrer" title="Telegram" class="svelte-t4kqcq"><svg width="100%" height="100%" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 5L2 12.5L9 13.5M21 5L18.5 20L9 13.5M21 5L9 13.5M9 13.5V19L12.2488 15.7229" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></path></svg></a>
+	<a href="mailto:me@jaweed.site" target="_blank" rel="noopener noreferrer" title="Email" class="svelte-t4kqcq"><svg width="100%" height="100%" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 9L12 12.5L17 9" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></path><path d="M2 17V7C2 5.89543 2.89543 5 4 5H20C21.1046 5 22 5.89543 22 7V17C22 18.1046 21.1046 19 20 19H4C2.89543 19 2 18.1046 2 17Z" stroke="currentColor" stroke-width="1.5"></path></svg></a>
+</div>
+			<a href="/rss.xml" target="_blank" rel="noopener noreferrer" title="Subscribe to my RSS Feed" class="svelte-1llmev"><svg width="100%" height="100%" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 19C12 14.8 9.2 12 5 12" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></path><path d="M19 19C19 10.6 13.4 5 5 5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></path><path d="M5 19.01L5.01 18.9989" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></path></svg></a>
+			<noscript>
+	<style>.theme-toggle {
+			display: none !important;
+		}
+	</style></noscript>
+<button class="theme-toggle svelte-niuf71" title="Toggle between light and dark theme"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24"><mask id="moon" class="svelte-niuf71"><rect x="0" y="0" width="100%" height="100%" fill="white" class="svelte-niuf71"></rect><circle cx="40" cy="8" r="11" fill="black" class="svelte-niuf71"></circle></mask><circle id="sun" cx="12" cy="12" r="11" mask="url(#moon)" class="svelte-niuf71"></circle><g id="sun-beams" class="svelte-niuf71"><line x1="12" y1="1" x2="12" y2="3" class="svelte-niuf71"></line><line x1="12" y1="21" x2="12" y2="23" class="svelte-niuf71"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" class="svelte-niuf71"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" class="svelte-niuf71"></line><line x1="1" y1="12" x2="3" y2="12" class="svelte-niuf71"></line><line x1="21" y1="12" x2="23" y2="12" class="svelte-niuf71"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36" class="svelte-niuf71"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" class="svelte-niuf71"></line></g></svg>
+	<span class="label svelte-niuf71">Auto</span>
+</button></div></div>
+</footer>
+</div>
+
+			
+			<script>
+				{
+					__sveltekit_yp7smq = {
+						env: {},
+						base: new URL(".", location).pathname.slice(0, -1),
+						element: document.currentScript.parentElement
+					};
+
+					const data = [null,{"type":"data","data":{post:{slug:"bitts",title:"BitJETS: 1.58-bit Text-to-Speech — From 12 MB to 2.5 MB",date:"2026-04-05T10:00:00.000Z",excerpt:"Training a TTS model where every convolutional weight is limited to just three values: {-1, 0, 1}. The result? A model 5x smaller (12 MB → 2.5 MB) that still produces intelligible speech.",coverImage:"\u002Fimages\u002Fposts\u002Fbitts.png",tags:["Machine Learning","TTS","Quantization","Research"],html:void 0}},"uses":{"url":1}},null];
+
+					Promise.all([
+						import("./_app/immutable/entry/start.fa72b9a7.js"),
+						import("./_app/immutable/entry/app.6cff5425.js")
+					]).then(([kit, app]) => {
+						kit.start(app, __sveltekit_yp7smq.element, {
+							node_ids: [0, 2, 5],
+							data,
+							form: null,
+							error: null
+						});
+					});
+				}
+			</script>
+		</div>
+	</body>
+</html>

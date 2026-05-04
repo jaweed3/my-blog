@@ -23,6 +23,533 @@
     </image>
     
         <item>
+          <guid>https://jaweed.site//esp</guid>
+          <title>Building ESP32-S3 Neural Vision: Edge AI for Face & Voice on an 8MB Microcontroller</title>
+          <description>An Embedded ML Engineering Case Study — On-device face detection, wake word recognition, and real-time MJPEG streaming on a $15 microcontroller with 8MB of PSRAM.</description>
+          <link>https://jaweed.site//esp</link>
+          <pubDate>Tue, 05 May 2026 10:00:00 +0000</pubDate>
+          <category>Machine Learning</category><category>Computer Vision</category><category>Embedded Systems</category><category>ESP32</category><category>Edge AI</category><category>TinyML</category><category>IoT</category><category>Case Study</category>
+          <content:encoded><![CDATA[
+            <div style="margin: 50px 0; font-style: italic;">
+              If anything looks wrong, 
+              <strong>
+                <a href="https://jaweed.site//esp">
+                  read on the site!
+                </a>
+              </strong>
+            </div>
+
+            <h2 id="why-this-project-exists"><a class="heading-link" title="Permalink" aria-hidden="true" href="#why-this-project-exists"><span>#</span></a>Why This Project Exists</h2>
+<p>Most “smart camera” projects I see fall into two camps: the Raspberry Pi crowd running Python with 4GB of RAM and a full Linux kernel, or the cloud-dependent devices that stream everything to someone else’s GPU. Neither is interesting from an embedded engineering standpoint.</p>
+<p>The question I wanted to answer: <strong>can you build a meaningful computer vision + voice pipeline on a microcontroller that costs less than the shipping fee for a Raspberry Pi?</strong></p>
+<p>The answer is yes — if you’re deliberate about every kilobyte.</p>
+<h2 id="the-hardware"><a class="heading-link" title="Permalink" aria-hidden="true" href="#the-hardware"><span>#</span></a>The Hardware</h2>
+<p>The Seeed Studio XIAO ESP32S3 Sense is a $15 board packing:</p>
+<ul><li><strong>ESP32-S3</strong>: dual-core Xtensa LX7 @ 240MHz</li>
+<li><strong>8MB PSRAM</strong> (OPI interface, 80MHz)</li>
+<li><strong>8MB Flash</strong></li>
+<li><strong>OV2640 camera</strong>: 1600x1200 max, hardware JPEG encoder</li>
+<li><strong>Digital MEMS microphone</strong>: PDM output, I2S interface</li>
+<li><strong>WiFi 2.4GHz + BLE 5.0</strong></li>
+<li><strong>MicroSD slot</strong></li></ul>
+<p>For context: 8MB of PSRAM is roughly the amount of memory a single Chrome tab uses to render the Google homepage. I needed to fit camera frame buffers, audio processing, ML model weights, and a web server in that same footprint.</p>
+<h2 id="architecture"><a class="heading-link" title="Permalink" aria-hidden="true" href="#architecture"><span>#</span></a>Architecture</h2>
+<p>I designed a dual-core FreeRTOS system with strict core pinning:</p>
+<pre class="language-undefined"><!-- HTML_TAG_START --><code class="language-undefined">Core 0 (PRO — Network I/O):      WiFi stack, HTTP Server
+Core 1 (APP — ML Processing):    Audio capture, Camera pipeline, ML inference, State machine</code><!-- HTML_TAG_END --></pre>
+<p>The key insight: <strong>WiFi and ML inference cannot share a core</strong>. The WiFi stack is soft real-time — if you starve it for even a few milliseconds you get packet loss, disconnections, and MJPEG stream corruption. Meanwhile, face detection inference can block for 100–150ms. These workloads simply cannot coexist on the same core.</p>
+<h3 id="state-machine"><a class="heading-link" title="Permalink" aria-hidden="true" href="#state-machine"><span>#</span></a>State Machine</h3>
+<pre class="language-undefined"><!-- HTML_TAG_START --><code class="language-undefined">INIT ──► AP_MODE ──► CONNECTING ──► IDLE ◄──► ACTIVE
+  │          │            │            │           │
+  └──────────┴────────────┴────────────┴───────────┘
+                       │
+                       ▼
+                     ERROR (auto-recovery)</code><!-- HTML_TAG_END --></pre>
+<p>Six states, each with entry/exit hooks and timeout triggers:</p>
+<table><thead><tr><th>State</th>
+<th>Purpose</th>
+<th>Timeout</th></tr></thead>
+<tbody><tr><td><code>INIT</code></td>
+<td>Hardware init, PSRAM allocation, sensor bringup</td>
+<td>None</td></tr>
+<tr><td><code>AP_MODE</code></td>
+<td>Captive portal WiFi setup @ 192.168.4.1</td>
+<td>None (manual)</td></tr>
+<tr><td><code>CONNECTING</code></td>
+<td>STA connection attempt with retry</td>
+<td>15s</td></tr>
+<tr><td><code>IDLE</code></td>
+<td>Online, wake word listening, camera optional</td>
+<td>None</td></tr>
+<tr><td><code>ACTIVE</code></td>
+<td>Face detection active, streaming mandatory</td>
+<td>30s → IDLE</td></tr>
+<tr><td><code>ERROR</code></td>
+<td>Auto-recovery loop</td>
+<td>5s → retry</td></tr></tbody></table>
+<p>The <code>ACTIVE → IDLE</code> timeout matters. Running face detection continuously at 240MHz draws ~300mA. On a 2000mAh battery, that’s barely 6 hours. The 30-second inactivity timeout cuts average power draw by roughly 70% in typical usage.</p>
+<h3 id="inter-task-communication"><a class="heading-link" title="Permalink" aria-hidden="true" href="#inter-task-communication"><span>#</span></a>Inter-Task Communication</h3>
+<p>I built a lightweight pub/sub system on top of FreeRTOS queues:</p>
+<pre class="language-cpp"><!-- HTML_TAG_START --><code class="language-cpp"><span class="token keyword">struct</span> <span class="token class-name">EventMessage</span> <span class="token punctuation">&#123;</span>
+    SystemEvent event<span class="token punctuation">;</span>
+    <span class="token keyword">int32_t</span> data<span class="token punctuation">[</span><span class="token number">4</span><span class="token punctuation">]</span><span class="token punctuation">;</span>   <span class="token comment">// flexible payload — bounding boxes, scores, error codes</span>
+<span class="token punctuation">&#125;</span><span class="token punctuation">;</span>
+
+<span class="token keyword">class</span> <span class="token class-name">EventBus</span> <span class="token punctuation">&#123;</span>
+    <span class="token keyword">bool</span> <span class="token function">post</span><span class="token punctuation">(</span><span class="token keyword">const</span> EventMessage<span class="token operator">&amp;</span> msg<span class="token punctuation">)</span><span class="token punctuation">;</span>          <span class="token comment">// From any task</span>
+    <span class="token keyword">bool</span> <span class="token function">postFromISR</span><span class="token punctuation">(</span><span class="token keyword">const</span> EventMessage<span class="token operator">&amp;</span> msg<span class="token punctuation">)</span><span class="token punctuation">;</span>   <span class="token comment">// ISR-safe variant</span>
+    <span class="token keyword">bool</span> <span class="token function">receive</span><span class="token punctuation">(</span>EventMessage<span class="token operator">&amp;</span> msg<span class="token punctuation">,</span> TickType_t timeout<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span class="token punctuation">;</span></code><!-- HTML_TAG_END --></pre>
+<p>No heap allocation during event dispatch. Each message is 20 bytes — the queue is allocated once at boot with a fixed capacity of 32. Memory fragmentation was my biggest fear on this platform; everything that can be statically allocated, is.</p>
+<h2 id="psram-budgeting"><a class="heading-link" title="Permalink" aria-hidden="true" href="#psram-budgeting"><span>#</span></a>PSRAM Budgeting</h2>
+<p>This is the part that took the most iteration. 8MB sounds generous until you lay out everything:</p>
+<table><thead><tr><th>Component</th>
+<th>Size</th>
+<th>Location</th>
+<th>Notes</th></tr></thead>
+<tbody><tr><td>Camera frame buffers (2×)</td>
+<td>~100KB</td>
+<td><strong>DRAM</strong></td>
+<td>HVGA JPEG, must be in DRAM for DMA</td></tr>
+<tr><td>Audio ring buffer (3s)</td>
+<td>96KB</td>
+<td>PSRAM</td>
+<td>16kHz × 16-bit × 3 seconds</td></tr>
+<tr><td>MFCC feature buffer</td>
+<td>8KB</td>
+<td>PSRAM</td>
+<td>49 frames × 40 coefficients</td></tr>
+<tr><td>TFLite tensor arena</td>
+<td>32KB</td>
+<td>PSRAM</td>
+<td>Micro speech model activations</td></tr>
+<tr><td>RGB565 conversion buffer</td>
+<td>307KB</td>
+<td>PSRAM</td>
+<td>480×320 × 2 bytes — needed for face detection input</td></tr>
+<tr><td>MTCNN model weights</td>
+<td>~250KB</td>
+<td>PSRAM</td>
+<td>Stage 1 (MSR01) + Stage 2-3 (MNP01)</td></tr>
+<tr><td>MobileFaceNet S8</td>
+<td>~400KB</td>
+<td>PSRAM</td>
+<td>112×112 face recognition, int8 quantized</td></tr>
+<tr><td>Face alignment buffer</td>
+<td>38KB</td>
+<td>PSRAM</td>
+<td>Crop + affine transform intermediate</td></tr>
+<tr><td>HTTP/WS scratch buffers</td>
+<td>~32KB</td>
+<td>PSRAM</td>
+<td>Chunked response buffers</td></tr>
+<tr><td>FreeRTOS task stacks</td>
+<td>~32KB</td>
+<td>DRAM</td>
+<td>6 tasks × ~5KB each</td></tr>
+<tr><td><strong>Total used</strong></td>
+<td><strong>~1.3MB</strong></td>
+<td>—</td>
+<td></td></tr>
+<tr><td><strong>Free</strong></td>
+<td><strong>~6.7MB</strong></td>
+<td>—</td>
+<td></td></tr></tbody></table>
+<p>The surprising takeaway: <strong>PSRAM was never the bottleneck</strong>. The real constraint was DRAM — the ESP32-S3 has only 512KB of internal SRAM. Camera DMA requires DRAM buffers. Stack space per FreeRTOS task lives in DRAM. WiFi and lwIP internals live in DRAM. By the time you account for those, you have maybe 150KB left for everything else.</p>
+<p>The RGB565 conversion buffer was the single largest allocation. Why not convert frame-by-frame in smaller tiles? Because MTCNN needs the full image for pyramid scaling. Tiling breaks multi-scale detection entirely.</p>
+<h2 id="the-camera-pipeline"><a class="heading-link" title="Permalink" aria-hidden="true" href="#the-camera-pipeline"><span>#</span></a>The Camera Pipeline</h2>
+<p>The OV2640 has a hardware JPEG encoder. This is both a blessing and a curse:</p>
+<p><strong>Good</strong>: JPEG compression offloads the CPU. A 480×320 RGB565 frame is 307KB raw — but only 40–80KB as JPEG. That difference is the difference between fitting in DRAM or not.</p>
+<p><strong>Bad</strong>: Face detection operates on raw pixels, not JPEG. So the pipeline is:</p>
+<pre class="language-undefined"><!-- HTML_TAG_START --><code class="language-undefined">OV2640 → JPEG Buffer (DRAM) → MJPEG Stream (HTTP, zero-copy)
+                              │
+                              └── JPEG → RGB565 Decode → Face Detection</code><!-- HTML_TAG_END --></pre>
+<p>The MJPEG stream uses the JPEG buffer directly — zero copy, no processing. The face detection path pays the decode cost, which is why detection runs throttled (every 3rd frame, ~5 FPS) while the stream runs at full camera framerate.</p>
+<h2 id="the-wifi-setup-problem"><a class="heading-link" title="Permalink" aria-hidden="true" href="#the-wifi-setup-problem"><span>#</span></a>The WiFi Setup Problem</h2>
+<p>Every embedded device needs to get online. For a developer, hardcoding SSID and password works. For a portfolio project? Not so much.</p>
+<p>I implemented a <strong>captive portal with DNS spoofing</strong>:</p>
+<ol><li>On first boot (or factory reset), the device starts in AP mode as <code>ESP32-S3-Setup</code></li>
+<li>A DNS server intercepts all queries and returns the device IP</li>
+<li>Any browser request lands on a WiFi setup page</li>
+<li>JavaScript scans visible networks via <code>/wifi-scan</code> API</li>
+<li>User selects network, enters password → POST to <code>/wifi-connect</code> → credentials saved to NVS → auto-reboot</li>
+<li>On reboot, NVS credentials exist → STA mode → normal operation</li></ol>
+<p>The entire captive portal page — HTML, CSS, JS — is compiled into the firmware binary as a <code>constexpr</code> string. No SPIFFS flash partition needed. No external dependencies. The entire UI is 4KB gzipped.</p>
+<h2 id="what-i-learned"><a class="heading-link" title="Permalink" aria-hidden="true" href="#what-i-learned"><span>#</span></a>What I Learned</h2>
+<h3 id="1-static-allocation-is-freedom"><a class="heading-link" title="Permalink" aria-hidden="true" href="#1-static-allocation-is-freedom"><span>#</span></a>1. Static Allocation Is Freedom</h3>
+<p>Dynamic allocation on a microcontroller with 8MB PSRAM is tempting. Don’t do it. I allocated every buffer once at boot and never called <code>free()</code>. The result: zero heap fragmentation after weeks of uptime, predictable memory usage, and no malloc-related crashes.</p>
+<h3 id="2-core-pinning-matters-more-than-priority"><a class="heading-link" title="Permalink" aria-hidden="true" href="#2-core-pinning-matters-more-than-priority"><span>#</span></a>2. Core Pinning Matters More Than Priority</h3>
+<p>I initially tried to balance WiFi and ML on the same core with different priorities. It doesn’t work. WiFi needs uninterrupted time slices. ML inference is a blocking wall of compute. These aren’t priority issues — they’re scheduling incompatibilities. Pinning them to separate cores fixed stability issues I’d been debugging for days.</p>
+<h3 id="3-hardware-jpeg-changes-everything"><a class="heading-link" title="Permalink" aria-hidden="true" href="#3-hardware-jpeg-changes-everything"><span>#</span></a>3. Hardware JPEG Changes Everything</h3>
+<p>Before I understood the OV2640’s hardware encoder, I was planning to stream raw RGB565 frames. That would have been 5× the bandwidth, 3× the PSRAM usage, and significantly lower framerate. Hardware accelerators aren’t optional extras — they’re the difference between a working product and a toy.</p>
+<h3 id="4-psram-latency-is-real"><a class="heading-link" title="Permalink" aria-hidden="true" href="#4-psram-latency-is-real"><span>#</span></a>4. PSRAM Latency Is Real</h3>
+<p>PSRAM on the ESP32-S3 has ~40ns access latency vs ~10ns for internal SRAM. For sequential access (audio ring buffer), this barely matters. For random access (ML model inference on scattered tensors), the 4× latency penalty compounds. Profile before you allocate — some buffers belong in DRAM even when PSRAM is “free.”</p>
+<h2 id="code-structure"><a class="heading-link" title="Permalink" aria-hidden="true" href="#code-structure"><span>#</span></a>Code Structure</h2>
+<p>The project uses PlatformIO with 4 build environments:</p>
+<pre class="language-bash"><!-- HTML_TAG_START --><code class="language-bash">pio run <span class="token parameter variable">-e</span> full          <span class="token comment"># Integrated firmware</span>
+pio run <span class="token parameter variable">-e</span> test_cam      <span class="token comment"># Camera + WiFi + Stream only</span>
+pio run <span class="token parameter variable">-e</span> test_mic      <span class="token comment"># Microphone recording only</span>
+pio run <span class="token parameter variable">-e</span> test_wifi     <span class="token comment"># WiFi manager + Captive portal only</span></code><!-- HTML_TAG_END --></pre>
+<p>Each test environment compiles a single module in isolation — critical for debugging hardware without tearing down the entire firmware.</p>
+<p>Source: <a href="https://github.com/jaweed3/esp32" rel="nofollow">github.com/jaweed3/esp32</a></p>
+<h2 id="whats-next"><a class="heading-link" title="Permalink" aria-hidden="true" href="#whats-next"><span>#</span></a>What’s Next</h2>
+<p>The foundation is solid. The roadmap:</p>
+<ul><li><strong>Phase 3</strong>: TFLite Micro wake word detection (micro_speech model, 22KB)</li>
+<li><strong>Phase 4</strong>: ESP-DL MTCNN face detection with WebSocket bounding box events</li>
+<li><strong>Phase 5</strong>: Full SPA dashboard with real-time detection overlay</li>
+<li><strong>Phase 6</strong>: Face recognition via MobileFaceNet S8 — enroll, match, database management</li>
+<li><strong>Phase 7</strong>: OTA firmware updates, production hardening</li></ul>
+<p>Each phase is a standalone feature that can be tested, benchmarked, and demoed independently.</p>
+<h2 id="tech-stack"><a class="heading-link" title="Permalink" aria-hidden="true" href="#tech-stack"><span>#</span></a>Tech Stack</h2>
+<p><code>C++17</code> <code>FreeRTOS</code> <code>PlatformIO</code> <code>ESP-IDF</code> <code>esp32-camera</code> <code>ESP-DL</code> <code>TFLite Micro</code> <code>MTCNN</code> <code>MobileFaceNet</code> <code>I2S PDM</code> <code>MJPEG</code> <code>DNS Captive Portal</code> <code>NVS Preferences</code> <code>Arduino Framework</code></p>
+<hr>
+<p><em>This is part of a series documenting my journey into on-device ML and embedded computer vision. The hardware costs less than lunch — the learning was priceless.</em></p>
+          ]]></content:encoded>
+          <media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="https://jaweed.site///images/posts/esp32.png"/>
+          <media:content xmlns:media="http://search.yahoo.com/mrss/" medium="image" url="https://jaweed.site///images/posts/esp32.png"/>          
+        </item>
+      
+        <item>
+          <guid>https://jaweed.site//retakid</guid>
+          <title>Building Retak.id: On-Device ML for Landslide Early Detection</title>
+          <description>An ML Engineering Case Study — From Zero to 85% Accuracy in 72 Hours. On-device soil crack classification with TFLite for landslide-prone regions.</description>
+          <link>https://jaweed.site//retakid</link>
+          <pubDate>Fri, 01 May 2026 10:00:00 +0000</pubDate>
+          <category>Machine Learning</category><category>Computer Vision</category><category>TFLite</category><category>Android</category><category>Case Study</category>
+          <content:encoded><![CDATA[
+            <div style="margin: 50px 0; font-style: italic;">
+              If anything looks wrong, 
+              <strong>
+                <a href="https://jaweed.site//retakid">
+                  read on the site!
+                </a>
+              </strong>
+            </div>
+
+            <h1 id="building-retakid-on-device-ml-for-landslide-early-detection"><a class="heading-link" title="Permalink" aria-hidden="true" href="#building-retakid-on-device-ml-for-landslide-early-detection"><span>#</span></a>Building Retak.id: On-Device ML for Landslide Early Detection</h1>
+<p><strong>An ML Engineering Case Study — From Zero to 85% Accuracy in 72 Hours</strong></p>
+<hr>
+<h2 id="what-i-built"><a class="heading-link" title="Permalink" aria-hidden="true" href="#what-i-built"><span>#</span></a>What I Built</h2>
+<p>Retak.id is an Android app that classifies soil crack severity from a single photo — offline, on-device, in real-time. Three classes: <strong>AMAN</strong> (safe), <strong>WASPADA</strong> (caution), <strong>BAHAYA</strong> (danger). Built for Jenangan, Ponorogo — a region hit by 41 landslides in 4 months due to illegal mining.</p>
+<p><strong>My role:</strong> ML Engineer — end-to-end pipeline from data acquisition to TFLite deployment.</p>
+<p><strong>Stack:</strong> Python, TensorFlow/Keras, MobileNetV2/V3, INT8 Quantization, TFLite, MLflow, DVC, DagsHub, Docker, uv</p>
+<hr>
+<h2 id="the-architecture"><a class="heading-link" title="Permalink" aria-hidden="true" href="#the-architecture"><span>#</span></a>The Architecture</h2>
+<pre class="language-undefined"><!-- HTML_TAG_START --><code class="language-undefined">Camera → Bitmap (any resolution)
+  → Resize 224×224 → uint8 [0,255]
+  → TFLite INT8 Model (2.6MB)
+  → AMAN / WASPADA / BAHAYA + confidence
+  → No internet required. 0ms server latency. Works in rural Ponorogo.</code><!-- HTML_TAG_END --></pre>
+<p>Key decisions:</p>
+<ul><li><strong>On-device inference, not cloud.</strong> Landslide-prone areas have poor connectivity. A cloud API is useless if users can’t reach it. TFLite runs on any Android 7.0+ device.</li>
+<li><strong>INT8 quantization.</strong> Drops model from 14MB FP32 to 2.6MB — fits in a single APK. Inference latency <code>&lt;50ms</code> on a Pixel 4a.</li>
+<li><strong>Config-driven pipeline.</strong> Single <code>training.yaml</code> controls everything. Exact reproducibility for competition judges.</li></ul>
+<hr>
+<h2 id="the-data-problem"><a class="heading-link" title="Permalink" aria-hidden="true" href="#the-data-problem"><span>#</span></a>The Data Problem</h2>
+<p>Soil crack datasets don’t exist. There’s no ImageNet for Indonesian landslides. We had to build our own.</p>
+<h3 id="scraping"><a class="heading-link" title="Permalink" aria-hidden="true" href="#scraping"><span>#</span></a>Scraping</h3>
+<p>70+ search queries across DuckDuckGo. Built a custom scraper with:</p>
+<ul><li>Perceptual hash deduplication (pHash, Hamming distance  <code>&lt;</code> 6)</li>
+<li>Laplacian blur detection (reject images  <code>&lt;</code> threshold)</li>
+<li>Rotating user agents + exponential backoff</li>
+<li>12-thread parallel download with random delays</li></ul>
+<h3 id="annotation-strategy"><a class="heading-link" title="Permalink" aria-hidden="true" href="#annotation-strategy"><span>#</span></a>Annotation Strategy</h3>
+<p>Manual triage into 3 classes by domain knowledge (not me — the team geologist). Critical insight: <strong>retakan kemarau (dry season cracks) ≠ landslide warning signs.</strong> We initially mislabeled these as WASPADA. Fixing this single labeling error jumped accuracy 3%.</p>
+<pre class="language-undefined"><!-- HTML_TAG_START --><code class="language-undefined">v1 dataset: 4,522 images (noisy BAHAYA labels)
+v2 dataset: 3,545 images (cleaned, balanced)
+Result:     73% → 85% accuracy from data cleaning alone</code><!-- HTML_TAG_END --></pre>
+<p>Lesson: <strong>Label quality beats dataset size. Always audit your annotations before tuning hyperparameters.</strong></p>
+<hr>
+<h2 id="the-model-journey"><a class="heading-link" title="Permalink" aria-hidden="true" href="#the-model-journey"><span>#</span></a>The Model Journey</h2>
+<h3 id="iteration-1-baseline-transfer-learning"><a class="heading-link" title="Permalink" aria-hidden="true" href="#iteration-1-baseline-transfer-learning"><span>#</span></a>Iteration 1: Baseline Transfer Learning</h3>
+<pre class="language-undefined"><!-- HTML_TAG_START --><code class="language-undefined">MobileNetV2 (frozen) + classification head
+LR 1e-4, dropout 0.3, basic augmentation
+→ 73.0% test accuracy</code><!-- HTML_TAG_END --></pre>
+<p>Standard transfer learning. Decent, but WASPADA F1 was 0.56. The model couldn’t distinguish subtle warning signs from severe cracks.</p>
+<h3 id="iteration-2-fine-tuning"><a class="heading-link" title="Permalink" aria-hidden="true" href="#iteration-2-fine-tuning"><span>#</span></a>Iteration 2: Fine-Tuning</h3>
+<pre class="language-undefined"><!-- HTML_TAG_START --><code class="language-undefined">MobileNetV2 (layers 100+ unfrozen, 54 layers, 1.87M params)
+LR 1e-5, dropout 0.5
+→ 76.7% test accuracy</code><!-- HTML_TAG_END --></pre>
+<p>Unfreezing half the model helped, but 1.87M trainable params on 2,500 training images = overfitting. AMAN F1 dropped. Too aggressive.</p>
+<h3 id="iteration-3-conservative-fine-tuning"><a class="heading-link" title="Permalink" aria-hidden="true" href="#iteration-3-conservative-fine-tuning"><span>#</span></a>Iteration 3: Conservative Fine-Tuning</h3>
+<pre class="language-undefined"><!-- HTML_TAG_START --><code class="language-undefined">MobileNetV2 (layers 130+ unfrozen, 24 layers, 800K params)
+LR 5e-6, dropout 0.5, aggressive augmentation
+→ 81.8% test accuracy</code><!-- HTML_TAG_END --></pre>
+<p>The sweet spot. Fewer trainable params + slower learning = better generalization. WASPADA F1 recovered to 0.64.</p>
+<h3 id="iteration-4-data-quality-fix"><a class="heading-link" title="Permalink" aria-hidden="true" href="#iteration-4-data-quality-fix"><span>#</span></a>Iteration 4: Data Quality Fix</h3>
+<pre class="language-undefined"><!-- HTML_TAG_START --><code class="language-undefined">Same config. Cleaned dataset (BAHAYA noise removed).
+→ 84.9% test accuracy. WASPADA F1 0.68+. INT8 agreement 93.75%.</code><!-- HTML_TAG_END --></pre>
+<p><strong>The biggest single improvement didn’t come from model architecture — it came from fixing bad labels.</strong></p>
+<hr>
+<h2 id="reproducibility-by-design"><a class="heading-link" title="Permalink" aria-hidden="true" href="#reproducibility-by-design"><span>#</span></a>Reproducibility by Design</h2>
+<p>Every decision made with reproducibility in mind:</p>
+<pre class="language-bash"><!-- HTML_TAG_START --><code class="language-bash"><span class="token comment"># Anyone can reproduce the exact model:</span>
+<span class="token function">git</span> clone https://github.com/jaweed3/retakId.git
+<span class="token function">bash</span> scripts/bootstrap.sh    <span class="token comment"># auto-installs Python, deps, pulls data</span>
+<span class="token function">make</span> <span class="token function">split</span> <span class="token operator">&amp;&amp;</span> <span class="token function">make</span> train      <span class="token comment"># produces identical model.tflite</span></code><!-- HTML_TAG_END --></pre>
+<ul><li><strong>Fixed seeds everywhere</strong> (Python, NumPy, TensorFlow, data split)</li>
+<li><strong>uv.lock</strong> pins all 200+ dependencies</li>
+<li><strong>DVC + DagsHub</strong> for dataset versioning (S3-compatible, free tier)</li>
+<li><strong>Docker</strong> for hermetic training environment</li>
+<li><strong>MLflow</strong> (DagsHub hosted) — every experiment logged: params, metrics, artifacts</li></ul>
+<hr>
+<h2 id="experiment-tracking-infrastructure"><a class="heading-link" title="Permalink" aria-hidden="true" href="#experiment-tracking-infrastructure"><span>#</span></a>Experiment Tracking Infrastructure</h2>
+<p>Built a grid search system that:</p>
+<ul><li>Defines parameter grids in YAML (<code>grid_search.yaml</code>)</li>
+<li>Auto-generates experiment configs (cartesian product + exclude rules)</li>
+<li>Runs with resume support (SSH disconnect → re-run, skips completed)</li>
+<li>Logs everything to DagsHub MLflow (view from phone)</li></ul>
+<pre class="language-undefined"><!-- HTML_TAG_START --><code class="language-undefined">24 experiments × 15 min = ~6 hours on CPU, ~1 hour on GPU
+Compare in MLflow UI: accuracy vs dropout vs fine_tune_at vs learning_rate</code><!-- HTML_TAG_END --></pre>
+<p>No more CSV files. No more “which config produced 81%?“. Every run traceable.</p>
+<hr>
+<h2 id="what-id-do-differently"><a class="heading-link" title="Permalink" aria-hidden="true" href="#what-id-do-differently"><span>#</span></a>What I’d Do Differently</h2>
+<ol><li><p><strong>Active learning for annotation.</strong> Instead of random sampling, use model uncertainty to prioritize which images to label next. Would have caught the AMAN/WASPADA confusion earlier.</p></li>
+<li><p><strong>Test-time augmentation.</strong> Average predictions across 5-10 augmented versions for +1-2% free accuracy. Didn’t implement due to mobile latency constraints.</p></li>
+<li><p><strong>Model distillation.</strong> Train a larger teacher model (EfficientNetB3), distill to MobileNetV3. Could push 90%+ while keeping  <code>&lt;</code> 5MB.</p></li>
+<li><p><strong>Start with data audit, not hyperparameter tuning.</strong> 80% of the accuracy gains came from fixing labels, not tweaking learning rates. I learned this the hard way.</p></li></ol>
+<hr>
+<h2 id="technical-skills-demonstrated"><a class="heading-link" title="Permalink" aria-hidden="true" href="#technical-skills-demonstrated"><span>#</span></a>Technical Skills Demonstrated</h2>
+<table><thead><tr><th>Area</th>
+<th>What I Did</th></tr></thead>
+<tbody><tr><td><strong>Computer Vision</strong></td>
+<td>Fine-tuned MobileNetV2/V3/EfficientNet for 3-class soil crack classification</td></tr>
+<tr><td><strong>Model Optimization</strong></td>
+<td>INT8 PTQ (14MB → 2.6MB), FP32 vs INT8 comparison (93.75% agreement)</td></tr>
+<tr><td><strong>ML Infrastructure</strong></td>
+<td>Config-driven pipeline, MLflow experiment tracking, DVC data versioning, Docker</td></tr>
+<tr><td><strong>Data Engineering</strong></td>
+<td>Custom web scraper with dedup + quality filtering, dataset validation toolkit</td></tr>
+<tr><td><strong>Reproducibility</strong></td>
+<td>Seed management, dependency locking, one-command bootstrap</td></tr>
+<tr><td><strong>Hyperparameter Tuning</strong></td>
+<td>Grid search engine with auto-generation + resume support</td></tr>
+<tr><td><strong>Deployment</strong></td>
+<td>TFLite export + inference contract for Android (Kotlin integration spec)</td></tr>
+<tr><td><strong>Collaboration</strong></td>
+<td>Git/GitHub, task docs per team member, DagsHub for shared MLflow + DVC</td></tr></tbody></table>
+<hr>
+<h2 id="links"><a class="heading-link" title="Permalink" aria-hidden="true" href="#links"><span>#</span></a>Links</h2>
+<ul><li><strong>Code:</strong> <a href="https://github.com/jaweed3/retakId" rel="nofollow">github.com/jaweed3/retakId</a></li>
+<li><strong>Experiments:</strong> <a href="https://dagshub.com/jaweed3/retakId.mlflow" rel="nofollow">dagshub.com/jaweed3/retakId.mlflow</a></li>
+<li><strong>Dataset:</strong> <a href="https://dagshub.com/jaweed3/retakId" rel="nofollow">dagshub.com/jaweed3/retakId</a></li>
+<li><strong>Competition:</strong> IYREF 2026 Semi-Final — Climate Resilience &amp; Local Wisdom</li></ul>
+<hr>
+<p><em>Built in collaboration with Farrel (Data Acquisition) and Adam (Android Development). May 2026.</em></p>
+          ]]></content:encoded>
+          <media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="https://jaweed.site///images/posts/retakId.png"/>
+          <media:content xmlns:media="http://search.yahoo.com/mrss/" medium="image" url="https://jaweed.site///images/posts/retakId.png"/>          
+        </item>
+      
+        <item>
+          <guid>https://jaweed.site//bitts</guid>
+          <title>BitJETS: 1.58-bit Text-to-Speech — From 12 MB to 2.5 MB</title>
+          <description>Training a TTS model where every convolutional weight is limited to just three values: {-1, 0, 1}. The result? A model 5x smaller (12 MB → 2.5 MB) that still produces intelligible speech.</description>
+          <link>https://jaweed.site//bitts</link>
+          <pubDate>Sun, 05 Apr 2026 10:00:00 +0000</pubDate>
+          <category>Machine Learning</category><category>TTS</category><category>Quantization</category><category>Research</category>
+          <content:encoded><![CDATA[
+            <div style="margin: 50px 0; font-style: italic;">
+              If anything looks wrong, 
+              <strong>
+                <a href="https://jaweed.site//bitts">
+                  read on the site!
+                </a>
+              </strong>
+            </div>
+
+            <blockquote><p><strong>TL;DR:</strong> I trained a TTS model where all convolutional weights are just three values: <code>{-1, 0, 1}</code>. The result? A model 5x smaller (12 MB → 2.5 MB) that still sounds intelligible. Built from <a href="https://arxiv.org/abs/2402.17764" rel="nofollow">BitNet b1.58</a> + <a href="https://arxiv.org/abs/2203.16852" rel="nofollow">JETS</a>, trained on an RTX 4060.</p></blockquote>
+<hr>
+<h2 id="why-this-is-interesting"><a class="heading-link" title="Permalink" aria-hidden="true" href="#why-this-is-interesting"><span>#</span></a>Why This Is Interesting</h2>
+<p>Imagine TTS models like Tortoise, VITS, or NaturalSpeech. They’re good, but huge — hundreds of megabytes, even gigabytes. What if we build a TTS model that’s <strong>just a few megabytes</strong> but can still speak clearly?</p>
+<p>This isn’t just about “making it small for the sake of it.” A small model means:</p>
+<ul><li><strong>Edge deployment</strong> — runs on phones, smart speakers, embedded devices</li>
+<li><strong>Real-time inference</strong> — low latency because there are no floating-point multiply operations</li>
+<li><strong>Cheap storage</strong> — fits in embedded flash memory</li>
+<li><strong>Energy efficient</strong> — perfect for always-on devices</li></ul>
+<p>The <a href="https://arxiv.org/abs/2409.10577" rel="nofollow">BitTTS paper (Kawamura et al., 2024)</a> answers this with a radical approach: <strong>quantize all convolutional layers to 1.58-bit ternary weights</strong> <code>{-1, 0, 1}</code>.</p>
+<hr>
+<h2 id="what-does-158-bit-mean"><a class="heading-link" title="Permalink" aria-hidden="true" href="#what-does-158-bit-mean"><span>#</span></a>What Does 1.58-bit Mean?</h2>
+<p>Imagine a normal neural network: every weight is a 32-bit float. In BitNet, weights are quantized to just <strong>three values</strong>:</p>
+<pre class="language-undefined"><!-- HTML_TAG_START --><code class="language-undefined">&#123;-1, 0, 1&#125;</code><!-- HTML_TAG_END --></pre>
+<p>Why call it 1.58-bit? Because <code>log₂(3) ≈ 1.585</code>. In information theory terms, each ternary “trit” stores ~1.58 bits of information.</p>
+<p>During inference, weight × activation multiplication becomes an <strong>add/subtract/ignore</strong> operation — no floating-point multiplies at all. Hardware can run this blazingly fast.</p>
+<h3 id="how-quantization-works-ste"><a class="heading-link" title="Permalink" aria-hidden="true" href="#how-quantization-works-ste"><span>#</span></a>How Quantization Works (STE)</h3>
+<pre class="language-undefined"><!-- HTML_TAG_START --><code class="language-undefined">Forward pass:
+  W_real (float32) → W_ternary = round(clip(W_real / β, -1, 1))
+  Conv uses W_ternary
+
+Backward pass (Straight-Through Estimator):
+  Gradients flow to W_real, NOT to W_ternary
+  ∇W_real = ∇W_ternary  (treat round() as identity during backward)</code><!-- HTML_TAG_END --></pre>
+<p>Real weights (<code>W_real</code>) are still stored as float32 and updated by the optimizer. Quantization only happens in the forward pass. This is called <strong>Quantization-Aware Training (QAT)</strong> — the model learns to produce representations that are robust to quantization noise.</p>
+<hr>
+<h2 id="architecture"><a class="heading-link" title="Permalink" aria-hidden="true" href="#architecture"><span>#</span></a>Architecture</h2>
+<pre class="language-undefined"><!-- HTML_TAG_START --><code class="language-undefined">Text → Embedding → BitEncoder (4× BitConvBlock) → VarianceAdaptor → BitDecoder (4× BitConvBlock) → Mel → HiFi-GAN → Audio
+       1.58-bit                                         dur predictor         1.58-bit              FP32</code><!-- HTML_TAG_END --></pre>
+<h3 id="bitconvblock--the-quantized-unit"><a class="heading-link" title="Permalink" aria-hidden="true" href="#bitconvblock--the-quantized-unit"><span>#</span></a>BitConvBlock — The Quantized Unit</h3>
+<p>Each convolution layer is wrapped with:</p>
+<ol><li><strong>LayerNorm (Sub-LN)</strong> — normalization before quantization, stabilizes input distribution</li>
+<li><strong>BitConv1d</strong> — weight quantization <code>{-1, 0, 1}</code> + 8-bit activation quantization</li>
+<li><strong>Residual connection</strong> — skip connection helps gradient flow</li></ol>
+<pre class="language-python"><!-- HTML_TAG_START --><code class="language-python"><span class="token keyword">class</span> <span class="token class-name">BitConvBlock</span><span class="token punctuation">(</span>nn<span class="token punctuation">.</span>Module<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">def</span> <span class="token function">forward</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> x<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        x_norm <span class="token operator">=</span> self<span class="token punctuation">.</span>layer_norm<span class="token punctuation">(</span>x<span class="token punctuation">)</span>        <span class="token comment"># Sub-LN normalization</span>
+        x_t <span class="token operator">=</span> x_norm<span class="token punctuation">.</span>transpose<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">)</span>       <span class="token comment"># B,T,C → B,C,T</span>
+        out <span class="token operator">=</span> self<span class="token punctuation">.</span>bit_conv<span class="token punctuation">(</span>x_t<span class="token punctuation">)</span>           <span class="token comment"># Quantized conv</span>
+        <span class="token keyword">return</span> out<span class="token punctuation">.</span>transpose<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">)</span>         <span class="token comment"># Back to B,T,C</span></code><!-- HTML_TAG_END --></pre>
+<h3 id="weight-packing--algorithm-1"><a class="heading-link" title="Permalink" aria-hidden="true" href="#weight-packing--algorithm-1"><span>#</span></a>Weight Packing — Algorithm 1</h3>
+<p>During deployment, ternary weights are compressed using base-3 block encoding:</p>
+<pre class="language-undefined"><!-- HTML_TAG_START --><code class="language-undefined">5 ternary values → 1 byte (uint8)
+  3^5 = 243 ≤ 256 ✓
+
+Conv1d(256, 256, k=5):
+  FP32:   256×256×5×4 bytes = 1,280 KB
+  uint8:  256×256×5×1 bytes =   320 KB
+  Packed: 256×256×5÷5 bytes =    64 KB  ← 20x smaller!</code><!-- HTML_TAG_END --></pre>
+<hr>
+<h2 id="results"><a class="heading-link" title="Permalink" aria-hidden="true" href="#results"><span>#</span></a>Results</h2>
+<h3 id="model-size"><a class="heading-link" title="Permalink" aria-hidden="true" href="#model-size"><span>#</span></a>Model Size</h3>
+<table><thead><tr><th>Format</th>
+<th>Size</th></tr></thead>
+<tbody><tr><td>FP32 (baseline)</td>
+<td>12.10 MB</td></tr>
+<tr><td>Packed (actual)</td>
+<td><strong>2.52 MB</strong></td></tr>
+<tr><td>Compression</td>
+<td><strong>79.2% reduction</strong></td></tr></tbody></table>
+<h3 id="inference-speed-rtx-4060"><a class="heading-link" title="Permalink" aria-hidden="true" href="#inference-speed-rtx-4060"><span>#</span></a>Inference Speed (RTX 4060)</h3>
+<table><thead><tr><th>Input Length</th>
+<th>Latency</th>
+<th>RTF</th></tr></thead>
+<tbody><tr><td>10 chars</td>
+<td>3.2 ms</td>
+<td>0.0047×</td></tr>
+<tr><td>30 chars</td>
+<td>5.8 ms</td>
+<td>0.0046×</td></tr>
+<tr><td>60 chars</td>
+<td>10.2 ms</td>
+<td>0.0046×</td></tr></tbody></table>
+<p>RTF &lt; 1.0 means <strong>faster than real-time</strong>. On an RTX 4060, inference is 200× faster than audio duration. Even on CPU it’s still real-time because there are no multiply operations.</p>
+<h3 id="parameter-distribution"><a class="heading-link" title="Permalink" aria-hidden="true" href="#parameter-distribution"><span>#</span></a>Parameter Distribution</h3>
+<ul><li><strong>92.9%</strong> parameters in BitConv1d (1.58-bit)</li>
+<li><strong>7.1%</strong> parameters in Embedding, LayerNorm, Linear (FP32)</li></ul>
+<p>This is maximum efficiency — nearly all parameters can be quantized, leaving only the components that truly need full precision.</p>
+<hr>
+<h2 id="training"><a class="heading-link" title="Permalink" aria-hidden="true" href="#training"><span>#</span></a>Training</h2>
+<h3 id="setup"><a class="heading-link" title="Permalink" aria-hidden="true" href="#setup"><span>#</span></a>Setup</h3>
+<pre class="language-bash"><!-- HTML_TAG_START --><code class="language-bash"><span class="token function">git</span> clone <span class="token operator">&lt;</span>repo<span class="token operator">></span> <span class="token operator">&amp;&amp;</span> <span class="token builtin class-name">cd</span> bitts
+<span class="token function">chmod</span> +x scripts/*.sh
+./scripts/bootstrap.sh    <span class="token comment"># one-command: uv + CUDA + LJSpeech + HiFi-GAN</span>
+./scripts/train.sh <span class="token parameter variable">--resume</span>   <span class="token comment"># start training</span></code><!-- HTML_TAG_END --></pre>
+<h3 id="configuration"><a class="heading-link" title="Permalink" aria-hidden="true" href="#configuration"><span>#</span></a>Configuration</h3>
+<table><thead><tr><th>Hyperparameter</th>
+<th>Value</th></tr></thead>
+<tbody><tr><td>Dataset</td>
+<td>LJSpeech (~24 hours, single speaker)</td></tr>
+<tr><td>Batch size</td>
+<td>32</td></tr>
+<tr><td>Learning rate</td>
+<td>2e-4</td></tr>
+<tr><td>LR schedule</td>
+<td>Exponential decay (γ=0.9973/step)</td></tr>
+<tr><td>Optimizer</td>
+<td>AdamW (β₁=0.8, β₂=0.99)</td></tr>
+<tr><td>Total steps</td>
+<td>500,000</td></tr>
+<tr><td>Hardware</td>
+<td>RTX 4060 8GB</td></tr></tbody></table>
+<h3 id="training-loop-highlights"><a class="heading-link" title="Permalink" aria-hidden="true" href="#training-loop-highlights"><span>#</span></a>Training Loop Highlights</h3>
+<pre class="language-python"><!-- HTML_TAG_START --><code class="language-python"><span class="token comment"># Loss filter: skip batch if loss explodes</span>
+<span class="token keyword">if</span> loss<span class="token punctuation">.</span>item<span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">></span> <span class="token number">15.0</span> <span class="token keyword">or</span> torch<span class="token punctuation">.</span>isnan<span class="token punctuation">(</span>loss<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">continue</span>
+
+<span class="token comment"># Robust gradient accumulation — track accum_count yourself</span>
+<span class="token punctuation">(</span>loss <span class="token operator">/</span> ACCUM_STEPS<span class="token punctuation">)</span><span class="token punctuation">.</span>backward<span class="token punctuation">(</span><span class="token punctuation">)</span>
+accum_count <span class="token operator">+=</span> <span class="token number">1</span>
+
+<span class="token comment"># Gradient clipping</span>
+clip_grad_norm_<span class="token punctuation">(</span>model<span class="token punctuation">.</span>parameters<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token number">1.0</span><span class="token punctuation">)</span></code><!-- HTML_TAG_END --></pre>
+<h3 id="checkpoint-system"><a class="heading-link" title="Permalink" aria-hidden="true" href="#checkpoint-system"><span>#</span></a>Checkpoint System</h3>
+<ul><li><code>latest.pth</code> — full state, overwritten every step (for resume)</li>
+<li><code>bitjets_ckpt_N.pth</code> — snapshot every 10K steps</li>
+<li><code>bitjets_packed_N.pth</code> — compressed version (Algorithm 1)</li></ul>
+<hr>
+<h2 id="why-hifi-gan-fp32-for-the-vocoder"><a class="heading-link" title="Permalink" aria-hidden="true" href="#why-hifi-gan-fp32-for-the-vocoder"><span>#</span></a>Why HiFi-GAN (FP32) for the Vocoder?</h2>
+<p>The BitTTS paper explicitly mentions: <strong>quantizing vocoder waveform generation layers causes severe audio degradation</strong> (Section 3.2). Vocoders need full precision to reconstruct waveforms from mel spectrograms. But since the vocoder is only ~53 MB and a preprocessing step, this doesn’t significantly impact the total pipeline.</p>
+<hr>
+<h2 id="wandb-integration"><a class="heading-link" title="Permalink" aria-hidden="true" href="#wandb-integration"><span>#</span></a>WandB Integration</h2>
+<p>Training integrates with <a href="https://wandb.ai" rel="nofollow">Weights &amp; Biases</a> for monitoring:</p>
+<ul><li>Loss curves (mel, duration, total)</li>
+<li>Gradient norm</li>
+<li>Learning rate</li>
+<li>Parameter histograms</li></ul>
+<p>Optional — can be disabled with <code>--no-wandb</code> or by leaving <code>WANDB_API_KEY</code> empty in <code>.env</code>.</p>
+<hr>
+<h2 id="how-to-use"><a class="heading-link" title="Permalink" aria-hidden="true" href="#how-to-use"><span>#</span></a>How to Use</h2>
+<table><thead><tr><th>Command</th>
+<th>Purpose</th></tr></thead>
+<tbody><tr><td><code>./scripts/bootstrap.sh</code></td>
+<td>Setup environment (one-time)</td></tr>
+<tr><td><code>./scripts/train.sh --resume</code></td>
+<td>Resume training</td></tr>
+<tr><td><code>./scripts/train.sh --resume --no-wandb</code></td>
+<td>Offline training</td></tr>
+<tr><td><code>./scripts/train.sh --preset high</code></td>
+<td>Training bs=64 (faster)</td></tr>
+<tr><td><code>./scripts/infer.sh --text &quot;hello world&quot;</code></td>
+<td>Generate audio</td></tr>
+<tr><td><code>./scripts/demo.sh</code></td>
+<td>Generate showcase artifacts</td></tr></tbody></table>
+<hr>
+<h2 id="demo"><a class="heading-link" title="Permalink" aria-hidden="true" href="#demo"><span>#</span></a>Demo</h2>
+<pre class="language-bash"><!-- HTML_TAG_START --><code class="language-bash"><span class="token comment"># Generate 6 audio samples + benchmark + spectrogram</span>
+./scripts/demo.sh</code><!-- HTML_TAG_END --></pre>
+<p>Output in <code>demo_output/</code>:</p>
+<ul><li>6 sample WAV files (varied text: short, long, technical)</li>
+<li><code>benchmark.txt</code> — latency, RTF, model size</li>
+<li><code>mel_spectrogram.png</code> — mel spectrogram visualization</li>
+<li><code>summary.txt</code> — summary of all artifacts</li></ul>
+<hr>
+<h2 id="project-structure"><a class="heading-link" title="Permalink" aria-hidden="true" href="#project-structure"><span>#</span></a>Project Structure</h2>
+<pre class="language-undefined"><!-- HTML_TAG_START --><code class="language-undefined">bitts/
+├── main.py            # CLI: train / infer / benchmark / sample
+├── scripts/
+│   ├── bootstrap.sh   # One-command setup
+│   ├── train.sh       # Training launcher
+│   ├── infer.sh       # Inference launcher
+│   └── demo.sh        # Showcase generator
+├── src/
+│   ├── layers.py      # BitConv1d, BitConvBlock, quant functions
+│   ├── models.py      # BitJETS, BitEncoder, BitDecoder, VarianceAdaptor
+│   ├── train.py       # Training loop (step-based, infinite dataloader)
+│   ├── packing.py     # Algorithm 1 weight indexing
+│   ├── checkpoint.py  # Save/load/resume utilities
+│   └── ...
+├── tests/             # 19 tests: quantization math, model, packing, smoke
+└── checkpoints/       # Model weights + HiFi-GAN vocoder</code><!-- HTML_TAG_END --></pre>
+<hr>
+<h2 id="next-steps--todo"><a class="heading-link" title="Permalink" aria-hidden="true" href="#next-steps--todo"><span>#</span></a>Next Steps / TODO</h2>
+<ul class="contains-task-list"><li class="task-list-item"><input type="checkbox" disabled> Multi-speaker training (VCTK, LibriTTS)</li>
+<li class="task-list-item"><input type="checkbox" disabled> ONNX/TFLite export for mobile deployment</li>
+<li class="task-list-item"><input type="checkbox" disabled> Quantize variance adaptor (currently still FP32)</li>
+<li class="task-list-item"><input type="checkbox" disabled> Streaming inference (frame-by-frame)</li>
+<li class="task-list-item"><input type="checkbox" disabled> Bahasa Indonesia support</li></ul>
+<hr>
+<h2 id="references"><a class="heading-link" title="Permalink" aria-hidden="true" href="#references"><span>#</span></a>References</h2>
+<ul><li><a href="https://arxiv.org/abs/2409.10577" rel="nofollow">BitTTS: Quantized Text-to-Speech (Kawamura et al., 2024)</a></li>
+<li><a href="https://arxiv.org/abs/2402.17764" rel="nofollow">BitNet b1.58: 1.58-bit Large Language Models (Ma et al., 2024)</a></li>
+<li><a href="https://arxiv.org/abs/2203.16852" rel="nofollow">JETS: Jointly Training FastSpeech2 and HiFi-GAN (Lim et al., 2022)</a></li>
+<li><a href="https://arxiv.org/abs/2010.05646" rel="nofollow">HiFi-GAN: Generative Adversarial Networks for Speech Synthesis (Kong et al., 2020)</a></li></ul>
+<hr>
+<p><em>Trained on an RTX 4060 while drinking coffee. A TTS model 5x smaller that can still speak clearly. Quantization is the future.</em></p>
+          ]]></content:encoded>
+          <media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="https://jaweed.site///images/posts/bitts.png"/>
+          <media:content xmlns:media="http://search.yahoo.com/mrss/" medium="image" url="https://jaweed.site///images/posts/bitts.png"/>          
+        </item>
+      
+        <item>
           <guid>https://jaweed.site//customization</guid>
           <title>How to Customize this Template</title>
           <description>How to customize what you're seeing here and make it your own.</description>
