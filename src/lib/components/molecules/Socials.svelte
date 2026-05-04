@@ -3,48 +3,38 @@
 	import GitHubIcon from '$lib/icons/socials/github.svelte';
 	import LinkedInIcon from '$lib/icons/socials/linkedin.svelte';
 	import EmailIcon from '$lib/icons/socials/email.svelte';
-	import RssIcon from '$lib/icons/rss.svelte';
-	import MastodonIcon from '$lib/icons/socials/mastodon.svelte';
 </script>
 
 <div class="socials">
 	<a
-		href="#"
+		href="https://github.com/jaweed3"
 		target="_blank"
 		rel="noopener noreferrer"
-		title="Say Hi on Telegram"
-	>
-		<TelegramIcon />
-	</a>
-	<a
-		href="#"
-		target="_blank"
-		rel="me noreferrer"
-		title="Say Hi on Mastodon"
-	>
-		<MastodonIcon />
-	</a>
-	<a
-		href="#"
-		target="_blank"
-		rel="noopener noreferrer"
-		title="See my GitHub profile"
+		title="GitHub — jaweed3"
 	>
 		<GitHubIcon />
 	</a>
 	<a
-		href="#"
+		href="https://linkedin.com/in/jaweed3"
 		target="_blank"
 		rel="noopener noreferrer"
-		title="Connect on LinkedIn"
+		title="LinkedIn"
 	>
 		<LinkedInIcon />
 	</a>
 	<a
-		href="#"
+		href="https://t.me/jaweed3"
 		target="_blank"
 		rel="noopener noreferrer"
-		title="Send an email"
+		title="Telegram"
+	>
+		<TelegramIcon />
+	</a>
+	<a
+		href="mailto:me@jaweed.site"
+		target="_blank"
+		rel="noopener noreferrer"
+		title="Email"
 	>
 		<EmailIcon />
 	</a>

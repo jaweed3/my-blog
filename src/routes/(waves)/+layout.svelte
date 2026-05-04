@@ -1,5 +1,4 @@
 <script>
-	import Waves from '$lib/components/organisms/Waves.svelte';
 	import Header from '$lib/components/organisms/Header.svelte';
 	import Footer from '$lib/components/organisms/Footer.svelte';
 
@@ -7,7 +6,7 @@
 </script>
 
 <svelte:head>
-	<link rel="“canonical”" href={siteBaseUrl} />
+	<link rel="canonical" href={siteBaseUrl} />
 	<meta name="keywords" content={keywords.join(', ')} />
 
 	<meta name="description" content={description} />
@@ -23,8 +22,6 @@
 
 	<meta name="twitter:card" content="summary_large_image" />
 </svelte:head>
-
-<Waves />
 
 <Header />
 

@@ -14,7 +14,7 @@ export type TagType = {
 }
 
 export type SocialLink = {
-  
+
 }
 
 export type Feature = {
@@ -38,3 +38,21 @@ export type BlogPost = {
   relatedPosts: BlogPost[],
   coverImage: string | undefined
 }
+
+export type Project = {
+  title: string;
+  slug: string;
+  description: string;
+  excerpt: string;
+  coverImage: string;
+  tags: string[];
+  techStack: string[];
+  github?: string;
+  demo?: string;
+  paper?: string;
+  date: string;
+  status: 'active' | 'wip' | 'archived';
+  featured: boolean;
+  hidden: boolean;
+  html: string | undefined;
+};

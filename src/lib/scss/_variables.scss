@@ -1,8 +1,9 @@
 :root {
 	// Fonts
-	--font--default: Inter, sans-serif;
-	--font--title: Merriweather, serif;
-	--font--mono: Ubuntu Mono, monospace;
+	--font--default: 'JetBrains Mono', monospace;
+	--font--title: 'JetBrains Mono', monospace;
+	--font--heading: 'JetBrains Mono', monospace;
+	--font--mono: 'JetBrains Mono', monospace;
 
 	// Grabbed from open-props.style
 	--ease-3: cubic-bezier(0.25, 0, 0.3, 1);

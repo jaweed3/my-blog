@@ -9,11 +9,7 @@
 	export let rel = isExternalLink ? 'noopener noreferrer' : undefined;
 
 	$: tag = href ? 'a' : 'article';
-	$: linkProps = {
-		href,
-		target,
-		rel
-	};
+	$: linkProps = { href, target, rel };
 </script>
 
 <svelte:element
@@ -43,10 +39,10 @@
 <style lang="scss">
 	.card {
 		background: var(--color--card-background);
-		box-shadow: var(--card-shadow);
 		color: var(--color--text);
-		border-radius: 10px;
-		transition: all 0.4s ease;
+		border: 1px solid rgba(var(--color--primary-rgb), 0.12);
+		border-radius: 4px;
+		transition: border-color 0.2s ease;
 		position: relative;
 		overflow: hidden;
 		width: 100%;
@@ -61,8 +57,7 @@
 		&[onclick] {
 			cursor: pointer;
 			&:hover {
-				box-shadow: var(--card-shadow-hover);
-				transform: scale(1.01);
+				border-color: var(--color--primary);
 			}
 		}
 	}
@@ -85,7 +80,6 @@
 	.image {
 		position: relative;
 		flex: 1 0 max(50%, 330px);
-		// height: min(100%, 300px);
 		min-height: 280px;
 		max-height: 350px;
 	}

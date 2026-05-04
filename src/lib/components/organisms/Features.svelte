@@ -7,9 +7,9 @@
 </script>
 
 <ContentSection
-	id="features"
-	title="Features"
-	description="Here are some of the features of this template"
+	id="projects"
+	title="Projects"
+	description="Things I've built — from Edge AI to MLOps pipelines"
 >
 	<div class="features-container">
 		<div class="three-group-grid">

@@ -1,76 +1,53 @@
 <script>
-	import FeaturesIcon from '$lib/icons/features.svelte';
-	import GitHubIcon from '$lib/icons/socials/github.svelte';
-	import Button from '$lib/components/atoms/Button.svelte';
-	import Sparkles from '../atoms/Sparkles.svelte';
 </script>
 
 <section id="hero">
-	<h1 class="hello">This is a SvelteKit Static Blog Template!</h1>
-	<p class="intro">
-		<span class="left">It supports Markdown,</span>
-		<span class="right">and is really fast.</span>
-	</p>
-	<div class="ctas">
-		<Sparkles>
-			<Button href="https://github.com/matfantinel/sveltekit-static-blog-template">
-				<GitHubIcon slot="icon" />
-				Source Code
-			</Button>
-		</Sparkles>
-		<Button color="primary" href="https://histoire-sveltekit-static-blog-template.vercel.app/">
-			<FeaturesIcon slot="icon" />
-			Components
-		</Button>
-	</div>
+	<h1>Jawwad</h1>
+	<p class="sub">Computer Engineer — Edge ML &amp; MLOps</p>
+	<nav class="links">
+		<a href="/blog">Blog</a>
+		<span>/</span>
+		<a href="/projects">Projects</a>
+		<span>/</span>
+		<a href="https://github.com/jaweed3" target="_blank" rel="noopener noreferrer">GitHub</a>
+	</nav>
 </section>
 
 <style lang="scss">
 	@import '$lib/scss/breakpoints.scss';
 
 	#hero {
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		align-items: center;
-		gap: 15px;
-		position: relative;
-		padding: 80px 0;
+		padding: 80px 0 60px;
 
-		@include for-phone-only {
-			padding: 40px 0 50px;
+		h1 {
+			font-size: 2rem;
+			font-weight: 700;
+			margin: 0 0 8px;
 		}
 
-		.hello {
-			text-align: center;
+		.sub {
+			color: var(--color--text-shade);
+			font-size: 0.95rem;
+			margin: 0 0 24px;
 		}
 
-		.intro {
-			font-weight: 500;
-			font-size: 1.4rem;
-			width: min(100%, 440px);
+		.links {
 			display: flex;
-			flex-direction: column;
+			gap: 12px;
+			font-size: 0.9rem;
 
-			.left {
-				text-align: left;
-			}
-			.right {
-				text-align: right;
+			a {
+				color: var(--color--primary);
+				text-decoration: none;
+
+				&:hover {
+					text-decoration: underline;
+				}
 			}
 
-			@include for-phone-only {
-				display: none;
+			span {
+				color: var(--color--text-shade);
 			}
-		}
-
-		.ctas {
-			display: flex;
-			flex-wrap: wrap;
-			align-items: center;
-			justify-content: center;
-			gap: 10px;
-			width: 100%;
 		}
 	}
 </style>

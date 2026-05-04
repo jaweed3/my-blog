@@ -2,7 +2,7 @@
 // even if not directly used in this file
 // eslint-disable-next-line no-unused-vars
 import Prism from 'prismjs';
-// Here we assign it to a variable so the import above 
+// Here we assign it to a variable so the import above
 // is not removed automatically on build
 const ifYouRemoveMeTheBuildFails = Prism;
 import 'prism-svelte';
@@ -31,7 +31,7 @@ export const importPosts = (render = false) => {
 }
 
 export const filterPosts = (posts: BlogPost[]) => {
-  return posts.filter((post) => !post.hidden)
+  return posts.filter((post) => !post.hidden && !(post as any).techStack)
     .sort((a, b) =>
       new Date(a.date).getTime() > new Date(b.date).getTime()
         ? -1
