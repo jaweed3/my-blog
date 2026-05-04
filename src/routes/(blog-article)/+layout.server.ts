@@ -1,11 +1,11 @@
-import { filteredPosts } from '$lib/data/blog-posts';
+import { importPosts } from '$lib/data/blog-posts/utils';
 
 export async function load({ url }: { url: { pathname: string } }) {
   const { pathname } = url;
   const slug = pathname.replace('/', '');
-  const post = filteredPosts.find((post) => post.slug === slug);
+  // Use importPosts(false) to avoid render errors — we only need metadata
+  const allPosts = importPosts(false);
+  const post = allPosts.find((post: any) => post.slug === slug);
 
-  return {
-    post
-  };
+  return { post };
 }

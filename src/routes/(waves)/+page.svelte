@@ -13,7 +13,7 @@
 
 	{#if posts && posts.length > 0}
 		<section>
-			<h2>Writing</h2>
+			<h2>Posts</h2>
 			<ul class="post-list">
 				{#each posts as post}
 					<li>
@@ -29,25 +29,25 @@
 
 <style lang="scss">
 	section {
-		padding-bottom: 50px;
+		padding-bottom: 40px;
 
 		h2 {
-			font-size: 1.1rem;
+			font-size: 1rem;
 			font-weight: 600;
-			margin-bottom: 16px;
+			margin: 0 0 12px;
 		}
 	}
 
 	.post-list {
 		list-style: none;
 		padding: 0;
-		margin: 0 0 16px;
+		margin: 0 0 12px;
 
 		li {
 			display: flex;
 			justify-content: space-between;
 			align-items: baseline;
-			padding: 6px 0;
+			padding: 4px 0;
 			border-bottom: 1px solid rgba(var(--color--primary-rgb), 0.06);
 		}
 
