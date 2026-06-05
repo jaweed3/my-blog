@@ -158,20 +158,8 @@
 
   /* ── Content Body (Global Styling for {@html} slot) ── */
   :global(.content) {
-    display: grid;
-    grid-template-columns: 1fr min(65ch, 100%) 1fr;
-
-    > * {
-      grid-column: 2;
-    }
-
-    > .full-bleed {
-      grid-column: 1 / 4;
-      width: 100%;
-      max-width: 1600px;
-      margin-left: auto;
-      margin-right: auto;
-    }
+    max-width: 720px;
+    margin: 0 auto;
   }
 
   :global(.content a) {
