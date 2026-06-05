@@ -61,7 +61,7 @@
 		justify-content: space-between;
 		width: 100%;
 		font-size: 1.2rem;
-		font-family: var(--font--title);
+		font-family: var(--font-body);
 		font-weight: 700;
 	}
 
@@ -74,7 +74,7 @@
 
 	.note {
 		font-size: 0.8rem;
-		color: rgba(var(--color--text-rgb), 0.8);
+		color: var(--muted);
 	}
 
 	.text {
