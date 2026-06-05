@@ -1,6 +1,4 @@
 <script lang="ts">
-  import Header from '$lib/components/organisms/Header.svelte';
-  import Footer from '$lib/components/organisms/Footer.svelte';
   import { title } from '$lib/data/meta';
   import type { BlogPost } from '$lib/utils/types';
   import dateformat from 'dateformat';
@@ -13,40 +11,34 @@
   <title>Blog — {title}</title>
 </svelte:head>
 
-<Header showBackground={true} />
+<div class="container">
+  <section class="page-header">
+    <span class="section-label">Blog</span>
+    <h1>All Posts</h1>
+    <p class="page-subtitle">
+      Engineering case studies — real systems, honest results, production scars.
+    </p>
+  </section>
 
-<main>
-  <div class="container">
-    <section class="page-header">
-      <span class="section-label">Blog</span>
-      <h1>All Posts</h1>
-      <p class="page-subtitle">
-        Engineering case studies — real systems, honest results, production scars.
-      </p>
-    </section>
-
-    <div class="posts-index">
-      {#each posts as post, i}
-        <a href="/{post.slug}" class="post-row">
-          <span class="post-num">{String(i + 1).padStart(2, '0')}</span>
-          <div class="post-info">
-            <span class="post-title">{post.title}</span>
-            <span class="post-meta-line">
-              <span class="post-date">{dateformat(post.date, 'UTC:dd mmm yyyy')}</span>
-              {#if post.readingTime}
-                <span class="meta-sep">·</span>
-                <span class="post-reading">{post.readingTime}</span>
-              {/if}
-            </span>
-          </div>
-          <span class="post-arrow">→</span>
-        </a>
-      {/each}
-    </div>
+  <div class="posts-index">
+    {#each posts as post, i}
+      <a href="/{post.slug}" class="post-row">
+        <span class="post-num">{String(i + 1).padStart(2, '0')}</span>
+        <div class="post-info">
+          <span class="post-title">{post.title}</span>
+          <span class="post-meta-line">
+            <span class="post-date">{dateformat(post.date, 'UTC:dd mmm yyyy')}</span>
+            {#if post.readingTime}
+              <span class="meta-sep">·</span>
+              <span class="post-reading">{post.readingTime}</span>
+            {/if}
+          </span>
+        </div>
+        <span class="post-arrow">→</span>
+      </a>
+    {/each}
   </div>
-</main>
-
-<Footer />
+</div>
 
 <style lang="scss">
   @import '$lib/scss/breakpoints.scss';
