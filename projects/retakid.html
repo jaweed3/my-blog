@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+
+		<!-- Favicon -->
+		<link
+			rel="apple-touch-icon"
+			sizes="180x180"
+			href="../favicons/apple-touch-icon.png"
+		/>
+		<link
+			rel="icon"
+			type="image/png"
+			sizes="32x32"
+			href="../favicons/favicon-32x32.png"
+		/>
+		<link
+			rel="icon"
+			type="image/png"
+			sizes="16x16"
+			href="../favicons/favicon-16x16.png"
+		/>
+		<link rel="manifest" href="../favicons/site.webmanifest" />
+		<link
+			rel="mask-icon"
+			href="../favicons/safari-pinned-tab.svg"
+			color="#0ca4a5"
+		/>
+		<link rel="shortcut icon" href="../favicons/favicon.ico" />
+		<link rel="icon" href="../favicons/favicon.png" />
+
+		<!-- Tell browser this site is responsive -->
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<!-- Tell browser this site supports light and dark mode -->
+		<meta name="color-scheme" content="light dark" />
+		<!-- Color for browser url bar in mobile/Safari -->
+		<meta name="theme-color" media="(prefers-color-scheme: light)" content="#b28cf2" />
+		<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#4612A1" />
+		<!-- Disable Google FLOC -->
+		<meta http-equiv="Permissions-Policy" content="interest-cohort=()" />
+
+		<script>
+			// Calling this here so that it loads as quickly as possible
+			// Avoiding a flash of light mode in case dark mode is used
+			const theme = localStorage.getItem('theme-preference') || 'auto';
+			document.firstElementChild?.setAttribute('data-theme', theme);
+		</script>
+
+		<meta http-equiv="content-security-policy" content="">
+		<link href="../_app/immutable/assets/_layout.c5ebb86e.css" rel="stylesheet">
+		<link rel="modulepreload" href="../_app/immutable/entry/start.42ed6412.js">
+		<link rel="modulepreload" href="../_app/immutable/chunks/index.d4d37321.js">
+		<link rel="modulepreload" href="../_app/immutable/chunks/index.b0575e0b.js">
+		<link rel="modulepreload" href="../_app/immutable/entry/app.978d45df.js">
+		<link rel="modulepreload" href="../_app/immutable/entry/_layout.svelte.260fabb2.js">
+		<link rel="modulepreload" href="../_app/immutable/entry/_layout.ts.984db11e.js">
+		<link rel="modulepreload" href="../_app/immutable/chunks/_layout.da46b06b.js">
+		<link rel="modulepreload" href="../_app/immutable/entry/projects-retakid-page.md.601b41de.js">
+	</head>
+	<body data-sveltekit-preload-data="hover">
+		<div id="svelte-root">
+<h2 id="problem"><a class="heading-link" title="Permalink" aria-hidden="true" href="#problem"><span>#</span></a>Problem</h2>
+<p>Jenangan, Ponorogo. 41 landslides in 4 months. Illegal mining strips vegetation, destabilizes slopes. Roads cut off. Communities isolated.</p>
+<p>Local disaster agency (BPBD) lacks real-time field data. Existing solutions — IoT sensors, satellite imagery, drone surveys — are too expensive and can’t reach rural villages.</p>
+<p><strong>What if every citizen with a smartphone could detect landslides before they happen?</strong></p>
+<h2 id="solution"><a class="heading-link" title="Permalink" aria-hidden="true" href="#solution"><span>#</span></a>Solution</h2>
+<p><strong>Retak.id</strong> — an Android + Web platform that classifies soil crack severity from a single photo, computes multi-factor risk in real-time, aggregates citizen reports, and feeds verified data back into model retraining.</p>
+<pre class="language-undefined"><!-- HTML_TAG_START --><code class="language-undefined">Point camera → Take photo → Instant risk level → Live dashboard → Verify → Retrain</code><!-- HTML_TAG_END --></pre>
+<p>All ML inference runs <strong>fully offline on-device</strong> — no internet required in deep rural slopes.</p>
+<h2 id="business-impact"><a class="heading-link" title="Permalink" aria-hidden="true" href="#business-impact"><span>#</span></a>Business Impact</h2>
+<table><thead><tr><th>Before</th>
+<th>After</th></tr></thead>
+<tbody><tr><td>Zero early warning system in rural areas</td>
+<td>Free app turns phones into landslide sensors</td></tr>
+<tr><td>BPBD relies on manual reports (hours late)</td>
+<td>Real-time dashboard with geotagged reports</td></tr>
+<tr><td>IoT sensor deployment: $500+/location</td>
+<td>Zero infrastructure cost — uses existing smartphones</td></tr>
+<tr><td>Satellite imagery: $1000+/km², days to process</td>
+<td>Instant AI analysis, 300ms per photo</td></tr></tbody></table>
+<h2 id="results"><a class="heading-link" title="Permalink" aria-hidden="true" href="#results"><span>#</span></a>Results</h2>
+<ul><li><strong>84.9% test accuracy</strong> on 3-class soil crack classification (AMAN / WASPADA / BAHAYA)</li>
+<li><strong>2.6MB INT8 model</strong> — fits on any Android 8+ device</li>
+<li><strong>Sub-50ms inference</strong> on mid-range phones (Pixel 4a)</li>
+<li><strong>5-factor risk engine</strong> combines ML vision (50%) + slope (20%) + rainfall (15%) + elevation (10%) + soil type (5%)</li>
+<li><strong>3,547 training samples</strong> across 3 classes, manually annotated</li>
+<li><strong>Human-in-the-loop verification</strong> — every admin correction becomes training data</li>
+<li><strong>Delta OTA updates</strong> — 70-90% bandwidth savings for model updates in rural areas with limited connectivity</li>
+<li>IYREF 2026 Semi-Finalist</li></ul>
+
+			
+			<script>
+				{
+					__sveltekit_1oc1pa7 = {
+						env: {},
+						base: new URL("..", location).pathname.slice(0, -1),
+						element: document.currentScript.parentElement
+					};
+
+					const data = [null,null];
+
+					Promise.all([
+						import("../_app/immutable/entry/start.42ed6412.js"),
+						import("../_app/immutable/entry/app.978d45df.js")
+					]).then(([kit, app]) => {
+						kit.start(app, __sveltekit_1oc1pa7.element, {
+							node_ids: [0, 21],
+							data,
+							form: null,
+							error: null
+						});
+					});
+				}
+			</script>
+		</div>
+	</body>
+</html>

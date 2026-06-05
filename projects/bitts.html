@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+
+		<!-- Favicon -->
+		<link
+			rel="apple-touch-icon"
+			sizes="180x180"
+			href="../favicons/apple-touch-icon.png"
+		/>
+		<link
+			rel="icon"
+			type="image/png"
+			sizes="32x32"
+			href="../favicons/favicon-32x32.png"
+		/>
+		<link
+			rel="icon"
+			type="image/png"
+			sizes="16x16"
+			href="../favicons/favicon-16x16.png"
+		/>
+		<link rel="manifest" href="../favicons/site.webmanifest" />
+		<link
+			rel="mask-icon"
+			href="../favicons/safari-pinned-tab.svg"
+			color="#0ca4a5"
+		/>
+		<link rel="shortcut icon" href="../favicons/favicon.ico" />
+		<link rel="icon" href="../favicons/favicon.png" />
+
+		<!-- Tell browser this site is responsive -->
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<!-- Tell browser this site supports light and dark mode -->
+		<meta name="color-scheme" content="light dark" />
+		<!-- Color for browser url bar in mobile/Safari -->
+		<meta name="theme-color" media="(prefers-color-scheme: light)" content="#b28cf2" />
+		<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#4612A1" />
+		<!-- Disable Google FLOC -->
+		<meta http-equiv="Permissions-Policy" content="interest-cohort=()" />
+
+		<script>
+			// Calling this here so that it loads as quickly as possible
+			// Avoiding a flash of light mode in case dark mode is used
+			const theme = localStorage.getItem('theme-preference') || 'auto';
+			document.firstElementChild?.setAttribute('data-theme', theme);
+		</script>
+
+		<meta http-equiv="content-security-policy" content="">
+		<link href="../_app/immutable/assets/_layout.c5ebb86e.css" rel="stylesheet">
+		<link rel="modulepreload" href="../_app/immutable/entry/start.42ed6412.js">
+		<link rel="modulepreload" href="../_app/immutable/chunks/index.d4d37321.js">
+		<link rel="modulepreload" href="../_app/immutable/chunks/index.b0575e0b.js">
+		<link rel="modulepreload" href="../_app/immutable/entry/app.978d45df.js">
+		<link rel="modulepreload" href="../_app/immutable/entry/_layout.svelte.260fabb2.js">
+		<link rel="modulepreload" href="../_app/immutable/entry/_layout.ts.984db11e.js">
+		<link rel="modulepreload" href="../_app/immutable/chunks/_layout.da46b06b.js">
+		<link rel="modulepreload" href="../_app/immutable/entry/projects-bitts-page.md.abb2557e.js">
+	</head>
+	<body data-sveltekit-preload-data="hover">
+		<div id="svelte-root">
+<h2 id="problem"><a class="heading-link" title="Permalink" aria-hidden="true" href="#problem"><span>#</span></a>Problem</h2>
+<p>Text-to-speech models are notoriously large. A standard FP32 TTS model consumes 10-50MB, making them impossible to deploy on:</p>
+<ul><li>IoT devices with limited flash storage</li>
+<li>Automotive head units without cloud connectivity</li>
+<li>Assistive devices for visually impaired users</li>
+<li>Offline navigation systems</li></ul>
+<p>Existing quantization techniques reduce size but degrade voice quality significantly.</p>
+<h2 id="solution"><a class="heading-link" title="Permalink" aria-hidden="true" href="#solution"><span>#</span></a>Solution</h2>
+<p>BitJETS-M4 implements <strong>1.58-bit ternary quantization</strong> (BitNet b1.58) on the JETS TTS architecture. All convolutional layers use ternary weights <code>{-1, 0, 1}</code> with quantization-aware training (QAT) via Straight-Through Estimator.</p>
+<pre class="language-undefined"><!-- HTML_TAG_START --><code class="language-undefined">Text → [Embedding] → [BitEncoder × 4] → [VarianceAdaptor] → [BitDecoder × 4] → [Mel] → [HiFi-GAN] → Audio
+                       1.58-bit QAT                             1.58-bit QAT              FP32</code><!-- HTML_TAG_END --></pre>
+<h2 id="business-impact"><a class="heading-link" title="Permalink" aria-hidden="true" href="#business-impact"><span>#</span></a>Business Impact</h2>
+<table><thead><tr><th>Before</th>
+<th>After</th></tr></thead>
+<tbody><tr><td>12.4MB FP32 model — too large for most edge devices</td>
+<td>2.5MB packed model — fits on any modern microcontroller</td></tr>
+<tr><td>Cloud dependency for voice synthesis</td>
+<td>Fully on-device, zero latency, zero bandwidth</td></tr>
+<tr><td>45ms+ inference on edge CPU</td>
+<td>Real-time — faster than real-time (RTF less than 0.005)</td></tr>
+<tr><td>Limited to connected devices</td>
+<td>Works anywhere — car, airplane, remote areas</td></tr></tbody></table>
+<h2 id="results"><a class="heading-link" title="Permalink" aria-hidden="true" href="#results"><span>#</span></a>Results</h2>
+<ul><li><strong>79% compression</strong> — 12.4MB FP32 → 2.5MB packed (Algorithm 1)</li>
+<li><strong>5x smaller</strong> than equivalent FP32 model</li>
+<li><strong>Real-time performance</strong> — 3.2ms for short utterances, 10ms for long</li>
+<li><strong>Cross-platform</strong>: RTX 4060, Apple M-series, CPU</li>
+<li>Full JETS architecture with HiFi-GAN vocoder</li></ul>
+
+			
+			<script>
+				{
+					__sveltekit_1oc1pa7 = {
+						env: {},
+						base: new URL("..", location).pathname.slice(0, -1),
+						element: document.currentScript.parentElement
+					};
+
+					const data = [null,null];
+
+					Promise.all([
+						import("../_app/immutable/entry/start.42ed6412.js"),
+						import("../_app/immutable/entry/app.978d45df.js")
+					]).then(([kit, app]) => {
+						kit.start(app, __sveltekit_1oc1pa7.element, {
+							node_ids: [0, 16],
+							data,
+							form: null,
+							error: null
+						});
+					});
+				}
+			</script>
+		</div>
+	</body>
+</html>

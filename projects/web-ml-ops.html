@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+
+		<!-- Favicon -->
+		<link
+			rel="apple-touch-icon"
+			sizes="180x180"
+			href="../favicons/apple-touch-icon.png"
+		/>
+		<link
+			rel="icon"
+			type="image/png"
+			sizes="32x32"
+			href="../favicons/favicon-32x32.png"
+		/>
+		<link
+			rel="icon"
+			type="image/png"
+			sizes="16x16"
+			href="../favicons/favicon-16x16.png"
+		/>
+		<link rel="manifest" href="../favicons/site.webmanifest" />
+		<link
+			rel="mask-icon"
+			href="../favicons/safari-pinned-tab.svg"
+			color="#0ca4a5"
+		/>
+		<link rel="shortcut icon" href="../favicons/favicon.ico" />
+		<link rel="icon" href="../favicons/favicon.png" />
+
+		<!-- Tell browser this site is responsive -->
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<!-- Tell browser this site supports light and dark mode -->
+		<meta name="color-scheme" content="light dark" />
+		<!-- Color for browser url bar in mobile/Safari -->
+		<meta name="theme-color" media="(prefers-color-scheme: light)" content="#b28cf2" />
+		<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#4612A1" />
+		<!-- Disable Google FLOC -->
+		<meta http-equiv="Permissions-Policy" content="interest-cohort=()" />
+
+		<script>
+			// Calling this here so that it loads as quickly as possible
+			// Avoiding a flash of light mode in case dark mode is used
+			const theme = localStorage.getItem('theme-preference') || 'auto';
+			document.firstElementChild?.setAttribute('data-theme', theme);
+		</script>
+
+		<meta http-equiv="content-security-policy" content="">
+		<link href="../_app/immutable/assets/_layout.c5ebb86e.css" rel="stylesheet">
+		<link rel="modulepreload" href="../_app/immutable/entry/start.42ed6412.js">
+		<link rel="modulepreload" href="../_app/immutable/chunks/index.d4d37321.js">
+		<link rel="modulepreload" href="../_app/immutable/chunks/index.b0575e0b.js">
+		<link rel="modulepreload" href="../_app/immutable/entry/app.978d45df.js">
+		<link rel="modulepreload" href="../_app/immutable/entry/_layout.svelte.260fabb2.js">
+		<link rel="modulepreload" href="../_app/immutable/entry/_layout.ts.984db11e.js">
+		<link rel="modulepreload" href="../_app/immutable/chunks/_layout.da46b06b.js">
+		<link rel="modulepreload" href="../_app/immutable/entry/projects-web-ml-ops-page.md.95b1b246.js">
+	</head>
+	<body data-sveltekit-preload-data="hover">
+		<div id="svelte-root">
+<h2 id="problem"><a class="heading-link" title="Permalink" aria-hidden="true" href="#problem"><span>#</span></a>Problem</h2>
+<p>ML teams in production face recurring infrastructure gaps:</p>
+<ul><li><strong>Data versioning</strong>: “Which dataset was this model trained on?”</li>
+<li><strong>Experiment tracking</strong>: “Which hyperparameters produced the best result?”</li>
+<li><strong>Model monitoring</strong>: “Is my model performance degrading in production?”</li>
+<li><strong>Reproducibility</strong>: “Can I rebuild the exact same pipeline?”</li></ul>
+<p>Without proper MLOps infrastructure, these questions go unanswered — leading to wasted compute, unreproducible research, and silent production failures.</p>
+<h2 id="solution"><a class="heading-link" title="Permalink" aria-hidden="true" href="#solution"><span>#</span></a>Solution</h2>
+<p>web-ml-ops provides a complete, Dockerized MLOps pipeline:</p>
+<pre class="language-undefined"><!-- HTML_TAG_START --><code class="language-undefined">DVC (Data Versioning)
+    ↓
+YOLOv8n Training → MLflow (Experiment Tracking)
+    ↓
+ONNX / TFLite INT8 Export
+    ↓
+FastAPI Inference Server
+    ↓
+Prometheus + Grafana (Live Monitoring)</code><!-- HTML_TAG_END --></pre>
+<h2 id="business-impact"><a class="heading-link" title="Permalink" aria-hidden="true" href="#business-impact"><span>#</span></a>Business Impact</h2>
+<table><thead><tr><th>Before</th>
+<th>After</th></tr></thead>
+<tbody><tr><td>Data stored in random folders — no versioning</td>
+<td>DVC-tracked datasets with full lineage</td></tr>
+<tr><td>Experiments lost in notebook history</td>
+<td>MLflow UI with every run logged</td></tr>
+<tr><td>Silent model degradation in production</td>
+<td>Prometheus alerts on metric drift</td></tr>
+<tr><td>Hours to reproduce old results</td>
+<td>One-command <code>docker-compose up</code></td></tr></tbody></table>
+<h2 id="results"><a class="heading-link" title="Permalink" aria-hidden="true" href="#results"><span>#</span></a>Results</h2>
+<ul><li><strong>Data versioning</strong> with DVC + remote S3 storage</li>
+<li><strong>Experiment tracking</strong> with MLflow (params, metrics, artifacts)</li>
+<li><strong>Model serving</strong> via FastAPI with ONNX Runtime</li>
+<li><strong>Live monitoring</strong> with pre-built Prometheus + Grafana dashboards</li>
+<li><strong>Fully containerized</strong> — <code>docker-compose up</code> to run the entire stack</li>
+<li><strong>Multi-format export</strong>: ONNX, TFLite INT8 for edge deployment</li></ul>
+
+			
+			<script>
+				{
+					__sveltekit_1oc1pa7 = {
+						env: {},
+						base: new URL("..", location).pathname.slice(0, -1),
+						element: document.currentScript.parentElement
+					};
+
+					const data = [null,null];
+
+					Promise.all([
+						import("../_app/immutable/entry/start.42ed6412.js"),
+						import("../_app/immutable/entry/app.978d45df.js")
+					]).then(([kit, app]) => {
+						kit.start(app, __sveltekit_1oc1pa7.element, {
+							node_ids: [0, 23],
+							data,
+							form: null,
+							error: null
+						});
+					});
+				}
+			</script>
+		</div>
+	</body>
+</html>
