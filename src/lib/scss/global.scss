@@ -8,35 +8,30 @@
 @import '$lib/scss/_typography.scss';
 @import '$lib/scss/_markdown.scss';
 @import '$lib/scss/_code-highlights.scss';
-
-@import '@fontsource/jetbrains-mono';
-@import '@fontsource/jetbrains-mono/400.css';
-@import '@fontsource/jetbrains-mono/500.css';
-@import '@fontsource/jetbrains-mono/600.css';
-@import '@fontsource/jetbrains-mono/700.css';
+@import '$lib/scss/_animations.scss';
 
 body {
-	background-color: var(--color--page-background);
-	color: var(--color--text);
-	fill: var(--color--text);
-	transition: background-color 0.3s ease, color 0.3s ease;
-	font-family: var(--font--default);
-	line-height: 1.5;
-	scroll-behavior: smooth;
-
-	height: 100%;
-	min-height: 100vh;
-	width: 100%;
-	overflow-x: hidden;
+  background-color: var(--bg);
+  color: var(--text);
+  fill: var(--text);
+  transition: background-color 0.3s ease, color 0.3s ease;
+  font-family: var(--font-body);
+  font-size: 18px;
+  line-height: 1.7;
+  scroll-behavior: smooth;
+  height: 100%;
+  min-height: 100vh;
+  width: 100%;
+  overflow-x: hidden;
 }
 
 html {
-	scroll-behavior: smooth;
-	font-size: 18px;
-	width: 100%;
+  scroll-behavior: smooth;
+  font-size: 18px;
+  width: 100%;
 }
 
 #svelte-root {
-	height: 100%;
-	position: relative;
+  height: 100%;
+  position: relative;
 }

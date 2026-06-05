@@ -1,87 +1,35 @@
-@import '$lib/scss/_mixins.scss';
-
 @mixin base-theme {
-	@include define-color('primary', #4F46E5);
-	@include define-color('primary-shade', #A5B4FC);
-	@include define-color('primary-tint', #EEF2FF);
-
-	@include define-color('secondary', #0891B2);
-	@include define-color('secondary-shade', #67E8F9);
-	@include define-color('secondary-tint', #ECFEFF);
-
-	@include define-color('yellow', #F59E0B);
-
-	@include define-color('text', #1E293B);
-	@include define-color('text-shade', #64748B);
-	@include define-color('text-inverse', #FFFFFF);
-	@include define-color('text-inverse-shade', #94A3B8);
-
-	@include define-color('page-background', #FFFFFF);
-	@include define-color('post-page-background', #FFFFFF);
-	@include define-color('card-background', #FFFFFF);
-
-	@include define-color('callout-background', #F8FAFC);
-	@include define-color('callout-background--info', #EFF6FF);
-	@include define-color('callout-accent--info', #3B82F6);
-	@include define-color('callout-background--warning', #FFFBEB);
-	@include define-color('callout-accent--warning', #F59E0B);
-	@include define-color('callout-background--error', #FEF2F2);
-	@include define-color('callout-accent--error', #EF4444);
-	@include define-color('callout-background--success', #ECFDF5);
-	@include define-color('callout-accent--success', #10B981);
-
-	@include define-color('code-background', #1E293B);
-	@include define-color('code-text', #F1F5F9);
-	@include define-color('code-inline-background', #E2E8F0);
-
-	--card-shadow: none;
-	--card-shadow-hover: none;
-	--image-shadow: none;
+  --bg: #0A0A0A;
+  --surface: #111111;
+  --border: #2A2A2A;
+  --text: #E8E8E0;
+  --muted: #606060;
+  --accent: #F5E642;
+  --accent-2: #FF3B00;
+  --code: #A8FF60;
 }
 
-@mixin dark-theme {
-	@include define-color('primary', #818CF8);
-	@include define-color('primary-shade', #3730A3);
-	@include define-color('primary-tint', #1E1B4B);
-
-	@include define-color('secondary', #22D3EE);
-	@include define-color('secondary-shade', #155E75);
-	@include define-color('secondary-tint', #042F2E);
-
-	@include define-color('yellow', #FBBF24);
-
-	@include define-color('text', #F1F5F9);
-	@include define-color('text-shade', #94A3B8);
-	@include define-color('text-inverse', #1E293B);
-	@include define-color('text-inverse-shade', #64748B);
-
-	@include define-color('page-background', #0F172A);
-	@include define-color('post-page-background', #0F172A);
-	@include define-color('card-background', #1E293B);
-
-	@include define-color('callout-background', #0F172A);
-	@include define-color('callout-background--info', #1E3A5F);
-	@include define-color('callout-accent--info', #60A5FA);
-	@include define-color('callout-background--warning', #78350F);
-	@include define-color('callout-accent--warning', #FBBF24);
-	@include define-color('callout-background--error', #7F1D1D);
-	@include define-color('callout-accent--error', #F87171);
-	@include define-color('callout-background--success', #064E3B);
-	@include define-color('callout-accent--success', #34D399);
-
-	@include define-color('code-inline-background', #334155);
+@mixin light-theme {
+  --bg: #F5F5F0;
+  --surface: #EDEDE8;
+  --border: #D0D0C8;
+  --text: #1A1A18;
+  --muted: #888880;
+  --accent: #B8A800;
+  --accent-2: #CC2F00;
+  --code: #2B8A00;
 }
 
 :root {
-	@include base-theme;
+  @include base-theme;
 
-	&[data-theme='dark'] {
-		@include dark-theme;
-	}
+  &[data-theme='light'] {
+    @include light-theme;
+  }
 
-	&[data-theme='auto'] {
-		@media (prefers-color-scheme: dark) {
-			@include dark-theme;
-		}
-	}
+  &[data-theme='auto'] {
+    @media (prefers-color-scheme: light) {
+      @include light-theme;
+    }
+  }
 }

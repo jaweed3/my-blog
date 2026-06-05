@@ -1,15 +1,12 @@
-<script>
-</script>
-
-<span class="logo">Jawwad</span>
+<span class="logo">JAWWAD.SITE</span>
 
 <style lang="scss">
-	.logo {
-		font-family: var(--font--heading);
-		font-size: 1.1rem;
-		font-weight: 700;
-		color: var(--color--text);
-		text-decoration: none;
-		letter-spacing: -0.02em;
-	}
+  .logo {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--text);
+    text-decoration: none;
+  }
 </style>

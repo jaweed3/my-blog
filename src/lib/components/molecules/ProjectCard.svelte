@@ -1,101 +1,100 @@
 <script lang="ts">
   import type { Project } from '$lib/utils/types';
-  import Card from '$lib/components/atoms/Card.svelte';
-  import Tag from '$lib/components/atoms/Tag.svelte';
-  import Image from '../atoms/Image.svelte';
 
   export let project: Project;
 </script>
 
-<Card
-  href="/projects/{project.slug}"
-  additionalClass="project-card"
->
-  <div class="image" slot="image" class:empty={!project.coverImage}>
-    {#if project.coverImage}
-      <Image src="/{project.coverImage}" alt={project.title} />
-    {/if}
+<a href="/projects/{project.slug}" class="project-row">
+  <div class="project-row-main">
+    <span class="project-index">{String(project.slug).padStart(2, '0')}</span>
+    <span class="project-title">{project.title}</span>
+    <span class="project-tags">{project.tags.slice(0, 2).join(' · ')}</span>
+    <span class="project-arrow">→</span>
   </div>
-  <div class="content" slot="content">
-    <div class="impact">{project.impact}</div>
-    <p>{project.excerpt}</p>
-    {#if project.results && project.results.length > 0}
-      <div class="results">
-        {#each project.results.slice(0, 3) as result}
-          <span class="result-chip">{result}</span>
-        {/each}
-      </div>
-    {/if}
-  </div>
-  <div class="footer" slot="footer">
-    <div class="tags">
-      {#each project.tags.slice(0, 3) as tag}
-        <Tag>{tag}</Tag>
-      {/each}
-    </div>
-  </div>
-</Card>
+  <p class="project-excerpt">{project.excerpt}</p>
+</a>
 
 <style lang="scss">
-  .content {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    align-items: flex-start;
+  .project-row {
+    display: block;
+    text-decoration: none;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border);
+    transition: all 0.2s ease;
+    position: relative;
 
-    .impact {
-      font-family: var(--font--heading);
-      font-size: 1.05rem;
-      font-weight: 700;
-      letter-spacing: -0.01em;
-      line-height: 1.35;
-    }
+    &:hover {
+      padding-left: 16px;
+      border-left: 2px solid var(--accent);
 
-    p {
-      color: var(--color--text-shade);
-      font-size: 0.88rem;
-      line-height: 1.45;
-      margin: 0;
-    }
-
-    .results {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 5px;
-      margin-top: 2px;
-
-      .result-chip {
-        font-size: 0.72rem;
-        font-weight: 600;
-        padding: 2px 8px;
-        border-radius: 10px;
-        background: rgba(var(--color--primary-rgb), 0.08);
-        color: var(--color--primary);
-        white-space: nowrap;
+      .project-title {
+        color: var(--accent);
+      }
+      .project-arrow {
+        opacity: 1;
+        transform: translateX(0);
       }
     }
   }
 
-  .image {
-    position: relative;
+  @import '$lib/scss/breakpoints.scss';
 
-    &.empty {
-      display: none;
+  .project-row-main {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 4px;
+
+    .project-index {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--muted);
+      min-width: 28px;
+    }
+
+    .project-title {
+      font-family: var(--font-display);
+      font-size: clamp(18px, 2vw, 24px);
+      text-transform: uppercase;
+      letter-spacing: -0.01em;
+      color: var(--text);
+      transition: color 0.2s ease;
+      flex: 1;
+    }
+
+    .project-tags {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      text-transform: uppercase;
+
+      @include for-phone-only {
+        display: none;
+      }
+    }
+
+    .project-arrow {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      color: var(--accent);
+      opacity: 0;
+      transform: translateX(-4px);
+      transition: all 0.2s ease;
     }
   }
 
-  .tags {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    flex-wrap: wrap;
-  }
+  .project-excerpt {
+    font-family: var(--font-body);
+    font-size: 15px;
+    color: var(--muted);
+    margin: 0;
+    padding-left: 44px;
+    line-height: 1.5;
 
-  .footer {
-    margin-top: 16px;
-  }
-
-  :global(.project-card .image img) {
-    object-fit: cover;
+    @include for-phone-only {
+      padding-left: 0;
+      font-size: 14px;
+    }
   }
 </style>
