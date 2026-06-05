@@ -1,68 +1,147 @@
 <script lang="ts">
-	import BlogPostCard from '$lib/components/molecules/BlogPostCard.svelte';
-	import ContentSection from '$lib/components/organisms/ContentSection.svelte';
-	import type { BlogPost } from '$lib/utils/types';
+  import Header from '$lib/components/organisms/Header.svelte';
+  import Footer from '$lib/components/organisms/Footer.svelte';
+  import { title } from '$lib/data/meta';
+  import type { BlogPost } from '$lib/utils/types';
+  import dateformat from 'dateformat';
 
-	export let data: {
-		posts: BlogPost[];
-	};
-
-	let { posts } = data;
+  export let data: { posts: BlogPost[] };
+  let { posts } = data;
 </script>
 
-<div class="container">
-	<ContentSection title="All Blog Posts">
-		<div class="grid">
-			{#each posts as post}
-				<BlogPostCard
-					title={post.title}
-					coverImage={post.coverImage}
-					excerpt={post.excerpt}
-					readingTime={post.readingTime}
-					slug={post.slug}
-					tags={post.tags}
-				/>
-			{/each}
-		</div>
-	</ContentSection>
-</div>
+<svelte:head>
+  <title>Blog — {title}</title>
+</svelte:head>
+
+<Header showBackground={true} />
+
+<main>
+  <div class="container">
+    <section class="page-header">
+      <span class="section-label">Blog</span>
+      <h1>All Posts</h1>
+      <p class="page-subtitle">
+        Engineering case studies — real systems, honest results, production scars.
+      </p>
+    </section>
+
+    <div class="posts-index">
+      {#each posts as post, i}
+        <a href="/{post.slug}" class="post-row">
+          <span class="post-num">{String(i + 1).padStart(2, '0')}</span>
+          <div class="post-info">
+            <span class="post-title">{post.title}</span>
+            <span class="post-meta-line">
+              <span class="post-date">{dateformat(post.date, 'UTC:dd mmm yyyy')}</span>
+              {#if post.readingTime}
+                <span class="meta-sep">·</span>
+                <span class="post-reading">{post.readingTime}</span>
+              {/if}
+            </span>
+          </div>
+          <span class="post-arrow">→</span>
+        </a>
+      {/each}
+    </div>
+  </div>
+</main>
+
+<Footer />
 
 <style lang="scss">
-	@import '$lib/scss/_mixins.scss';
+  @import '$lib/scss/breakpoints.scss';
 
-	.grid {
-		width: 100%;
-		display: grid;
-		grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
-		grid-gap: 20px;
+  .page-header {
+    padding: 48px 0 40px;
 
-		@include for-tablet-portrait-down {
-			grid-template-columns: 1fr;
-		}
+    h1 {
+      margin: 8px 0 12px;
+    }
 
-		@include for-tablet-landscape-up {
-			// Select every 6 elements, starting from position 1
-			// And make it take up 6 columns
-			> :global(:nth-child(6n + 1)) {
-				grid-column: span 6;
-			}
-			// Select every 6 elements, starting from position 2
-			// And make it take up 3 columns
-			> :global(:nth-child(6n + 2)) {
-				grid-column: span 3;
-			}
-			// Select every 6 elements, starting from position 3
-			// And make it take up 3 columns
-			> :global(:nth-child(6n + 3)) {
-				grid-column: span 3;
-			}
-			// Select every 6 elements, starting from position 4, 5 and 6
-			// And make it take up 2 columns
-			> :global(:nth-child(6n + 4)),
-			:global(:nth-child(6n + 5)),
-			:global(:nth-child(6n + 6)) {
-				grid-column: span 2;
-			}
-		}
-	}
+    .page-subtitle {
+      font-family: var(--font-body);
+      font-size: 18px;
+      color: var(--muted);
+      line-height: 1.6;
+      max-width: 560px;
+    }
+  }
+
+  .posts-index {
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 80px;
+  }
+
+  .post-row {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--border);
+    text-decoration: none;
+    transition: all 0.2s ease;
+
+    &:hover {
+      padding-left: 16px;
+      border-left: 2px solid var(--accent);
+
+      .post-title {
+        color: var(--accent);
+      }
+      .post-arrow {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @include for-phone-only {
+      gap: 12px;
+    }
+
+    .post-num {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--muted);
+      min-width: 28px;
+    }
+
+    .post-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+
+      .post-title {
+        font-family: var(--font-display);
+        font-size: clamp(20px, 2.5vw, 28px);
+        text-transform: uppercase;
+        letter-spacing: -0.01em;
+        color: var(--text);
+        transition: color 0.2s ease;
+      }
+
+      .post-meta-line {
+        font-family: var(--font-mono);
+        font-size: 12px;
+        color: var(--muted);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+
+        .meta-sep {
+          color: var(--muted);
+        }
+      }
+    }
+
+    .post-arrow {
+      font-family: var(--font-mono);
+      font-size: 16px;
+      color: var(--accent);
+      opacity: 0;
+      transform: translateX(-4px);
+      transition: all 0.2s ease;
+    }
+  }
 </style>
