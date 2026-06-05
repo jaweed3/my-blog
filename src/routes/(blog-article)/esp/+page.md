@@ -1,171 +1,254 @@
 ---
 slug: esp
-title: "Building ESP32-S3 Neural Vision: Edge AI for Face & Voice on an 8MB Microcontroller"
+title: "ESP32-S3 Neural Camera: MJPEG Streaming at 5MB on a $15 MCU"
 date: 2026-05-05T10:00:00.000Z
-excerpt: "An Embedded ML Engineering Case Study — On-device face detection, wake word recognition, and real-time MJPEG streaming on a $15 microcontroller with 8MB of PSRAM."
+excerpt: "Pushing a 1600×1200 camera pipeline through 8MB PSRAM with zero heap fragmentation — captive portal WiFi, dual-core FreeRTOS pinning, and why DRAM is the real bottleneck on ESP32-S3."
 coverImage: /images/posts/esp32.png
 tags:
-  - Machine Learning
-  - Computer Vision
   - Embedded Systems
-  - ESP32
   - Edge AI
-  - TinyML
-  - IoT
-  - Case Study
+  - ESP32-S3
+  - Computer Vision
+  - FreeRTOS
 ---
 
-## Why This Project Exists
+## PROBLEM
 
-Most "smart camera" projects I see fall into two camps: the Raspberry Pi crowd running Python with 4GB of RAM and a full Linux kernel, or the cloud-dependent devices that stream everything to someone else's GPU. Neither is interesting from an embedded engineering standpoint.
+Most "smart camera" IoT products fall into two camps: Raspberry Pi devices running Python with 4GB of RAM and a full Linux kernel, or cloud-dependent cameras that stream everything to a remote GPU. Neither works for cost-sensitive, offline-first deployments.
 
-The question I wanted to answer: **can you build a meaningful computer vision + voice pipeline on a microcontroller that costs less than the shipping fee for a Raspberry Pi?**
+A Raspberry Pi 4 costs $55. A cloud subscription adds $10-50/month per device. For rural monitoring, security cameras in bandwidth-constrained areas, or battery-operated sensors, this is prohibitively expensive.
 
-The answer is yes — if you're deliberate about every kilobyte.
+The engineering question: **can you build a usable camera pipeline — WiFi, MJPEG streaming, state management — on a $15 microcontroller with 8MB of PSRAM and 512KB of DRAM?**
 
-## The Hardware
+The answer is yes, but not the way you'd design it on a Linux system.
 
-The Seeed Studio XIAO ESP32S3 Sense is a $15 board packing:
+---
 
-- **ESP32-S3**: dual-core Xtensa LX7 @ 240MHz
-- **8MB PSRAM** (OPI interface, 80MHz)
-- **8MB Flash**
-- **OV2640 camera**: 1600x1200 max, hardware JPEG encoder
-- **Digital MEMS microphone**: PDM output, I2S interface
-- **WiFi 2.4GHz + BLE 5.0**
-- **MicroSD slot**
+## STATUS
 
-For context: 8MB of PSRAM is roughly the amount of memory a single Chrome tab uses to render the Google homepage. I needed to fit camera frame buffers, audio processing, ML model weights, and a web server in that same footprint.
+This project is **Phase 2** of a 7-phase roadmap. What's shipped:
 
-## Architecture
+> **Shipped:** WiFi manager with captive portal · OV2640 camera · MJPEG HTTP streaming · 6-state FreeRTOS machine · EventBus pub/sub · LED indicator · 4 build environments
 
-I designed a dual-core FreeRTOS system with strict core pinning:
+> **Not yet shipped (roadmap):** TFLite Micro wake word detection (Phase 3) · MTCNN face detection (Phase 4) · SPA dashboard (Phase 5) · MobileFaceNet face recognition (Phase 6) · OTA updates (Phase 7)
+
+This post covers the embedded systems engineering that makes the ML pipeline possible — because without this foundation, the ML never makes it onto the device.
+
+---
+
+## HARDWARE
+
+The Seeed Studio XIAO ESP32S3 Sense, $15 retail:
+
+| Component | Spec |
+|-----------|------|
+| MCU | ESP32-S3, Xtensa LX7 dual-core @ 240MHz |
+| PSRAM | 8MB OPI @ 80MHz |
+| Flash | 8MB QSPI NOR |
+| Camera | OV2640, 1600×1200 max, hardware JPEG encoder, DVP parallel |
+| Mic | MSM261D3526H1CPM digital MEMS, PDM, I2S |
+| Wireless | WiFi 2.4GHz b/g/n + BLE 5.0 |
+| Indicator | Orange LED GPIO21 (PWM) |
+
+For context: 8MB PSRAM is roughly what a single Chrome tab uses to render a Google homepage. I needed to fit camera frame buffers, audio ring buffers, ML model weights, HTTP server state, and FreeRTOS overhead in that same footprint.
+
+The real constraint, however, isn't PSRAM — it's the **512KB of internal DRAM**.
+
+---
+
+## ARCHITECTURE
+
+### Dual-Core FreeRTOS Pinning
 
 ```
-Core 0 (PRO — Network I/O):      WiFi stack, HTTP Server
-Core 1 (APP — ML Processing):    Audio capture, Camera pipeline, ML inference, State machine
+USB-C ──→ ESP32-S3 ──→ OV2640 Camera (DVP)
+                │
+                ├──→ PDM Mic (I2S GPIO 41-42)
+                ├──→ Orange LED (GPIO21 PWM)
+                ├──→ MicroSD (SPI GPIO 3,7-9)
+                └──→ WiFi AP/STA ──→ HTTP Server (port 80)
 ```
 
-The key insight: **WiFi and ML inference cannot share a core**. The WiFi stack is soft real-time — if you starve it for even a few milliseconds you get packet loss, disconnections, and MJPEG stream corruption. Meanwhile, face detection inference can block for 100–150ms. These workloads simply cannot coexist on the same core.
+Core 0 (PRO — Network I/O): WiFi stack, HTTP server
+Core 1 (APP — ML Processing): Audio capture, camera pipeline, state machine
+
+The key insight: **WiFi and ML inference cannot share a core.** The WiFi stack is soft real-time — starving it for even a few milliseconds causes packet loss, disconnections, and MJPEG stream corruption. ML inference, by contrast, blocks for 100-150ms. These workloads don't need different priorities — they need different cores.
+
+I initially tried balancing them on one core with different task priorities. It didn't work. Core pinning was the fix.
 
 ### State Machine
 
 ```
-INIT ──► AP_MODE ──► CONNECTING ──► IDLE ◄──► ACTIVE
-  │          │            │            │           │
-  └──────────┴────────────┴────────────┴───────────┘
-                       │
-                       ▼
-                     ERROR (auto-recovery)
+                        ┌──────────────┐
+                        │    INIT      │
+                        └──────┬───────┘
+                               │
+                   Has saved WiFi?
+                       /          \
+                     YES           NO
+                      ↓             ↓
+               ┌──────────┐  ┌──────────┐
+               │CONNECTING│  │ AP_MODE  │
+               └────┬─────┘  └────┬─────┘
+                    │             │
+               ┌────▼─────┐       │
+               │   IDLE   │◄──────┘
+               └────┬─────┘
+                    │ wake word (future)
+               ┌────▼─────┐
+               │  ACTIVE  │  30s timeout → IDLE
+               └────┬─────┘
+                    │
+               ┌────▼─────┐
+               │  ERROR   │  5s → retry
+               └──────────┘
 ```
 
-Six states, each with entry/exit hooks and timeout triggers:
+Six states, each with entry/exit hooks and typed event transitions:
 
-| State | Purpose | Timeout |
+| State | Trigger | Timeout |
 |-------|---------|---------|
-| `INIT` | Hardware init, PSRAM allocation, sensor bringup | None |
-| `AP_MODE` | Captive portal WiFi setup @ 192.168.4.1 | None (manual) |
-| `CONNECTING` | STA connection attempt with retry | 15s |
-| `IDLE` | Online, wake word listening, camera optional | None |
-| `ACTIVE` | Face detection active, streaming mandatory | 30s → IDLE |
-| `ERROR` | Auto-recovery loop | 5s → retry |
+| `INIT` | Boot | None |
+| `AP_MODE` | No saved WiFi | None (manual) |
+| `CONNECTING` | WiFi selected via portal | 15s → ERROR |
+| `IDLE` | Connected, camera optional | None |
+| `ACTIVE` | Wake word (future) | 30s → IDLE |
+| `ERROR` | Any failure | 5s → retry INIT or AP_MODE |
 
-The `ACTIVE → IDLE` timeout matters. Running face detection continuously at 240MHz draws ~300mA. On a 2000mAh battery, that's barely 6 hours. The 30-second inactivity timeout cuts average power draw by roughly 70% in typical usage.
+The `ACTIVE → IDLE` timeout exists for power management — at 240MHz with continuous camera streaming, the board draws ~300mA. On a 2000mAh battery, that's ~6 hours. The 30-second inactivity timeout cuts average draw by ~70% in typical use.
 
-### Inter-Task Communication
+### EventBus — Inter-Task Communication
 
-I built a lightweight pub/sub system on top of FreeRTOS queues:
+Standard FreeRTOS queues are fragile — they handle bytes, not messages. I built a typed pub/sub layer:
 
 ```cpp
 struct EventMessage {
     SystemEvent event;
-    int32_t data[4];   // flexible payload — bounding boxes, scores, error codes
+    int32_t data[4];
 };
 
 class EventBus {
-    bool post(const EventMessage& msg);          // From any task
-    bool postFromISR(const EventMessage& msg);   // ISR-safe variant
+    bool post(const EventMessage& msg);
+    bool postFromISR(const EventMessage& msg);
     bool receive(EventMessage& msg, TickType_t timeout);
 };
 ```
 
-No heap allocation during event dispatch. Each message is 20 bytes — the queue is allocated once at boot with a fixed capacity of 32. Memory fragmentation was my biggest fear on this platform; everything that can be statically allocated, is.
+No heap allocation during dispatch. Each message is 20 bytes. The queue is allocated once at boot with 32 fixed slots. Memory fragmentation was my primary failure concern on this platform — everything that can be statically allocated, is.
 
-## PSRAM Budgeting
+---
 
-This is the part that took the most iteration. 8MB sounds generous until you lay out everything:
+## PSRAM BUDGETING
+
+8MB sounds generous until you lay out the allocations:
 
 | Component | Size | Location | Notes |
 |-----------|------|----------|-------|
-| Camera frame buffers (2×) | ~100KB | **DRAM** | HVGA JPEG, must be in DRAM for DMA |
-| Audio ring buffer (3s) | 96KB | PSRAM | 16kHz × 16-bit × 3 seconds |
-| MFCC feature buffer | 8KB | PSRAM | 49 frames × 40 coefficients |
+| Camera frame buffers (2×) | ~100KB | **DRAM** | HVGA JPEG, DMA requires DRAM |
+| Audio ring buffer (3s) | 96KB | PSRAM | 16kHz × 16-bit × 3s |
+| MFCC feature buffer | 8KB | PSRAM | 49 frames × 40 coeffs |
 | TFLite tensor arena | 32KB | PSRAM | Micro speech model activations |
-| RGB565 conversion buffer | 307KB | PSRAM | 480×320 × 2 bytes — needed for face detection input |
+| RGB565 conversion buffer | 307KB | PSRAM | 480×320 × 2 bytes — face detection input |
 | MTCNN model weights | ~250KB | PSRAM | Stage 1 (MSR01) + Stage 2-3 (MNP01) |
-| MobileFaceNet S8 | ~400KB | PSRAM | 112×112 face recognition, int8 quantized |
-| Face alignment buffer | 38KB | PSRAM | Crop + affine transform intermediate |
+| MobileFaceNet S8 | ~400KB | PSRAM | 112×112 face rec, int8 |
 | HTTP/WS scratch buffers | ~32KB | PSRAM | Chunked response buffers |
-| FreeRTOS task stacks | ~32KB | DRAM | 6 tasks × ~5KB each |
+| FreeRTOS task stacks | ~32KB | DRAM | 6 tasks × ~5KB |
 | **Total used** | **~1.3MB** | — | |
 | **Free** | **~6.7MB** | — | |
 
-The surprising takeaway: **PSRAM was never the bottleneck**. The real constraint was DRAM — the ESP32-S3 has only 512KB of internal SRAM. Camera DMA requires DRAM buffers. Stack space per FreeRTOS task lives in DRAM. WiFi and lwIP internals live in DRAM. By the time you account for those, you have maybe 150KB left for everything else.
+The surprising takeaway: **PSRAM was never the bottleneck.** The real constraint was DRAM — only 512KB internal SRAM. Camera DMA buffers MUST be in DRAM. Task stacks live in DRAM. WiFi and lwIP internals live in DRAM. After accounting for those, ~150KB remains.
 
-The RGB565 conversion buffer was the single largest allocation. Why not convert frame-by-frame in smaller tiles? Because MTCNN needs the full image for pyramid scaling. Tiling breaks multi-scale detection entirely.
+The RGB565 conversion buffer is the single largest allocation at 307KB (PSRAM). I investigated tiling the conversion frame-by-frame to reduce peak usage, but MTCNN requires the full image for pyramid scaling — tiling breaks multi-scale detection entirely. Some allocations are non-negotiable.
 
-## The Camera Pipeline
+---
 
-The OV2640 has a hardware JPEG encoder. This is both a blessing and a curse:
+## RESULTS
 
-**Good**: JPEG compression offloads the CPU. A 480×320 RGB565 frame is 307KB raw — but only 40–80KB as JPEG. That difference is the difference between fitting in DRAM or not.
+### Camera Pipeline Throughput
 
-**Bad**: Face detection operates on raw pixels, not JPEG. So the pipeline is:
+MJPEG stream operates at **full camera framerate** (limited only by OV2640 sensor readout and JPEG encoding) because the JPEG buffer is served zero-copy to the HTTP client. The face detection pipeline (when implemented) will decode JPEG → RGB565 → run MTCNN, which is why it's throttled to every 3rd frame (~5 FPS).
 
-```
-OV2640 → JPEG Buffer (DRAM) → MJPEG Stream (HTTP, zero-copy)
-                              │
-                              └── JPEG → RGB565 Decode → Face Detection
-```
+PSRAM latency is real: ~40ns access vs ~10ns for internal SRAM. For sequential access (audio ring buffer), this is negligible. For random access during ML inference on scattered tensors, the 4× latency penalty compounds. Profile before you allocate.
 
-The MJPEG stream uses the JPEG buffer directly — zero copy, no processing. The face detection path pays the decode cost, which is why detection runs throttled (every 3rd frame, ~5 FPS) while the stream runs at full camera framerate.
+### Memory Utilization
 
-## The WiFi Setup Problem
+| Metric | Value |
+|--------|-------|
+| DRAM used (critical) | ~264KB / 512KB |
+| PSRAM used | ~1.3MB / 8MB |
+| Heap fragmentation | 0% (all static) |
+| Boot-to-stream time | ~2.5s |
 
-Every embedded device needs to get online. For a developer, hardcoding SSID and password works. For a portfolio project? Not so much.
+### Captive Portal
 
-I implemented a **captive portal with DNS spoofing**:
+The entire WiFi setup UI — HTML, CSS, JavaScript — is compiled into firmware as a `constexpr` string. **4KB gzipped.** No SPIFFS partition, no external dependencies, no filesystem overhead.
 
-1. On first boot (or factory reset), the device starts in AP mode as `ESP32-S3-Setup`
-2. A DNS server intercepts all queries and returns the device IP
-3. Any browser request lands on a WiFi setup page
-4. JavaScript scans visible networks via `/wifi-scan` API
-5. User selects network, enters password → POST to `/wifi-connect` → credentials saved to NVS → auto-reboot
-6. On reboot, NVS credentials exist → STA mode → normal operation
+---
 
-The entire captive portal page — HTML, CSS, JS — is compiled into the firmware binary as a `constexpr` string. No SPIFFS flash partition needed. No external dependencies. The entire UI is 4KB gzipped.
+## BUSINESS IMPACT
 
-## What I Learned
+| Before | After |
+|--------|-------|
+| Smart camera node: $55 (RPi) + cloud sub | $15 MCU, zero recurring cost |
+| Cloud dependency for any ML | Fully offline pipeline |
+| Week-long development setup | One-command `pio run -e full` |
+| Python stack: 200MB+ OS image | C++ firmware: ~500KB binary |
+
+This architecture is directly applicable to: rural security cameras, agricultural monitoring, wildlife observation, and any deployment where per-unit cost and bandwidth constraints rule out SBCs.
+
+---
+
+## LESSONS
 
 ### 1. Static Allocation Is Freedom
 
-Dynamic allocation on a microcontroller with 8MB PSRAM is tempting. Don't do it. I allocated every buffer once at boot and never called `free()`. The result: zero heap fragmentation after weeks of uptime, predictable memory usage, and no malloc-related crashes.
+Dynamic allocation on a microcontroller with 8MB PSRAM is tempting. Don't. Every buffer is allocated once at boot; `free()` is never called. Zero heap fragmentation after extended uptime, predictable memory, no malloc-related crashes.
 
-### 2. Core Pinning Matters More Than Priority
+### 2. Core Pinning Beats Priority Tuning
 
-I initially tried to balance WiFi and ML on the same core with different priorities. It doesn't work. WiFi needs uninterrupted time slices. ML inference is a blocking wall of compute. These aren't priority issues — they're scheduling incompatibilities. Pinning them to separate cores fixed stability issues I'd been debugging for days.
+I spent days trying to balance WiFi and ML on a single core with different priority levels. The fundamental issue isn't priority — it's that both workloads need uninterrupted time slices of incompatible lengths. Core pinning fixed in minutes what priority tuning couldn't fix in days.
 
 ### 3. Hardware JPEG Changes Everything
 
-Before I understood the OV2640's hardware encoder, I was planning to stream raw RGB565 frames. That would have been 5× the bandwidth, 3× the PSRAM usage, and significantly lower framerate. Hardware accelerators aren't optional extras — they're the difference between a working product and a toy.
+Before understanding the OV2640's hardware JPEG encoder, I planned to stream raw RGB565 frames. That would have required 5× the bandwidth, 3× the PSRAM, and produced lower framerates. Hardware accelerators are the difference between a working product and a toy.
 
-### 4. PSRAM Latency Is Real
+### 4. PSRAM ≠ DRAM
 
-PSRAM on the ESP32-S3 has ~40ns access latency vs ~10ns for internal SRAM. For sequential access (audio ring buffer), this barely matters. For random access (ML model inference on scattered tensors), the 4× latency penalty compounds. Profile before you allocate — some buffers belong in DRAM even when PSRAM is "free."
+PSRAM is plentiful (6.7MB free) but has 4× the access latency. DRAM is the true constraint (512KB total, ~150KB free after overhead). The scarce resource isn't the one you think — profile early.
 
-## Code Structure
+---
 
-The project uses PlatformIO with 4 build environments:
+## CODE STRUCTURE
+
+```
+esp32-jarvis/
+├── platformio.ini            # 4 build environments
+├── src/
+│   ├── main.cpp              # Entry → SystemManager
+│   ├── pins_config.h         # GPIO definitions
+│   ├── core/
+│   │   ├── SystemManager.h   # Init + main loop
+│   │   ├── StateMachine.h    # 6-state FSM
+│   │   ├── EventBus.h        # FreeRTOS queue pub/sub
+│   │   └── LedIndicator.h    # PWM patterns
+│   ├── memory/MemoryManager.h
+│   ├── wifi/WifiManager.h
+│   ├── wifi/CaptivePortal.h
+│   ├── audio/AudioManager.h
+│   ├── vision/CameraManager.h
+│   ├── server/HttpServer.h
+│   ├── storage/ConfigManager.h
+│   └── tests/
+├── docs/
+│   ├── architecture.md
+│   ├── api.md
+│   ├── pinout.md
+│   ├── build.md
+│   └── troubleshooting.md
+└── wiring_diagram.png
+```
+
+Four build environments for isolated module testing:
 
 ```bash
 pio run -e full          # Integrated firmware
@@ -174,26 +257,24 @@ pio run -e test_mic      # Microphone recording only
 pio run -e test_wifi     # WiFi manager + Captive portal only
 ```
 
-Each test environment compiles a single module in isolation — critical for debugging hardware without tearing down the entire firmware.
+Each compiles a single module in isolation — critical for debugging hardware without rebuilding the entire firmware.
 
-Source: [github.com/jaweed3/esp32](https://github.com/jaweed3/esp32)
-
-## What's Next
-
-The foundation is solid. The roadmap:
-
-- **Phase 3**: TFLite Micro wake word detection (micro_speech model, 22KB)
-- **Phase 4**: ESP-DL MTCNN face detection with WebSocket bounding box events
-- **Phase 5**: Full SPA dashboard with real-time detection overlay
-- **Phase 6**: Face recognition via MobileFaceNet S8 — enroll, match, database management
-- **Phase 7**: OTA firmware updates, production hardening
-
-Each phase is a standalone feature that can be tested, benchmarked, and demoed independently.
-
-## Tech Stack
-
-`C++17` `FreeRTOS` `PlatformIO` `ESP-IDF` `esp32-camera` `ESP-DL` `TFLite Micro` `MTCNN` `MobileFaceNet` `I2S PDM` `MJPEG` `DNS Captive Portal` `NVS Preferences` `Arduino Framework`
+**Repo:** [github.com/jaweed3/esp32-jarvis](https://github.com/jaweed3/esp32-jarvis)
 
 ---
 
-*This is part of a series documenting my journey into on-device ML and embedded computer vision. The hardware costs less than lunch — the learning was priceless.*
+## ROADMAP
+
+The remaining phases, each independently shippable and testable:
+
+- **Phase 3:** TFLite Micro wake word detection (micro_speech, 22KB)
+- **Phase 4:** ESP-DL MTCNN face detection with WebSocket events
+- **Phase 5:** SPA dashboard with real-time bounding box overlay
+- **Phase 6:** MobileFaceNet S8 face recognition (enroll, match, database)
+- **Phase 7:** OTA firmware updates, production hardening
+
+---
+
+## TECH STACK
+
+`C++17` `FreeRTOS` `PlatformIO` `ESP-IDF` `esp32-camera` `ESP-DL` `TFLite Micro` `MTCNN` `MobileFaceNet` `I2S PDM` `MJPEG` `DNS Captive Portal` `NVS Preferences`
