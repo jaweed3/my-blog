@@ -5,12 +5,8 @@
   import ExternalLinkIcon from '$lib/icons/external-link.svelte';
   import { siteBaseUrl } from '$lib/data/meta';
 
-  export let data: { project: Project; projects: Project[] };
-  const { project, projects } = data;
-
-  $: currentIndex = projects.findIndex((p) => p.slug === project.slug);
-  $: prevProject = currentIndex > 0 ? projects[currentIndex - 1] : null;
-  $: nextProject = currentIndex < projects.length - 1 ? projects[currentIndex + 1] : null;
+  export let data: { project: Project; prevProject: Project | null; nextProject: Project | null };
+  const { project, prevProject, nextProject } = data;
 </script>
 
 <svelte:head>
