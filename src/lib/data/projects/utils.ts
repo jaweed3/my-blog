@@ -1,7 +1,7 @@
 import type { Project } from '$lib/utils/types';
 
 export const importProjects = (render = false) => {
-  const projectImports = import.meta.glob('$routes/projects/*/*.md', { eager: true });
+  const projectImports = import.meta.glob('$lib/data/projects/content/*.md', { eager: true });
 
   const projects: Project[] = [];
   for (const path in projectImports) {

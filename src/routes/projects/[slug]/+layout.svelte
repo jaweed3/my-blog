@@ -65,7 +65,9 @@
 
       <div class="project-body">
         <div class="content">
-          <slot />
+          {#if project?.html}
+            {@html project.html}
+          {/if}
         </div>
       </div>
 
@@ -245,10 +247,10 @@
     padding-bottom: 80px;
   }
 
-  .content {
+  :global(.content) {
     max-width: 680px;
 
-    a:not(.nav-link) {
+    a {
       color: var(--accent);
       text-decoration: underline;
       text-underline-offset: 0.15em;
@@ -348,8 +350,8 @@
       border: 1px solid var(--border);
     }
 
-    :global(pre[class*="language-undefined"]),
-    :global(code[class*="language-undefined"]) {
+    pre[class*="language-undefined"],
+    code[class*="language-undefined"] {
       &::before {
         display: none;
       }
@@ -489,8 +491,8 @@
     .github-link,
     .project-nav .nav-link,
     .breadcrumb a,
-    .content a,
-    .content tr td {
+    :global(.content a),
+    :global(.content tr td) {
       transition: none;
     }
   }
