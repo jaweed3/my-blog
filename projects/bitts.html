@@ -1,65 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8" />
+  <head>
+    <meta charset="utf-8" />
 
-		<!-- Favicon -->
-		<link
-			rel="apple-touch-icon"
-			sizes="180x180"
-			href="../favicons/apple-touch-icon.png"
-		/>
-		<link
-			rel="icon"
-			type="image/png"
-			sizes="32x32"
-			href="../favicons/favicon-32x32.png"
-		/>
-		<link
-			rel="icon"
-			type="image/png"
-			sizes="16x16"
-			href="../favicons/favicon-16x16.png"
-		/>
-		<link rel="manifest" href="../favicons/site.webmanifest" />
-		<link
-			rel="mask-icon"
-			href="../favicons/safari-pinned-tab.svg"
-			color="#0ca4a5"
-		/>
-		<link rel="shortcut icon" href="../favicons/favicon.ico" />
-		<link rel="icon" href="../favicons/favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
 
-		<!-- Tell browser this site is responsive -->
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<!-- Tell browser this site supports light and dark mode -->
-		<meta name="color-scheme" content="light dark" />
-		<!-- Color for browser url bar in mobile/Safari -->
-		<meta name="theme-color" media="(prefers-color-scheme: light)" content="#b28cf2" />
-		<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#4612A1" />
-		<!-- Disable Google FLOC -->
-		<meta http-equiv="Permissions-Policy" content="interest-cohort=()" />
+    <link rel="apple-touch-icon" sizes="180x180" href="../favicons/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="../favicons/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="../favicons/favicon-16x16.png" />
+    <link rel="manifest" href="../favicons/site.webmanifest" />
+    <link rel="mask-icon" href="../favicons/safari-pinned-tab.svg" color="#0A0A0A" />
+    <link rel="shortcut icon" href="../favicons/favicon.ico" />
+    <link rel="icon" href="../favicons/favicon.png" />
 
-		<script>
-			// Calling this here so that it loads as quickly as possible
-			// Avoiding a flash of light mode in case dark mode is used
-			const theme = localStorage.getItem('theme-preference') || 'auto';
-			document.firstElementChild?.setAttribute('data-theme', theme);
-		</script>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#F5F5F0" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0A0A0A" />
+    <meta http-equiv="Permissions-Policy" content="interest-cohort=()" />
 
-		<meta http-equiv="content-security-policy" content="">
-		<link href="../_app/immutable/assets/_layout.c5ebb86e.css" rel="stylesheet">
-		<link rel="modulepreload" href="../_app/immutable/entry/start.42ed6412.js">
-		<link rel="modulepreload" href="../_app/immutable/chunks/index.d4d37321.js">
-		<link rel="modulepreload" href="../_app/immutable/chunks/index.b0575e0b.js">
-		<link rel="modulepreload" href="../_app/immutable/entry/app.978d45df.js">
-		<link rel="modulepreload" href="../_app/immutable/entry/_layout.svelte.260fabb2.js">
+    <script>
+      const theme = localStorage.getItem('theme-preference') || 'auto';
+      document.firstElementChild?.setAttribute('data-theme', theme);
+    </script>
+
+    <meta http-equiv="content-security-policy" content="">
+		<link href="../_app/immutable/assets/_layout.55e0b19a.css" rel="stylesheet">
+		<link rel="modulepreload" href="../_app/immutable/entry/start.db97d51e.js">
+		<link rel="modulepreload" href="../_app/immutable/chunks/index.4607f515.js">
+		<link rel="modulepreload" href="../_app/immutable/chunks/index.b582715f.js">
+		<link rel="modulepreload" href="../_app/immutable/entry/app.fcb38dfa.js">
+		<link rel="modulepreload" href="../_app/immutable/entry/_layout.svelte.da56fdaa.js">
 		<link rel="modulepreload" href="../_app/immutable/entry/_layout.ts.984db11e.js">
 		<link rel="modulepreload" href="../_app/immutable/chunks/_layout.da46b06b.js">
-		<link rel="modulepreload" href="../_app/immutable/entry/projects-bitts-page.md.abb2557e.js">
-	</head>
-	<body data-sveltekit-preload-data="hover">
-		<div id="svelte-root">
+		<link rel="modulepreload" href="../_app/immutable/entry/projects-bitts-page.md.9dab5a98.js">
+  </head>
+  <body data-sveltekit-preload-data="hover">
+    <div id="svelte-root">
 <h2 id="problem"><a class="heading-link" title="Permalink" aria-hidden="true" href="#problem"><span>#</span></a>Problem</h2>
 <p>Text-to-speech models are notoriously large. A standard FP32 TTS model consumes 10-50MB, making them impossible to deploy on:</p>
 <ul><li>IoT devices with limited flash storage</li>
@@ -92,7 +71,7 @@
 			
 			<script>
 				{
-					__sveltekit_1oc1pa7 = {
+					__sveltekit_s31z6f = {
 						env: {},
 						base: new URL("..", location).pathname.slice(0, -1),
 						element: document.currentScript.parentElement
@@ -101,10 +80,10 @@
 					const data = [null,null];
 
 					Promise.all([
-						import("../_app/immutable/entry/start.42ed6412.js"),
-						import("../_app/immutable/entry/app.978d45df.js")
+						import("../_app/immutable/entry/start.db97d51e.js"),
+						import("../_app/immutable/entry/app.fcb38dfa.js")
 					]).then(([kit, app]) => {
-						kit.start(app, __sveltekit_1oc1pa7.element, {
+						kit.start(app, __sveltekit_s31z6f.element, {
 							node_ids: [0, 16],
 							data,
 							form: null,
@@ -114,5 +93,5 @@
 				}
 			</script>
 		</div>
-	</body>
+  </body>
 </html>
