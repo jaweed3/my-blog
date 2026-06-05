@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#0A0A0A"/>
+  <text x="80" y="200" font-family="monospace" font-size="48" fill="#F5E642" font-weight="bold">DELTA OTA</text>
+  <text x="80" y="260" font-family="monospace" font-size="24" fill="#A8FF60">2.6 MB → 47 KB (98.2% savings)</text>
+  <text x="80" y="310" font-family="monospace" font-size="18" fill="#888">Custom .rkd format · Byte-level patching · TFLite validation</text>
+  <rect x="80" y="370" width="6" height="60" fill="#FF3B00"/>
+  <text x="100" y="410" font-family="monospace" font-size="16" fill="#777">Retak.id · Supabase Edge Function · Android DeltaModelLoader</text>
+</svg>
