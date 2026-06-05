@@ -6,7 +6,7 @@
   import { siteBaseUrl } from '$lib/data/meta';
 
   export let data: { project: Project; prevProject: Project | null; nextProject: Project | null };
-  const { project, prevProject, nextProject } = data;
+  $: ({ project, prevProject, nextProject } = data);
 </script>
 
 <svelte:head>
