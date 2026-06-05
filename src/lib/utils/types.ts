@@ -55,4 +55,8 @@ export type Project = {
   featured: boolean;
   hidden: boolean;
   html: string | undefined;
+  impact: string;
+  problem: string;
+  results: string[];
+  outcome: string;
 };

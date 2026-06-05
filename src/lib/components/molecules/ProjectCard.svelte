@@ -1,111 +1,101 @@
 <script lang="ts">
-	import type { Project } from '$lib/utils/types';
-	import Card from '$lib/components/atoms/Card.svelte';
-	import Tag from '$lib/components/atoms/Tag.svelte';
-	import Image from '../atoms/Image.svelte';
+  import type { Project } from '$lib/utils/types';
+  import Card from '$lib/components/atoms/Card.svelte';
+  import Tag from '$lib/components/atoms/Tag.svelte';
+  import Image from '../atoms/Image.svelte';
 
-	export let project: Project;
-
-	const statusLabels: Record<string, string> = {
-		active: 'active',
-		wip: 'WIP',
-		archived: 'archived'
-	};
+  export let project: Project;
 </script>
 
 <Card
-	href="/projects/{project.slug}"
-	additionalClass="project-card"
+  href="/projects/{project.slug}"
+  additionalClass="project-card"
 >
-	<div class="image" slot="image">
-		<Image src="/{project.coverImage}" alt={project.title} />
-		<span class="status-dot {project.status}">{statusLabels[project.status]}</span>
-	</div>
-	<div class="content" slot="content">
-		<div class="title">{project.title}</div>
-		<p>{project.excerpt}</p>
-	</div>
-	<div class="footer" slot="footer">
-		<div class="tags">
-			{#each project.techStack.slice(0, 4) as tech}
-				<Tag color="secondary">{tech}</Tag>
-			{/each}
-			{#if project.techStack.length > 4}
-				<span class="more">+{project.techStack.length - 4}</span>
-			{/if}
-		</div>
-	</div>
+  <div class="image" slot="image" class:empty={!project.coverImage}>
+    {#if project.coverImage}
+      <Image src="/{project.coverImage}" alt={project.title} />
+    {/if}
+  </div>
+  <div class="content" slot="content">
+    <div class="impact">{project.impact}</div>
+    <p>{project.excerpt}</p>
+    {#if project.results && project.results.length > 0}
+      <div class="results">
+        {#each project.results.slice(0, 3) as result}
+          <span class="result-chip">{result}</span>
+        {/each}
+      </div>
+    {/if}
+  </div>
+  <div class="footer" slot="footer">
+    <div class="tags">
+      {#each project.tags.slice(0, 3) as tag}
+        <Tag>{tag}</Tag>
+      {/each}
+    </div>
+  </div>
 </Card>
 
 <style lang="scss">
-	.content {
-		display: flex;
-		flex-direction: column;
-		gap: 10px;
-		align-items: flex-start;
+  .content {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
 
-		.title {
-			font-family: var(--font--heading);
-			font-size: 1.15rem;
-			font-weight: 700;
-			letter-spacing: -0.02em;
-		}
+    .impact {
+      font-family: var(--font--heading);
+      font-size: 1.05rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      line-height: 1.35;
+    }
 
-		p {
-			color: var(--color--text-shade);
-			font-size: 0.9rem;
-			line-height: 1.45;
-		}
-	}
+    p {
+      color: var(--color--text-shade);
+      font-size: 0.88rem;
+      line-height: 1.45;
+      margin: 0;
+    }
 
-	.image {
-		position: relative;
+    .results {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-top: 2px;
 
-		.status-dot {
-			position: absolute;
-			top: 10px;
-			right: 10px;
-			font-size: 0.7rem;
-			font-weight: 700;
-			text-transform: uppercase;
-			letter-spacing: 0.04em;
-			padding: 2px 8px;
-			border-radius: 10px;
-			backdrop-filter: blur(8px);
+      .result-chip {
+        font-size: 0.72rem;
+        font-weight: 600;
+        padding: 2px 8px;
+        border-radius: 10px;
+        background: rgba(var(--color--primary-rgb), 0.08);
+        color: var(--color--primary);
+        white-space: nowrap;
+      }
+    }
+  }
 
-			&.active {
-				background: rgba(var(--color--primary-rgb), 0.85);
-				color: white;
-			}
-			&.wip {
-				background: rgba(var(--color--yellow-rgb), 0.85);
-				color: #1c1e26;
-			}
-			&.archived {
-				background: rgba(var(--color--text-shade-rgb), 0.7);
-				color: white;
-			}
-		}
-	}
+  .image {
+    position: relative;
 
-	.tags {
-		display: flex;
-		align-items: center;
-		gap: 5px;
-		flex-wrap: wrap;
+    &.empty {
+      display: none;
+    }
+  }
 
-		.more {
-			font-size: 0.8rem;
-			color: var(--color--text-shade);
-			font-weight: 500;
-		}
-	}
+  .tags {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-wrap: wrap;
+  }
 
-	.footer {
-		margin-top: 16px;
-	}
+  .footer {
+    margin-top: 16px;
+  }
 
-	:global(.project-card .image img) {
-		object-fit: cover;
-	}
+  :global(.project-card .image img) {
+    object-fit: cover;
+  }
 </style>
