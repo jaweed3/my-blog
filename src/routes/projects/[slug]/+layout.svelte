@@ -65,9 +65,7 @@
 
       <div class="project-body">
         <div class="content">
-          {#if project?.html}
-            {@html project.html}
-          {/if}
+          <slot />
         </div>
       </div>
 
