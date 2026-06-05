@@ -1,8 +1,8 @@
 ---
 slug: retakid
-title: "Building Retak.id: On-Device ML for Landslide Early Detection"
+title: "Retak.id: On-Device ML for Landslide Early Detection"
 date: 2026-05-01T10:00:00.000Z
-excerpt: "An ML Engineering Case Study — From Zero to 85% Accuracy in 72 Hours. On-device soil crack classification with TFLite for landslide-prone regions."
+excerpt: "84.9% accuracy, 2.6MB INT8 model, fully offline — production ML deployment for a real humanitarian problem in Ponorogo, Indonesia."
 coverImage: /images/posts/retakId.png
 tags:
   - Machine Learning
@@ -12,23 +12,19 @@ tags:
   - Case Study
 ---
 
-# Building Retak.id: On-Device ML for Landslide Early Detection
+## PROBLEM
 
-**An ML Engineering Case Study — From Zero to 85% Accuracy in 72 Hours**
+Jenangan, Ponorogo. 41 landslides in 4 months. Illegal mining strips vegetation, destabilizes slopes. Roads cut off. Communities isolated.
 
----
+Local disaster agency (BPBD) has no real-time field data. Existing solutions — IoT sensors ($500+/node), satellite imagery ($1,000+/km²), drone surveys — are too expensive and can't reach rural villages. The only alternative is manual reporting, which is hours late.
 
-## What I Built
+**What if every citizen with a smartphone could detect landslide risks before they happen?**
 
-Retak.id is an Android app that classifies soil crack severity from a single photo — offline, on-device, in real-time. Three classes: **AMAN** (safe), **WASPADA** (caution), **BAHAYA** (danger). Built for Jenangan, Ponorogo — a region hit by 41 landslides in 4 months due to illegal mining.
-
-**My role:** ML Engineer — end-to-end pipeline from data acquisition to TFLite deployment.
-
-**Stack:** Python, TensorFlow/Keras, MobileNetV2/V3, INT8 Quantization, TFLite, MLflow, DVC, DagsHub, Docker, uv
+This is a real deployment, not a research prototype. The app is running on users' phones in Ponorogo.
 
 ---
 
-## The Architecture
+## ARCHITECTURE
 
 ```
 Camera → Bitmap (any resolution)
@@ -45,7 +41,7 @@ Key decisions:
 
 ---
 
-## The Data Problem
+## DATA
 
 Soil crack datasets don't exist. There's no ImageNet for Indonesian landslides. We had to build our own.
 
@@ -69,7 +65,7 @@ Lesson: **Label quality beats dataset size. Always audit your annotations before
 
 ---
 
-## The Model Journey
+## RESULTS
 
 ### Iteration 1: Baseline Transfer Learning
 ```
@@ -104,9 +100,7 @@ Same config. Cleaned dataset (BAHAYA noise removed).
 
 ---
 
-## Reproducibility by Design
-
-Every decision made with reproducibility in mind:
+Every decision was made with reproducibility as a constraint:
 
 ```bash
 # Anyone can reproduce the exact model:
@@ -123,7 +117,7 @@ make split && make train      # produces identical model.tflite
 
 ---
 
-## Experiment Tracking Infrastructure
+## REPRODUCIBILITY
 
 Built a grid search system that:
 - Defines parameter grids in YAML (`grid_search.yaml`)
@@ -152,28 +146,23 @@ No more CSV files. No more "which config produced 81%?". Every run traceable.
 
 ---
 
-## Technical Skills Demonstrated
+## BUSINESS IMPACT
 
-| Area | What I Did |
-|------|------------|
-| **Computer Vision** | Fine-tuned MobileNetV2/V3/EfficientNet for 3-class soil crack classification |
-| **Model Optimization** | INT8 PTQ (14MB → 2.6MB), FP32 vs INT8 comparison (93.75% agreement) |
-| **ML Infrastructure** | Config-driven pipeline, MLflow experiment tracking, DVC data versioning, Docker |
-| **Data Engineering** | Custom web scraper with dedup + quality filtering, dataset validation toolkit |
-| **Reproducibility** | Seed management, dependency locking, one-command bootstrap |
-| **Hyperparameter Tuning** | Grid search engine with auto-generation + resume support |
-| **Deployment** | TFLite export + inference contract for Android (Kotlin integration spec) |
-| **Collaboration** | Git/GitHub, task docs per team member, DagsHub for shared MLflow + DVC |
+| Before | After |
+|--------|-------|
+| Zero early warning system in rural areas | Free app turns phones into landslide sensors |
+| BPBD relies on manual reports (hours late) | Real-time dashboard with geotagged reports |
+| IoT sensor deployment: $500+/location | Zero infrastructure cost — uses existing smartphones |
+| Satellite imagery: $1000+/km², days to process | Instant AI analysis, 300ms per photo |
+
+This project was a semi-finalist at **IYREF 2026** (Climate Resilience & Local Wisdom category) and won the **Best Thematic Award**. The model is deployed as a TFLite package integrated into an Android app currently in use in the Ponorogo region.
 
 ---
 
-## Links
+## LINKS
 
 - **Code:** [github.com/jaweed3/retakId](https://github.com/jaweed3/retakId)
 - **Experiments:** [dagshub.com/jaweed3/retakId.mlflow](https://dagshub.com/jaweed3/retakId.mlflow)
 - **Dataset:** [dagshub.com/jaweed3/retakId](https://dagshub.com/jaweed3/retakId)
-- **Competition:** IYREF 2026 Semi-Final — Climate Resilience & Local Wisdom
 
----
-
-*Built in collaboration with Farrel (Data Acquisition) and Adam (Android Development). May 2026.*
+*Built with Farrel (Data Acquisition) and Adam (Android Dev). May 2026.*
