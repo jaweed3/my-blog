@@ -20,6 +20,15 @@ status: active
 featured: true
 hidden: false
 impact: Brings AI-powered face recognition to $10 IoT hardware with zero cloud dependency
+stats:
+  - value: "$10"
+    label: "Hardware Cost"
+  - value: "500ms"
+    label: "Inference Time"
+  - value: "100%"
+    label: "Offline Operation"
+  - value: "100x"
+    label: "Cheaper than RPi"
 problem: Smart access control systems require expensive cloud servers or powerful edge devices, making them inaccessible for small-scale deployments and privacy-sensitive environments
 results:
   - "Runs on $10 ESP32-S3 microcontroller — 100x cheaper than Raspberry Pi alternatives"

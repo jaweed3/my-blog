@@ -19,6 +19,15 @@ status: active
 featured: true
 hidden: false
 impact: High-performance recommendation engine in Rust — blazing fast inference with memory safety and zero Python overhead
+stats:
+  - value: "100%"
+    label: "Rust End-to-End"
+  - value: "Zero"
+    label: "GIL Bottleneck"
+  - value: "Safe"
+    label: "Compile-Time"
+  - value: "Any"
+    label: "Platform Target"
 problem: Recommendation systems in Python face latency and memory bottlenecks at scale, while C++ alternatives are error-prone and unsafe. Production teams need a safe, fast, and concurrent alternative
 results:
   - "100% Rust — training and inference in a single language"

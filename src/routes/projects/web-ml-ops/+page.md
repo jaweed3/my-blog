@@ -23,6 +23,15 @@ status: active
 featured: true
 hidden: false
 impact: Production-grade MLOps pipeline with 360° observability — from data versioning to live model monitoring
+stats:
+  - value: "DVC"
+    label: "Data Pipeline"
+  - value: "MLflow"
+    label: "Experiment Tracking"
+  - value: "1-Cmd"
+    label: "Docker Setup"
+  - value: "ONNX"
+    label: "Multi-Format Export"
 problem: ML teams struggle to track experiments, version data, and monitor deployed models — leading to unreproducible results, silent performance degradation, and costly production failures
 results:
   - "Automated DVC data versioning with S3-compatible remote storage"

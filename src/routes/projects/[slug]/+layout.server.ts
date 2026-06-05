@@ -2,7 +2,10 @@ import { allProjects } from '$lib/data/projects';
 
 export async function load({ url }) {
   const slug = url.pathname.replace('/projects/', '');
-  const project = allProjects.find((p) => p.slug === slug);
+  const sorted = [...allProjects].sort(
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+  );
+  const project = sorted.find((p) => p.slug === slug);
 
   if (!project) {
     return {
@@ -11,5 +14,5 @@ export async function load({ url }) {
     };
   }
 
-  return { project };
+  return { project, projects: sorted };
 }

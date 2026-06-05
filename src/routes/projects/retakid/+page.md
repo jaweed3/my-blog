@@ -21,6 +21,15 @@ status: active
 featured: true
 hidden: false
 impact: Democratizes landslide early warning — turning everyday smartphones into life-saving geohazard sensors for rural communities
+stats:
+  - value: "84.9%"
+    label: "Accuracy"
+  - value: "2.6MB"
+    label: "Model Size"
+  - value: "50ms"
+    label: "Inference"
+  - value: "3,547"
+    label: "Samples"
 problem: "41 landslides in 4 months in Jenangan, Ponorogo. Existing solutions (IoT sensors, satellite imagery, drone surveys) are too expensive and can't reach rural villages"
 results:
   - "84.9% test accuracy on soil crack classification (MobileNetV2 INT8)"

@@ -20,6 +20,15 @@ status: active
 featured: true
 hidden: false
 impact: Eliminated manual ID checks for a university library — replacing card-based entry with face recognition
+stats:
+  - value: "10x"
+    label: "Throughput"
+  - value: "<1s"
+    label: "Recognition"
+  - value: "0"
+    label: "Staff Needed"
+  - value: "Live"
+    label: "Production"
 problem: University libraries waste 10-15 seconds per student on manual ID card checks during peak hours, creating long queues and requiring multiple security staff at entrances
 results:
   - "Production deployment — serving real users daily"

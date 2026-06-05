@@ -20,6 +20,15 @@ status: active
 featured: true
 hidden: false
 impact: Reduces TTS model size by 79% while maintaining voice quality — making AI speech viable on edge devices
+stats:
+  - value: "79%"
+    label: "Compression Ratio"
+  - value: "5x"
+    label: "Smaller than FP32"
+  - value: "3.2ms"
+    label: "Inference Time"
+  - value: "1.58-bit"
+    label: "Ternary Weights"
 problem: Text-to-speech models are too large for edge deployment, requiring cloud connectivity for voice synthesis and preventing offline accessibility applications
 results:
   - "79% compression vs FP32 (12.4MB → 2.5MB)"

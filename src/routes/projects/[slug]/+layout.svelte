@@ -1,14 +1,16 @@
 <script lang="ts">
   import type { Project } from '$lib/utils/types';
-  import Tag from '$lib/components/atoms/Tag.svelte';
-  import Image from '$lib/components/atoms/Image.svelte';
   import Header from '$lib/components/organisms/Header.svelte';
   import Footer from '$lib/components/organisms/Footer.svelte';
   import ExternalLinkIcon from '$lib/icons/external-link.svelte';
   import { siteBaseUrl } from '$lib/data/meta';
 
-  export let data: { project: Project };
-  const { project } = data;
+  export let data: { project: Project; projects: Project[] };
+  const { project, projects } = data;
+
+  $: currentIndex = projects.findIndex((p) => p.slug === project.slug);
+  $: prevProject = currentIndex > 0 ? projects[currentIndex - 1] : null;
+  $: nextProject = currentIndex < projects.length - 1 ? projects[currentIndex + 1] : null;
 </script>
 
 <svelte:head>
@@ -23,78 +25,74 @@
 <Header showBackground={true} />
 
 <main>
-  <article class="container">
-    <header class="project-header">
-      <div class="meta">
-        <div class="badges">
-          {#each project.tags as tag}
-            <Tag>{tag}</Tag>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="/projects">← Projects</a>
+    </nav>
+
+    <article>
+      <header class="project-hero">
+        <div class="hero-tags">
+          {#each project.tags as tag, i}
+            <span>{tag}{#if i < project.tags.length - 1}<span class="tag-sep"> · </span>{/if}</span>
           {/each}
         </div>
-        <h1>{project.title}</h1>
-        <p class="impact">{project.impact}</p>
-        <div class="links">
+
+        <div class="hero-title-row">
+          <h1>{project.title}</h1>
           {#if project.github}
-            <a href={project.github} target="_blank" rel="noopener noreferrer" class="link-btn">
-              <ExternalLinkIcon /> Source
+            <a href={project.github} target="_blank" rel="noopener noreferrer" class="github-link">
+              <ExternalLinkIcon /> GitHub →
             </a>
           {/if}
-          {#if project.demo}
-            <a href={project.demo} target="_blank" rel="noopener noreferrer" class="link-btn">
-              <ExternalLinkIcon /> Demo
-            </a>
-          {/if}
+        </div>
+
+        <div class="hero-rule"></div>
+
+        <p class="hero-subtitle">{project.impact}</p>
+
+        {#if project.stats && project.stats.length > 0}
+          <div class="stat-grid">
+            {#each project.stats as stat}
+              <div class="stat-item">
+                <span class="stat-number">{stat.value}</span>
+                <span class="stat-label">{stat.label}</span>
+              </div>
+            {/each}
+          </div>
+        {/if}
+      </header>
+
+      <div class="project-body">
+        <div class="content">
+          <slot />
         </div>
       </div>
-      {#if project.coverImage}
-        <div class="cover">
-          <Image src="/{project.coverImage}" alt={project.title} />
-        </div>
+
+      {#if prevProject || nextProject}
+        <nav class="project-nav">
+          {#if prevProject}
+            <a href="/projects/{prevProject.slug}" class="nav-link prev">
+              <span class="nav-direction">← Previous</span>
+              <span class="nav-title">{prevProject.title}</span>
+              <span class="nav-desc">{prevProject.impact}</span>
+            </a>
+          {:else}
+            <div></div>
+          {/if}
+          {#if nextProject}
+            <a href="/projects/{nextProject.slug}" class="nav-link next">
+              <span class="nav-direction">Next →</span>
+              <span class="nav-title">{nextProject.title}</span>
+              <span class="nav-desc">{nextProject.impact}</span>
+            </a>
+          {:else}
+            <div></div>
+          {/if}
+        </nav>
       {/if}
-    </header>
-
-    <div class="problem-section">
-      <div class="label accent">Problem</div>
-      <p>{project.problem}</p>
-    </div>
-
-    {#if project.results && project.results.length > 0}
-      <div class="results-section">
-        <div class="label green">Key Results</div>
-        <div class="results-grid">
-          {#each project.results as result}
-            <div class="result-item">{result}</div>
-          {/each}
-        </div>
-      </div>
-    {/if}
-
-    {#if project.outcome}
-      <div class="outcome-section">
-        <div class="label green">Outcome</div>
-        <p>{project.outcome}</p>
-      </div>
-    {/if}
-
-    <div class="tech-stack">
-      <span class="label">Tech</span>
-      {#each project.techStack as tech}
-        <Tag color="secondary">{tech}</Tag>
-      {/each}
-    </div>
-
-    <div class="content-divider"></div>
-
-    <div id="article-content">
-      <div class="content">
-        <slot />
-      </div>
-    </div>
-
-    <div class="back-nav">
-      <a href="/projects">← All Projects</a>
-    </div>
-  </article>
+    </article>
+  </div>
 </main>
 
 <Footer />
@@ -102,285 +100,398 @@
 <style lang="scss">
   @import '$lib/scss/breakpoints.scss';
 
-  .project-header {
-    display: grid;
-    grid-template-columns: 1fr 380px;
-    gap: 40px;
-    align-items: start;
-    padding: 40px 0;
+  /* ── Breadcrumb ── */
+  .breadcrumb {
+    padding: 32px 0 0;
 
-    @include for-tablet-portrait-down {
-      grid-template-columns: 1fr;
+    a {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s ease;
+
+      &:hover {
+        color: var(--text);
+      }
+    }
+  }
+
+  /* ── Hero ── */
+  .project-hero {
+    padding: 32px 0 48px;
+
+    .hero-tags {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      margin-bottom: 16px;
+      text-transform: uppercase;
     }
 
-    .meta {
+    .hero-title-row {
       display: flex;
-      flex-direction: column;
-      gap: 12px;
-
-      .badges {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 6px;
-      }
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 24px;
 
       h1 {
         margin: 0;
+        font-size: clamp(48px, 7vw, 96px);
+        flex: 1;
+      }
+    }
+
+    .github-link {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      text-decoration: none;
+      padding: 8px 16px;
+      border: 1px solid var(--border);
+      color: var(--text);
+      flex-shrink: 0;
+      transition: all 0.2s ease;
+
+      &:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+
+        :global(svg) {
+          color: var(--accent);
+        }
       }
 
-      .impact {
-        font-family: var(--font-body);
-        font-size: 18px;
-        font-weight: 600;
-        color: var(--text);
-        line-height: 1.5;
-        margin: 0;
+      :global(svg) {
+        width: 14px;
+        transition: color 0.2s ease;
       }
 
-      .links {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
+      @include for-phone-only {
+        font-size: 11px;
+        padding: 6px 12px;
+      }
+    }
 
-        .link-btn {
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          font-family: var(--font-mono);
-          font-size: 12px;
-          letter-spacing: 0.1em;
-          text-decoration: none;
-          padding: 8px 16px;
-          border: 1px solid var(--border);
-          color: var(--text);
-          text-transform: uppercase;
-          transition: all 0.2s;
+    .hero-rule {
+      height: 1px;
+      background: var(--border);
+      margin: 24px 0;
+    }
 
-          &:hover {
-            border-color: var(--accent);
-            color: var(--accent);
-          }
+    .hero-subtitle {
+      font-family: var(--font-body);
+      font-size: 20px;
+      color: var(--muted);
+      line-height: 1.5;
+      margin: 0;
+      max-width: 680px;
+    }
+  }
+
+  /* ── Stat Grid ── */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    border: 1px solid var(--border);
+    margin-top: 40px;
+
+    .stat-item {
+      padding: 24px;
+      border-right: 1px solid var(--border);
+
+      &:last-child {
+        border-right: none;
+      }
+
+      @include for-phone-only {
+        padding: 16px;
+
+        &:nth-child(even) {
+          border-right: none;
+        }
+        &:nth-child(2) {
+          border-right: 1px solid var(--border);
         }
       }
     }
 
-    .cover {
+    .stat-number {
+      display: block;
+      font-family: var(--font-display);
+      font-size: 42px;
+      color: var(--code);
+      line-height: 1;
+    }
+
+    .stat-label {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+  }
+
+  /* ── Content Body ── */
+  .project-body {
+    padding-bottom: 80px;
+  }
+
+  .content {
+    max-width: 680px;
+
+    a:not(.nav-link) {
+      color: var(--accent);
+      text-decoration: underline;
+      text-underline-offset: 0.15em;
+
+      &:hover {
+        text-underline-offset: 0.3em;
+      }
+    }
+
+    p {
+      font-family: var(--font-body);
+      font-size: 18px;
+      line-height: 1.75;
+      color: var(--text);
+      margin: 1em 0;
+    }
+
+    h2 {
+      font-family: var(--font-display);
+      font-size: clamp(28px, 3vw, 42px);
+      color: var(--text);
+      margin-top: 72px;
+      margin-bottom: 16px;
+    }
+
+    h3 {
+      font-family: var(--font-body);
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--text);
+      margin: 40px 0 8px;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+
+      li {
+        font-family: var(--font-body);
+        font-size: 18px;
+        padding: 10px 0 10px 20px;
+        border-bottom: 1px solid var(--border);
+        position: relative;
+        line-height: 1.6;
+
+        &::before {
+          content: '◆';
+          position: absolute;
+          left: 0;
+          color: var(--accent);
+          font-size: 10px;
+          top: 14px;
+        }
+      }
+    }
+
+    ol {
+      li {
+        font-family: var(--font-body);
+        font-size: 18px;
+        line-height: 1.6;
+        color: var(--text);
+        margin: 8px 0;
+      }
+    }
+
+    pre {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      padding: 24px;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--code);
+      margin: 32px 0;
+
+      code {
+        background: none;
+        border: none;
+        padding: 0;
+        font-size: inherit;
+        color: inherit;
+      }
+    }
+
+    code {
+      font-family: var(--font-mono);
+      font-size: 0.85em;
+    }
+
+    code:not(pre code) {
+      color: var(--code);
+      background: var(--surface);
+      padding: 2px 6px;
+      border: 1px solid var(--border);
+    }
+
+    :global(pre[class*="language-undefined"]),
+    :global(code[class*="language-undefined"]) {
+      &::before {
+        display: none;
+      }
+    }
+
+    blockquote {
+      border-left: 3px solid var(--accent);
+      background: var(--surface);
+      padding: 16px 20px;
+      margin: 32px 0;
+
+      p {
+        margin: 0;
+      }
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      margin: 40px 0;
+
+      th {
+        text-align: left;
+        padding: 12px 16px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        color: var(--accent);
+        font-size: 11px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
+      td {
+        padding: 14px 16px;
+        border: 1px solid var(--border);
+        color: var(--text);
+        font-family: var(--font-body);
+        font-size: 16px;
+        vertical-align: top;
+      }
+
+      tr:hover td {
+        background: var(--surface);
+      }
+    }
+
+    strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 48px 0;
+    }
+
+    img {
+      display: block;
+      margin: 2rem auto;
+      max-width: 100%;
       border: 2px solid var(--border);
     }
   }
 
-  .label {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    margin-bottom: 8px;
-    display: block;
-    color: var(--muted);
+  /* ── Prev/Next Navigation ── */
+  .project-nav {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    border: 1px solid var(--border);
+    margin-bottom: 80px;
+    transition: border-color 0.2s ease;
 
-    &.accent {
-      color: var(--accent);
+    @include for-phone-only {
+      grid-template-columns: 1fr;
     }
-    &.green {
-      color: var(--code);
-    }
-  }
 
-  .problem-section {
-    border-left: 3px solid var(--accent);
-    padding: 16px 20px;
-    margin: 8px 0 24px;
-    background: var(--surface);
-
-    p {
-      margin: 0;
-      font-family: var(--font-body);
-      font-size: 16px;
-      line-height: 1.6;
-      color: var(--text);
-    }
-  }
-
-  .results-section {
-    margin-bottom: 24px;
-
-    .results-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-
-      @include for-phone-only {
-        grid-template-columns: 1fr;
-      }
-
-      .result-item {
-        font-family: var(--font-body);
-        font-size: 15px;
-        line-height: 1.5;
-        padding: 12px 16px;
-        border: 1px solid var(--border);
-        color: var(--text);
-      }
-    }
-  }
-
-  .outcome-section {
-    border-left: 3px solid var(--code);
-    padding: 16px 20px;
-    margin-bottom: 24px;
-    background: var(--surface);
-
-    p {
-      margin: 0;
-      font-family: var(--font-body);
-      font-size: 16px;
-      line-height: 1.6;
-      color: var(--text);
-    }
-  }
-
-  .tech-stack {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 8px;
-    padding: 16px 0;
-    border-top: 1px solid var(--border);
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 24px;
-
-    .label {
-      margin-bottom: 0;
-      margin-right: 4px;
-    }
-  }
-
-  .content-divider {
-    height: 1px;
-    background: var(--border);
-    margin-bottom: 30px;
-  }
-
-  #article-content {
-    .content {
-      a {
-        color: var(--accent);
-        text-decoration: underline;
-        text-underline-offset: 0.15em;
-
-        &:hover {
-          text-underline-offset: 0.3em;
-        }
-      }
-
-      p {
-        margin: 0.75rem 0;
-        line-height: 1.65;
-        font-size: 16px;
-        color: var(--text);
-      }
-
-      h2 {
-        margin: 2.5rem 0 0.5rem;
-      }
-
-      h3 {
-        margin: 2rem 0 0.3rem;
-      }
-
-      img {
-        display: block;
-        margin: 2rem auto;
-        max-width: 100%;
-        border: 2px solid var(--border);
-      }
-
-      code {
-        font-family: var(--font-mono);
-        font-size: 0.9em;
-      }
-
-      code:not([class^='language-']) {
-        background: var(--surface);
-        padding: 3px 6px;
-        border: 1px solid var(--border);
-        color: var(--code);
-      }
-
-      blockquote {
-        padding: 16px 20px;
-        border-left: 3px solid var(--accent);
-        background: var(--surface);
-        margin: 1.5rem 0;
-
-        p {
-          margin: 0;
-        }
-      }
-
-      pre {
-        margin: 1.5rem 0;
-        overflow-x: auto;
-        border: 1px solid var(--border);
-        background: var(--surface);
-        padding: 16px;
-
-        code {
-          background: none;
-          border: none;
-          padding: 0;
-        }
-      }
-
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        margin: 1.5rem 0;
-        font-size: 0.9rem;
-        border: 1px solid var(--border);
-
-        th, td {
-          padding: 10px 14px;
-          border: 1px solid var(--border);
-          text-align: left;
-        }
-
-        th {
-          background: var(--surface);
-          font-weight: 600;
-          font-family: var(--font-mono);
-          font-size: 12px;
-          letter-spacing: 0.05em;
-          text-transform: uppercase;
-        }
-
-        tr:nth-child(even) td {
-          background: var(--surface);
-        }
-      }
-    }
-  }
-
-  .back-nav {
-    margin-top: 4rem;
-    padding-top: 20px;
-    border-top: 1px solid var(--border);
-
-    a {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-family: var(--font-mono);
-      font-size: 13px;
-      letter-spacing: 0.1em;
-      color: var(--muted);
+    .nav-link {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 32px;
       text-decoration: none;
-      text-transform: uppercase;
+      transition: all 0.2s ease;
+
+      &.prev {
+        border-right: 1px solid var(--border);
+        @include for-phone-only {
+          border-right: none;
+          border-bottom: 1px solid var(--border);
+        }
+      }
 
       &:hover {
-        color: var(--accent);
+        border-color: var(--accent);
+
+        .nav-title {
+          color: var(--accent);
+        }
       }
+
+      .nav-direction {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+      }
+
+      .nav-title {
+        font-family: var(--font-display);
+        font-size: 28px;
+        color: var(--text);
+        text-transform: uppercase;
+        letter-spacing: -0.01em;
+        line-height: 1.2;
+        transition: color 0.2s ease;
+      }
+
+      .nav-desc {
+        font-family: var(--font-body);
+        font-size: 14px;
+        color: var(--muted);
+        line-height: 1.4;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .github-link,
+    .project-nav .nav-link,
+    .breadcrumb a,
+    .content a,
+    .content tr td {
+      transition: none;
     }
   }
 </style>

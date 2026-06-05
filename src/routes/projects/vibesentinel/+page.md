@@ -22,6 +22,15 @@ status: active
 featured: true
 hidden: false
 impact: Predicts industrial equipment failure before it happens — using a $20 microcontroller with zero cloud dependency
+stats:
+  - value: "$20"
+    label: "Hardware Cost"
+  - value: "524"
+    label: "Parameters"
+  - value: "200Hz"
+    label: "Sample Rate"
+  - value: "~2KB"
+    label: "Model Size"
 problem: Industrial predictive maintenance requires expensive sensor infrastructure ($500+/node), cloud subscriptions, and specialized expertise — inaccessible for small factories, remote equipment, and budget-constrained operations
 results:
   - "524-parameter autoencoder — smallest model in its class (~2 KB)"

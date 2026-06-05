@@ -39,6 +39,11 @@ export type BlogPost = {
   coverImage: string | undefined
 }
 
+export type Stat = {
+  value: string;
+  label: string;
+};
+
 export type Project = {
   title: string;
   slug: string;
@@ -59,4 +64,5 @@ export type Project = {
   problem: string;
   results: string[];
   outcome: string;
+  stats: Stat[];
 };

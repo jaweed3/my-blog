@@ -20,6 +20,15 @@ status: active
 featured: true
 hidden: false
 impact: Accelerated search & rescue operations by 2.5x with on-device AI victim detection on drones
+stats:
+  - value: "40ms"
+    label: "Inference Latency"
+  - value: "71%"
+    label: "Model Compression"
+  - value: "37%"
+    label: "Faster than FP32"
+  - value: "3.6MB"
+    label: "Model Size"
 problem: Search & rescue teams rely on manual visual inspection of drone footage, which is slow, error-prone, and delays critical response in the golden hour
 results:
   - "Sub-40ms inference latency on-device — 37% faster than FP32"

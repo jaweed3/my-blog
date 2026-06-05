@@ -20,6 +20,15 @@ status: active
 featured: false
 hidden: false
 impact: Automates resume screening with AI — matching candidates to jobs in seconds instead of hours
+stats:
+  - value: "2-3s"
+    label: "Per Resume"
+  - value: "Auto"
+    label: "PDF/DOCX Parse"
+  - value: "TF-IDF"
+    label: "Matching"
+  - value: "SQLite"
+    label: "Persistence"
 problem: HR teams spend hours manually screening resumes against job descriptions, applying inconsistent criteria and introducing unconscious bias into the hiring pipeline
 results:
   - "Parse PDF and DOCX resumes automatically with PyMuPDF + python-docx"
