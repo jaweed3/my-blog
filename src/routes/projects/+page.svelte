@@ -2,7 +2,7 @@
   import type { Project } from '$lib/utils/types';
   import Header from '$lib/components/organisms/Header.svelte';
   import Footer from '$lib/components/organisms/Footer.svelte';
-  import { title } from '$lib/data/meta';
+  import { title, description, keywords, siteBaseUrl } from '$lib/data/meta';
 
   export let data: { projects: Project[] };
   const { projects } = data;
@@ -10,6 +10,10 @@
 
 <svelte:head>
   <title>Projects — {title}</title>
+  <meta name="description" content="Portfolio of Edge ML, MLOps, and embedded systems projects by Fatih Jawwad." />
+  <meta property="og:description" content="Portfolio of Edge ML, MLOps, and embedded systems projects." />
+  <meta property="og:title" content="Projects — {title}" />
+  <link rel="canonical" href="{siteBaseUrl}projects" />
 </svelte:head>
 
 <Header showBackground={true} />

@@ -1,6 +1,7 @@
 <script>
 	import Header from '$lib/components/organisms/Header.svelte';
 	import Footer from '$lib/components/organisms/Footer.svelte';
+	import { page } from '$app/stores';
 
 	import { description, image, keywords, title, siteBaseUrl } from '$lib/data/meta';
 </script>
@@ -21,6 +22,21 @@
 	<meta name="twitter:image" content={image} />
 
 	<meta name="twitter:card" content="summary_large_image" />
+
+	<script type="application/ld+json">
+		{{
+			"@context": "https://schema.org",
+			"@type": "Person",
+			"name": "Fatih Jawwad",
+			"url": {siteBaseUrl},
+			"jobTitle": "Machine Learning Engineer",
+			"knowsAbout": ["Edge ML", "MLOps", "Quantization", "Embedded Systems", "Computer Vision"],
+			"sameAs": [
+				"https://github.com/jaweed3",
+				"https://linkedin.com/in/jaweed3"
+			]
+		}}
+	</script>
 </svelte:head>
 
 <Header />

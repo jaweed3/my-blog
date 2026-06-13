@@ -18,8 +18,8 @@ export const keywords = [
 ];
 
 export const description =
-	'Computer Engineer specializing in Edge ML, Quantization, and MLOps. Building sovereign AI that runs on-device — no cloud required.';
+	'Professional ML Engineer specializing in Edge AI, Model Optimization, and MLOps. Building production AI that runs on-device — no cloud required.';
 
-export const title = 'Jawwad — Edge ML & Systems';
+export const title = 'Jawwad — Professional ML Engineer';
 
 export const image = `${siteBaseUrl}/images/site-preview.png`;

@@ -8,7 +8,7 @@
 
   <div class="hero-rule"></div>
 
-  <p class="hero-title">Machine Learning Engineer</p>
+  <p class="hero-title">Professional ML Engineer</p>
 
   <p class="hero-desc">
     I design and deploy AI systems that work in production — from edge devices to cloud infrastructure.
