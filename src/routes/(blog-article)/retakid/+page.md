@@ -12,157 +12,77 @@ tags:
   - Case Study
 ---
 
-## PROBLEM
-
 Jenangan, Ponorogo. 41 landslides in 4 months. Illegal mining strips vegetation, destabilizes slopes. Roads cut off. Communities isolated.
 
-Local disaster agency (BPBD) has no real-time field data. Existing solutions — IoT sensors ($500+/node), satellite imagery ($1,000+/km²), drone surveys — are too expensive and can't reach rural villages. The only alternative is manual reporting, which is hours late.
-
-**What if every citizen with a smartphone could detect landslide risks before they happen?**
+The local disaster agency (BPBD) has no real-time field data. Existing solutions — IoT sensors at $500+/node, satellite imagery at $1,000+/km², drone surveys — are too expensive and can't reach rural villages. The only alternative is manual reporting, which is hours late.
 
 This is a real deployment, not a research prototype. The app is running on users' phones in Ponorogo.
 
----
+## How it works
 
-## ARCHITECTURE
-
-```
-Camera → Bitmap (any resolution)
-  → Resize 224×224 → uint8 [0,255]
-  → TFLite INT8 Model (2.6MB)
-  → AMAN / WASPADA / BAHAYA + confidence
-  → No internet required. 0ms server latency. Works in rural Ponorogo.
-```
+Point your phone at a slope. The app captures a photo, resizes to 224x224, runs a TFLite INT8 model (2.6MB), and returns one of three classifications: AMAN (safe), WASPADA (caution), or BAHAYA (danger) — all on-device, no internet required.
 
 Key decisions:
-- **On-device inference, not cloud.** Landslide-prone areas have poor connectivity. A cloud API is useless if users can't reach it. TFLite runs on any Android 7.0+ device.
-- **INT8 quantization.** Drops model from 14MB FP32 to 2.6MB — fits in a single APK. Inference latency `<50ms` on a Pixel 4a.
+- **On-device inference.** Landslide-prone areas have poor connectivity. A cloud API is useless if users can't reach it. TFLite runs on any Android 7.0+ device.
+- **INT8 quantization.** Drops the model from 14MB FP32 to 2.6MB — fits in a single APK. Inference latency under 50ms on a Pixel 4a.
 - **Config-driven pipeline.** Single `training.yaml` controls everything. Exact reproducibility for competition judges.
 
----
+## Building the dataset
 
-## DATA
+Soil crack datasets don't exist. There's no ImageNet for Indonesian landslides. We built our own.
 
-Soil crack datasets don't exist. There's no ImageNet for Indonesian landslides. We had to build our own.
+70+ search queries across DuckDuckGo. Custom scraper with perceptual hash deduplication (Hamming distance under 6), Laplacian blur detection to reject low-quality images, rotating user agents, exponential backoff, and 12-thread parallel download.
 
-### Scraping
-70+ search queries across DuckDuckGo. Built a custom scraper with:
-- Perceptual hash deduplication (pHash, Hamming distance  `<` 6)
-- Laplacian blur detection (reject images  `<` threshold)
-- Rotating user agents + exponential backoff
-- 12-thread parallel download with random delays
+Manual triage into three classes by our team geologist. Critical discovery: retakan kemarau (dry season cracks) are not landslide warning signs. We initially mislabeled these as WASPADA. Fixing that single labeling error jumped accuracy by 3%.
 
-### Annotation Strategy
-Manual triage into 3 classes by domain knowledge (not me — the team geologist). Critical insight: **retakan kemarau (dry season cracks) ≠ landslide warning signs.** We initially mislabeled these as WASPADA. Fixing this single labeling error jumped accuracy 3%.
+V1 dataset: 4,522 images (noisy BAHAYA labels). V2: 3,545 images (cleaned, balanced). Result: 73% → 85% accuracy from data cleaning alone. Label quality beats dataset size. Always audit your annotations before tuning hyperparameters.
 
-```
-v1 dataset: 4,522 images (noisy BAHAYA labels)
-v2 dataset: 3,545 images (cleaned, balanced)
-Result:     73% → 85% accuracy from data cleaning alone
-```
+## Training iterations
 
-Lesson: **Label quality beats dataset size. Always audit your annotations before tuning hyperparameters.**
+**Iteration 1 — Baseline transfer learning.** MobileNetV2 (frozen) + classification head. LR 1e-4, dropout 0.3. 73.0% test accuracy. Decent, but WASPADA F1 was 0.56. The model couldn't distinguish subtle warning signs from severe cracks.
 
----
+**Iteration 2 — Fine-tuning.** Unfroze layers 100+ (54 layers, 1.87M params). LR 1e-5, dropout 0.5. 76.7% test accuracy. But 1.87M trainable params on 2,500 training images = overfitting. AMAN F1 dropped.
 
-## RESULTS
+**Iteration 3 — Conservative fine-tuning.** Unfroze layers 130+ (24 layers, 800K params). LR 5e-6, dropout 0.5, aggressive augmentation. 81.8% test accuracy. The sweet spot. Fewer trainable params + slower learning = better generalization.
 
-### Iteration 1: Baseline Transfer Learning
-```
-MobileNetV2 (frozen) + classification head
-LR 1e-4, dropout 0.3, basic augmentation
-→ 73.0% test accuracy
-```
-Standard transfer learning. Decent, but WASPADA F1 was 0.56. The model couldn't distinguish subtle warning signs from severe cracks.
+**Iteration 4 — Data quality fix.** Same config. Cleaned dataset. 84.9% test accuracy. WASPADA F1 0.68+. INT8 agreement 93.75%. The biggest single improvement came from fixing bad labels, not changing the model architecture.
 
-### Iteration 2: Fine-Tuning
-```
-MobileNetV2 (layers 100+ unfrozen, 54 layers, 1.87M params)
-LR 1e-5, dropout 0.5
-→ 76.7% test accuracy
-```
-Unfreezing half the model helped, but 1.87M trainable params on 2,500 training images = overfitting. AMAN F1 dropped. Too aggressive.
-
-### Iteration 3: Conservative Fine-Tuning
-```
-MobileNetV2 (layers 130+ unfrozen, 24 layers, 800K params)
-LR 5e-6, dropout 0.5, aggressive augmentation
-→ 81.8% test accuracy
-```
-The sweet spot. Fewer trainable params + slower learning = better generalization. WASPADA F1 recovered to 0.64.
-
-### Iteration 4: Data Quality Fix
-```
-Same config. Cleaned dataset (BAHAYA noise removed).
-→ 84.9% test accuracy. WASPADA F1 0.68+. INT8 agreement 93.75%.
-```
-**The biggest single improvement didn't come from model architecture — it came from fixing bad labels.**
-
----
+## Reproducibility
 
 Every decision was made with reproducibility as a constraint:
 
 ```bash
-# Anyone can reproduce the exact model:
 git clone https://github.com/jaweed3/retakId.git
-bash scripts/bootstrap.sh    # auto-installs Python, deps, pulls data
-make split && make train      # produces identical model.tflite
+bash scripts/bootstrap.sh
+make split && make train
 ```
 
-- **Fixed seeds everywhere** (Python, NumPy, TensorFlow, data split)
-- **uv.lock** pins all 200+ dependencies
-- **DVC + DagsHub** for dataset versioning (S3-compatible, free tier)
-- **Docker** for hermetic training environment
-- **MLflow** (DagsHub hosted) — every experiment logged: params, metrics, artifacts
+Fixed seeds everywhere (Python, NumPy, TensorFlow, data split). uv.lock pins all 200+ dependencies. DVC + DagsHub for dataset versioning. Docker for hermetic training. MLflow (DagsHub hosted) logs every experiment — params, metrics, artifacts.
 
----
+Built a grid search system that defines parameter grids in YAML, auto-generates experiment configs, runs with resume support, and logs everything to DagsHub MLflow. No more CSV files. No more "which config produced 81%?"
 
-## REPRODUCIBILITY
+## What I'd do differently
 
-Built a grid search system that:
-- Defines parameter grids in YAML (`grid_search.yaml`)
-- Auto-generates experiment configs (cartesian product + exclude rules)
-- Runs with resume support (SSH disconnect → re-run, skips completed)
-- Logs everything to DagsHub MLflow (view from phone)
+**Active learning for annotation.** Instead of random sampling, use model uncertainty to prioritize which images to label next. Would have caught the AMAN/WASPADA confusion earlier.
 
-```
-24 experiments × 15 min = ~6 hours on CPU, ~1 hour on GPU
-Compare in MLflow UI: accuracy vs dropout vs fine_tune_at vs learning_rate
-```
+**Test-time augmentation.** Average predictions across 5-10 augmented versions for +1-2% free accuracy. Didn't implement due to mobile latency constraints.
 
-No more CSV files. No more "which config produced 81%?". Every run traceable.
+**Model distillation.** Train a larger teacher model (EfficientNetB3), distill to MobileNetV3. Could push 90%+ while keeping under 5MB.
 
----
+**Start with data audit, not hyperparameter tuning.** 80% of the accuracy gains came from fixing labels, not tweaking learning rates. I learned this the hard way.
 
-## What I'd Do Differently
+## Impact
 
-1. **Active learning for annotation.** Instead of random sampling, use model uncertainty to prioritize which images to label next. Would have caught the AMAN/WASPADA confusion earlier.
+Before: zero early warning system in rural areas. BPBD relies on manual reports that arrive hours late.
 
-2. **Test-time augmentation.** Average predictions across 5-10 augmented versions for +1-2% free accuracy. Didn't implement due to mobile latency constraints.
+After: a free app that turns phones into landslide sensors. Zero infrastructure cost — uses existing smartphones. Instant AI analysis, ~300ms per photo.
 
-3. **Model distillation.** Train a larger teacher model (EfficientNetB3), distill to MobileNetV3. Could push 90%+ while keeping  `<` 5MB.
+This project was a semi-finalist at IYREF 2026 (Climate Resilience & Local Wisdom category) and won the Best Thematic Award. The model is deployed as a TFLite package integrated into an Android app currently in use in the Ponorogo region.
 
-4. **Start with data audit, not hyperparameter tuning.** 80% of the accuracy gains came from fixing labels, not tweaking learning rates. I learned this the hard way.
+## Links
 
----
-
-## BUSINESS IMPACT
-
-| Before | After |
-|--------|-------|
-| Zero early warning system in rural areas | Free app turns phones into landslide sensors |
-| BPBD relies on manual reports (hours late) | Real-time dashboard with geotagged reports |
-| IoT sensor deployment: $500+/location | Zero infrastructure cost — uses existing smartphones |
-| Satellite imagery: $1000+/km², days to process | Instant AI analysis, 300ms per photo |
-
-This project was a semi-finalist at **IYREF 2026** (Climate Resilience & Local Wisdom category) and won the **Best Thematic Award**. The model is deployed as a TFLite package integrated into an Android app currently in use in the Ponorogo region.
-
----
-
-## LINKS
-
-- **Code:** [github.com/jaweed3/retakId](https://github.com/jaweed3/retakId)
-- **Experiments:** [dagshub.com/jaweed3/retakId.mlflow](https://dagshub.com/jaweed3/retakId.mlflow)
-- **Dataset:** [dagshub.com/jaweed3/retakId](https://dagshub.com/jaweed3/retakId)
+- Code: [github.com/jaweed3/retakId](https://github.com/jaweed3/retakId)
+- Experiments: [dagshub.com/jaweed3/retakId.mlflow](https://dagshub.com/jaweed3/retakId.mlflow)
+- Dataset: [dagshub.com/jaweed3/retakId](https://dagshub.com/jaweed3/retakId)
 
 *Built with Farrel (Data Acquisition) and Adam (Android Dev). May 2026.*

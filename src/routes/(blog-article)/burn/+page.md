@@ -11,133 +11,95 @@ tags:
   - Case Study
 ---
 
-## PROBLEM
+I was building a recommendation system with Burn — the Rust DL framework with 15K+ GitHub stars — and kept hitting the same wall. Shape mismatches with no dimension info. TensorNotFound errors with zero guidance on how to fix them. SGD config docs that were just wrong. The framework was powerful but the developer experience had rough edges I couldn't ignore.
 
-Burn is a Rust deep learning framework with 15K+ GitHub stars. I was building a recommendation system with it and kept hitting cryptic errors — shape mismatches with no dimension info, TensorNotFound with no hint about how to fix it, SGD config docs that were straight-up wrong. The framework was powerful, but the developer experience had rough edges.
+I'd never contributed to Burn before. Didn't know the codebase, the conventions, or how harsh the review process would be. So I did the dumb thing: started fixing whatever annoyed me and hoped for the best.
 
-I had never contributed to Burn before. I didn't know the codebase, the conventions, or the review process.
-
-**What if I just started fixing the things that annoyed me?**
-
----
-
-## THE PRs
+## The PRs, in order
 
 ### 1. ROUGE-L Score Metric (#4967 — merged May 20)
 
-**The ask:** Burn had BLEU, CER, and WER metrics for NLP evaluation, but no ROUGE-L. Issue #544 had been open requesting it.
+Burn had BLEU, CER, and WER for NLP evaluation. No ROUGE-L, despite an issue (#544) that had been open for months. I needed it for my own project, so I wrote it.
 
-**The implementation:** Computes the F1 score based on the longest common subsequence (LCS) between predicted and reference token sequences. 8 unit tests covering edge cases (perfect match, no match, padding, empty sequences, batch averaging).
-
-**Review experience:** Single review cycle. Reviewer asked to remove a redundant `total_f1` update. Merged same day.
-
-**Diff:** +3 files (new `rouge.rs`, registered in `mod.rs`)
+The implementation computes F1 from the longest common subsequence between predicted and reference token sequences. Eight unit tests covering edge cases — perfect match, no match, padding, empty sequences, batch averaging. Reviewer asked me to remove a redundant `total_f1` update. I fixed it. Merged same day. Three files added (`rouge.rs` + module registration).
 
 ### 2. SGD Config Fix (#4986 — merged May 21)
 
-**The ask:** `SgdConfig::init` had wrong documentation (said "creates a new config" instead of "creates a new optimizer") and used a concrete `OptimizerAdaptor` return type instead of `impl Optimizer`. Issue #868.
+`SgdConfig::init` had two problems: wrong documentation (said "creates a new config" instead of "creates a new optimizer") and a concrete `OptimizerAdaptor` return type instead of `impl Optimizer`.
 
-**The fix:** Corrected the doc. Tried to change the return type to `impl Optimizer` — reviewer requested reverting it because it would break uniformity across other optimizers.
+I fixed both. Then the reviewer (laggui) asked me to revert the return type change. It would break uniformity across all other optimizer configs. My change was technically "better" but violated the project's established pattern. He was right.
 
-**Key lesson:** I pushed a change that was technically "better" but violated the project's consistency pattern. The reviewer was right. Good OSS contributions respect established patterns, not just technical correctness.
-
-**Diff:** +2/-2 lines (doc fix only, return type reverted)
+Final diff: +2/-2 lines. Doc fix only. This was the most valuable rejection I've gotten in open source.
 
 ### 3. Better Shape Errors (#4996 — merged May 25)
 
-**The ask:** Burn's tensor and NN module errors often said "incompatible shapes" without telling you *which* shapes. When you're debugging a 10-layer neural network, this means adding print statements everywhere.
+This one came from pure frustration. Burn's tensor and NN module errors would say "incompatible shapes" without telling you which shapes. Debugging a 10-layer neural network means adding print statements everywhere.
 
-**The fix:** Added shape, rank, and dimension context to 4 error sites:
+I added shape, rank, and dimension context to four error sites:
+- Matmul: panic now includes tensor rank and incompatible dimensions
+- Broadcast: includes arg count and expected minimum dims
+- Squeeze: shows requested vs actual dim count
+- Group norm: uses `num_dims()` instead of `num_elements()` — was showing "12800 total elements" instead of "expected 4 dims"
 
-- **matmul:** panic now includes tensor rank and incompatible dimensions
-- **broadcast:** includes arg count and expected minimum dims
-- **squeeze:** shows requested vs actual dim count
-- **group norm:** uses `num_dims()` instead of `num_elements()` (was showing 12800 total elements instead of "expected 4 dims")
-
-**Review experience:** Clean merge. One force-push for formatting.
+Clean merge. One force-push for formatting.
 
 ### 4. Derive Conflicting Generic (#5028 — merged Jun 1)
 
-**The ask:** When a generic type parameter is used in both a `Module` field and a `#[module(skip)]` field, Burn's derive macro emitted a confusing error about a missing `Module` trait bound. Users had no idea the real issue was the generic being shared across skip/non-skip fields. Issue #5007.
+This was the deep one. When a generic type parameter is used in both a `Module` field and a `#[module(skip)]` field, Burn's derive macro emitted a confusing error about a missing `Module` trait bound. Users had no clue the real issue was the generic being shared across skip/non-skip fields.
 
-**The fix:** Custom derive macro diagnostic. Instead of the cryptic compiler error, users now see:
+I wrote a custom derive macro diagnostic. Instead of the cryptic compiler error:
 
 ```
 error: Generic type `T` is used in both a module field and a skipped field.
        Consider removing `#[module(skip)]` or using a different type for one of the fields.
 ```
 
-**Why this matters:** This is a custom derive macro in `burn-derive`. It required understanding proc macros, `syn` AST manipulation, and Burn's module codegen — the most technically complex PR of the five.
-
-**Review experience:** Two review cycles. First round caught a code style issue. Second round was approved.
+This required understanding proc macros, `syn` AST manipulation, and Burn's module codegen. Two review cycles. First caught a style issue. Second approved. The most technically complex PR of the five by far.
 
 ### 5. TensorNotFound `.allow_partial(true)` Hint (#5032 — merged Jun 2)
 
-**The ask:** When `load_from` fails because a checkpoint is missing tensors (common when loading a pretrained model into a modified architecture), Burn just says "TensorNotFound" with no hint. Users don't know about `.allow_partial(true)`. Issue #4718.
+When `load_from` fails because a checkpoint is missing tensors — common when loading a pretrained model into a modified architecture — Burn just says "TensorNotFound." Users don't know about `.allow_partial(true)`.
 
-**The fix:** Added a diagnostic hint to the `TensorNotFound` error in both the PyTorch store and Safetensors store, plus documentation clarification with error-handling examples.
+Added a diagnostic hint to both the PyTorch store and Safetensors store, plus documentation with error-handling examples:
 
 ```
 Error: Tensor "weight" not found in checkpoint.
   Hint: Use `.allow_partial(true)` to load only available tensors.
 ```
 
-**This was merged today (June 2).**
+Merged on June 2.
 
-### Bonus: TUI Cleanup (#5039 — draft, open)
+### Bonus: TUI Cleanup (#5039 — draft)
 
-After the 5 merged PRs, I started working on replacing panics with clean shutdown in Burn's TUI mode. Still in draft.
+After the five merged PRs, I started working on replacing panics with clean shutdown in Burn's TUI mode. Still in draft.
 
----
+## How it played out
 
-## TRAJECTORY
+The progression was organic — every PR taught me something that enabled the next one. The derive macro PR would have been impossible without understanding Burn's module system from the earlier fixes.
 
-```
-ROUGE-L (feature)          → May 20 — new metric, learned the review process
-SGD config (fix)           → May 21 — learned to respect project conventions
-Shape errors (fix)         → May 25 — cross-crate changes (tensor/ndarray/nn)
-Derive macro (fix)         → Jun 1  — deepest change (proc macro, syn, codegen)
-TensorNotFound hint (feat) → Jun 2  — UX + docs, 2 stores + book
-```
+ROUGE-L (feature) → May 20 — new metric, learned the review process
+SGD config (fix) → May 21 — learned to respect project conventions
+Shape errors (fix) → May 25 — cross-crate changes (tensor, ndarray, nn)
+Derive macro (fix) → Jun 1 — deepest change (proc macro, syn, codegen)
+TensorNotFound hint (feat) → Jun 2 — UX + docs, two stores + book
 
-The progression was organic: every PR taught me something about the codebase that enabled the next one. The derive macro PR would have been impossible without understanding Burn's module system from the earlier fixes.
+## What I learned
 
----
+**Fix what you use.** Every PR came from a real problem I hit while building something. I wasn't hunting for "good first issues" — I was scratching my own itch. The motivation is genuine and the fix is better because you understand the context.
 
-## IMPACT
+**The reviewer knows the codebase better than you.** On PR #4986, I tried to change the return type to what I thought was "correct." The reviewer pointed out it would break uniformity. He was right. Accepting that gracefully meant the PR merged in hours instead of weeks.
 
-| # | PR | Type | Files Changed | Status |
-|---|----|------|---------------|--------|
-| 1 | ROUGE-L metric | Feature | 3 | Merged |
-| 2 | SGD config doc | Fix | 1 | Merged |
-| 3 | Shape error context | Fix | 4 (tensor, ndarray, nn) | Merged |
-| 4 | Derive macro diagnostic | Fix | 1 (burn-derive) | Merged |
-| 5 | TensorNotFound hint | Feature | 3 (pytorch, safetensors, docs) | Merged |
-| - | TUI clean shutdown | Fix | Draft | Open |
+**Progressive codebase exploration.** I couldn't have jumped to the derive macro without doing the earlier PRs first. Each one unlocked understanding of a new part of the codebase.
 
----
+**Documentation changes are valid contributions.** PR #2 was two lines. PR #5 was mostly docs. Both fixed real user pain. Not every contribution needs to be a new feature.
 
-## LESSONS
+**Convincing a busy maintainer that your PR is worth reviewing is half the work.** Clear descriptions, linked issues, passing CI, small diffs — these signal that you respect the maintainer's time. Every PR I opened was reviewed and merged within 48 hours.
 
-1. **Fix what you use.** Every PR came from a real problem I hit while building something with Burn. I wasn't hunting for "good first issues" — I was scratching my own itch. This makes the motivation genuine and the fix better because you understand the context.
+## Links
 
-2. **The reviewer knows the codebase better than you.** On PR #4986, I tried to change the return type to what I thought was "correct." The reviewer (laggui) pointed out it would break uniformity. He was right. Accepting that feedback gracefully and reverting the change meant the PR merged in hours instead of weeks.
-
-3. **Progressive codebase exploration.** The 5 PRs followed a natural depth gradient: surface-level metric → doc fix → cross-crate error messages → derive macro internals. I couldn't have jumped to #4 without doing #1-3 first. Each PR unlocked understanding of a new part of the codebase.
-
-4. **Documentation changes are valid contributions.** PR #2 was 2 lines. PR #5 was mostly docs. Both fixed real user pain. Not every contribution needs to be a new feature.
-
-5. **Convincing a busy maintainer that your PR is worth reviewing is half the work.** Clear descriptions, linked issues, passing CI, small diffs — these signal that you respect the maintainer's time. Every PR I opened was reviewed and merged within 48 hours.
-
----
-
-## LINKS
-
-- **PR #4967:** [github.com/tracel-ai/burn/pull/4967](https://github.com/tracel-ai/burn/pull/4967) — ROUGE-L metric
-- **PR #4986:** [github.com/tracel-ai/burn/pull/4986](https://github.com/tracel-ai/burn/pull/4986) — SGD config fix
-- **PR #4996:** [github.com/tracel-ai/burn/pull/4996](https://github.com/tracel-ai/burn/pull/4996) — Shape error context
-- **PR #5028:** [github.com/tracel-ai/burn/pull/5028](https://github.com/tracel-ai/burn/pull/5028) — Derive macro diagnostic
-- **PR #5032:** [github.com/tracel-ai/burn/pull/5032](https://github.com/tracel-ai/burn/pull/5032) — TensorNotFound hint
-- **PR #5039:** [github.com/tracel-ai/burn/pull/5039](https://github.com/tracel-ai/burn/pull/5039) — TUI cleanup (draft)
-
-*June 2026. 5 PRs to tracel-ai/burn in one month. Contributor badge: acquired.*
+- PR #4967: [github.com/tracel-ai/burn/pull/4967](https://github.com/tracel-ai/burn/pull/4967) — ROUGE-L metric
+- PR #4986: [github.com/tracel-ai/burn/pull/4986](https://github.com/tracel-ai/burn/pull/4986) — SGD config fix
+- PR #4996: [github.com/tracel-ai/burn/pull/4996](https://github.com/tracel-ai/burn/pull/4996) — Shape error context
+- PR #5028: [github.com/tracel-ai/burn/pull/5028](https://github.com/tracel-ai/burn/pull/5028) — Derive macro diagnostic
+- PR #5032: [github.com/tracel-ai/burn/pull/5032](https://github.com/tracel-ai/burn/pull/5032) — TensorNotFound hint
+- PR #5039: [github.com/tracel-ai/burn/pull/5039](https://github.com/tracel-ai/burn/pull/5039) — TUI cleanup (draft)
