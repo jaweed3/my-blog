@@ -14,7 +14,7 @@
 	align="left"
 >
 	<div slot="button">
-		<Button href="/blog">View More</Button>
+		<Button href="/writing">View More</Button>
 	</div>
 	<div class="grid">
 		{#each posts as post}

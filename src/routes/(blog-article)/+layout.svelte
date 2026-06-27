@@ -174,26 +174,27 @@
 
   :global(.content p) {
     font-family: var(--font-body);
-    font-size: 18px;
-    line-height: 1.75;
+    font-size: 16px;
+    line-height: 1.7;
     color: var(--text);
     margin: 1em 0;
   }
 
   :global(.content h2) {
     font-family: var(--font-display);
-    font-size: clamp(28px, 3vw, 42px);
+    font-size: clamp(24px, 3vw, 32px);
+    font-weight: 600;
     color: var(--text);
-    margin-top: 64px;
+    margin-top: 48px;
     margin-bottom: 16px;
   }
 
   :global(.content h3) {
-    font-family: var(--font-body);
-    font-size: 22px;
-    font-weight: 600;
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 500;
     color: var(--text);
-    margin-top: 40px;
+    margin-top: 32px;
     margin-bottom: 8px;
   }
 
@@ -204,25 +205,25 @@
 
   :global(.content ul li) {
     font-family: var(--font-body);
-    font-size: 18px;
-    padding: 10px 0 10px 20px;
+    font-size: 16px;
+    padding: 8px 0 8px 20px;
     border-bottom: 1px solid var(--border);
     position: relative;
     line-height: 1.6;
   }
 
   :global(.content ul li::before) {
-    content: '◆';
+    content: '▸';
     position: absolute;
     left: 0;
     color: var(--accent);
-    font-size: 10px;
-    top: 14px;
+    font-size: 12px;
+    top: 10px;
   }
 
   :global(.content ol li) {
     font-family: var(--font-body);
-    font-size: 18px;
+    font-size: 16px;
     line-height: 1.6;
     color: var(--text);
     margin: 8px 0;

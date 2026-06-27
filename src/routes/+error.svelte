@@ -26,7 +26,6 @@
 
 <style lang="scss">
 	.error-page {
-		background: var(--color--page-background);
 		position: relative;
 	}
 	.container {
