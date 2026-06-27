@@ -1,10 +1,21 @@
 :root {
-  --font-display: 'Bebas Neue', sans-serif;
-  --font-body: 'Crimson Pro', serif;
-  --font-mono: 'Space Mono', monospace;
+  --font-display: 'Geist', sans-serif;
+  --font-body: 'Geist', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
 
-  --gutter: clamp(16px, 4vw, 64px);
-  --max-width: 1200px;
+  --headline-lg: 48px;
+  --headline-lg-mobile: 32px;
+  --headline-md: 24px;
+  --body-lg: 18px;
+  --body-md: 15px;
+  --caption: 12px;
+  --label-mono: 13px;
+
+  --gutter: 24px;
+  --container-max: 1200px;
+  --margin-desktop: 64px;
+  --margin-mobile: 20px;
+  --unit: 4px;
 
   --ease-3: cubic-bezier(0.25, 0, 0.3, 1);
   --ease-4: cubic-bezier(0.25, 0, 0.2, 1);
