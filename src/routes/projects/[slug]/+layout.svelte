@@ -108,22 +108,20 @@
       transition: color 0.2s ease;
 
       &:hover {
-        color: var(--text);
+        color: var(--accent);
       }
     }
   }
 
-  /* ── Hero ── */
   .project-hero {
     padding: 32px 0 48px;
 
     .hero-tags {
       font-family: var(--font-mono);
       font-size: 11px;
-      letter-spacing: 0.12em;
+      letter-spacing: 0.08em;
       color: var(--muted);
       margin-bottom: 16px;
-      text-transform: uppercase;
     }
 
     .hero-title-row {
@@ -134,7 +132,7 @@
 
       h1 {
         margin: 0;
-        font-size: clamp(48px, 7vw, 96px);
+        font-size: clamp(32px, 5vw, 48px);
         flex: 1;
       }
     }
@@ -144,9 +142,8 @@
       align-items: center;
       gap: 6px;
       font-family: var(--font-mono);
-      font-size: 12px;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
+      font-size: 11px;
+      letter-spacing: 0.08em;
       text-decoration: none;
       padding: 8px 16px;
       border: 1px solid var(--border);
@@ -182,7 +179,7 @@
 
     .hero-subtitle {
       font-family: var(--font-body);
-      font-size: 20px;
+      font-size: 18px;
       color: var(--muted);
       line-height: 1.5;
       margin: 0;
@@ -220,8 +217,9 @@
     .stat-number {
       display: block;
       font-family: var(--font-display);
-      font-size: 42px;
-      color: var(--code);
+      font-size: 36px;
+      font-weight: 600;
+      color: var(--accent-2);
       line-height: 1;
     }
 
@@ -229,8 +227,7 @@
       display: block;
       font-family: var(--font-mono);
       font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.08em;
       color: var(--muted);
       margin-top: 6px;
     }
@@ -454,16 +451,14 @@
         font-family: var(--font-mono);
         font-size: 11px;
         color: var(--muted);
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
+        letter-spacing: 0.08em;
       }
 
       .nav-title {
         font-family: var(--font-display);
-        font-size: 28px;
+        font-size: 22px;
+        font-weight: 500;
         color: var(--text);
-        text-transform: uppercase;
-        letter-spacing: -0.01em;
         line-height: 1.2;
         transition: color 0.2s ease;
       }

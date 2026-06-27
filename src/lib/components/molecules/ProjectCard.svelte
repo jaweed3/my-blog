@@ -54,9 +54,8 @@
 
     .project-title {
       font-family: var(--font-display);
-      font-size: clamp(18px, 2vw, 24px);
-      text-transform: uppercase;
-      letter-spacing: -0.01em;
+      font-size: clamp(16px, 2vw, 22px);
+      font-weight: 500;
       color: var(--text);
       transition: color 0.2s ease;
       flex: 1;
@@ -67,7 +66,6 @@
       font-size: 11px;
       letter-spacing: 0.05em;
       color: var(--muted);
-      text-transform: uppercase;
 
       @include for-phone-only {
         display: none;
