@@ -27,7 +27,7 @@
 <svelte:head>
   {#if post}
     <meta name="keywords" content={metaKeywords.join(', ')} />
-
+    <meta name="author" content="Fatih Jawwad" />
     <meta name="description" content={post.excerpt} />
     <meta property="og:description" content={post.excerpt} />
     <meta name="twitter:description" content={post.excerpt} />
@@ -37,10 +37,43 @@
     <meta property="og:title" content="{post.title} - {title}" />
     <meta name="twitter:title" content="{post.title} - {title}" />
 
+    <meta property="article:published_time" content={post.date} />
+    {#if post.updated}
+      <meta property="article:modified_time" content={post.updated} />
+    {/if}
+    <meta property="article:author" content="Fatih Jawwad" />
+
     {#if post.coverImage}
       <meta property="og:image" content="{siteBaseUrl}{post.coverImage}" />
       <meta name="twitter:image" content="{siteBaseUrl}{post.coverImage}" />
     {/if}
+
+    <script type="application/ld+json">
+      {{
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "headline": post.title,
+        "description": post.excerpt,
+        "author": {
+          "@type": "Person",
+          "name": "Fatih Jawwad",
+          "url": siteBaseUrl
+        },
+        "datePublished": post.date,
+        "dateModified": post.updated || post.date,
+        "image": post.coverImage ? siteBaseUrl + post.coverImage : undefined,
+        "url": siteBaseUrl + post.slug,
+        "mainEntityOfPage": {
+          "@type": "WebPage",
+          "@id": siteBaseUrl + post.slug
+        },
+        "publisher": {
+          "@type": "Person",
+          "name": "Fatih Jawwad"
+        },
+        "keywords": (post.tags || []).join(", ")
+      }}
+    </script>
   {/if}
 </svelte:head>
 
