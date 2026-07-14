@@ -14,8 +14,8 @@
     "story:build": "histoire build",
     "story:preview": "histoire preview",
     "optimize-images": "image-transmutation --run --sourceFolder './build/images' --targetFolder './build/images' --inputFormats 'jpg' --inputFormats 'jpeg' --inputFormats 'png' --outputFormats 'png' --outputFormats 'webp' --outputFormats 'avif'",
-    "postbuild": "svelte-sitemap --domain https://jaweed.site --change-freq weekly",
-    "vercel-sitemap": "svelte-sitemap --out-dir .vercel/output/static --domain https://jaweed.site --change-freq weekly",
+    "postbuild": "svelte-sitemap --domain https://wedjaw.my.id --change-freq weekly",
+    "vercel-sitemap": "svelte-sitemap --out-dir .vercel/output/static --domain https://wedjaw.my.id --change-freq weekly",
     "vercel-optimize-images": "image-transmutation --run --sourceFolder '.vercel/output/static/images' --targetFolder '.vercel/output/static/images' --inputFormats 'jpg' --inputFormats 'jpeg' --inputFormats 'png' --outputFormats 'png' --outputFormats 'webp' --outputFormats 'avif'",
     "vercel-build": "npm run build && npm run vercel-sitemap && npm run vercel-optimize-images"
   },

@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://jaweed.site/sitemap.xml
+Sitemap: https://wedjaw.my.id/sitemap.xml
