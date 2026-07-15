@@ -8,6 +8,7 @@
     { href: '/playground', label: 'Playground' },
     { href: '/roadmap', label: 'Roadmap' },
     { href: '/writing', label: 'Writing' },
+    { href: '/hire', label: 'Hire' },
   ];
 </script>
 
@@ -50,6 +51,13 @@
           {link.label}
         </a>
       {/each}
+      <a href="/hire" class="sidebar-link highlight"
+        class:active={$page.url.pathname === '/hire'}>
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
+        Hire Me
+      </a>
       <a href="/resume" class="sidebar-link"
         class:active={$page.url.pathname === '/resume'}>
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -232,6 +240,17 @@
       &.active {
         background: var(--surface-container-high);
         color: var(--accent-2);
+      }
+
+      &.highlight {
+        background: rgba(0, 238, 252, 0.08);
+        border: 1px solid rgba(0, 238, 252, 0.2);
+        color: var(--accent-2);
+        font-weight: 600;
+
+        &:hover {
+          background: rgba(0, 238, 252, 0.12);
+        }
       }
     }
 
