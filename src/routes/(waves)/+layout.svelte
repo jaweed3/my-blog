@@ -4,6 +4,23 @@
 	import { page } from '$app/stores';
 
 	import { description, image, keywords, title, siteBaseUrl } from '$lib/data/meta';
+
+	const personJsonHtml =
+		'<script type="application/ld+json">' +
+		JSON.stringify({
+			"@context": "https://schema.org",
+			"@type": "Person",
+			"name": "Fatih Jawwad",
+			"url": siteBaseUrl,
+			"jobTitle": "Machine Learning Engineer",
+			"knowsAbout": ["Edge ML", "MLOps", "Quantization", "Embedded Systems", "Computer Vision"],
+			"sameAs": [
+				"https://github.com/jaweed3",
+				"https://linkedin.com/in/jaweed3"
+			]
+		}) +
+		'</' +
+		'script>';
 </script>
 
 <svelte:head>
@@ -23,20 +40,7 @@
 
 	<meta name="twitter:card" content="summary_large_image" />
 
-	<script type="application/ld+json">
-		{{
-			"@context": "https://schema.org",
-			"@type": "Person",
-			"name": "Fatih Jawwad",
-			"url": {siteBaseUrl},
-			"jobTitle": "Machine Learning Engineer",
-			"knowsAbout": ["Edge ML", "MLOps", "Quantization", "Embedded Systems", "Computer Vision"],
-			"sameAs": [
-				"https://github.com/jaweed3",
-				"https://linkedin.com/in/jaweed3"
-			]
-		}}
-	</script>
+	{@html personJsonHtml}
 </svelte:head>
 
 <Header />

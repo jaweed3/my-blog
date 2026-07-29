@@ -13,6 +13,7 @@
   $: ({ post } = data);
 
   let metaKeywords = keywords;
+  let jsonLdHtml = '';
 
   $: {
     if (post?.tags?.length) {
@@ -20,6 +21,40 @@
     }
     if (post?.keywords?.length) {
       metaKeywords = post.keywords.concat(metaKeywords);
+    }
+
+    if (post) {
+      const obj = {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "headline": post.title,
+        "description": post.excerpt,
+        "author": {
+          "@type": "Person",
+          "name": "Fatih Jawwad",
+          "url": siteBaseUrl
+        },
+        "datePublished": post.date,
+        "dateModified": post.updated || post.date,
+        "url": siteBaseUrl + post.slug,
+        "mainEntityOfPage": {
+          "@type": "WebPage",
+          "@id": siteBaseUrl + post.slug
+        },
+        "publisher": {
+          "@type": "Person",
+          "name": "Fatih Jawwad"
+        },
+        "keywords": (post.tags || []).join(", ")
+      };
+      if (post.coverImage) {
+        obj.image = siteBaseUrl + post.coverImage;
+      }
+      jsonLdHtml =
+        '<script type="application/ld+json">' +
+        JSON.stringify(obj) +
+        '</' +
+        'script>';
     }
   }
 </script>
@@ -48,32 +83,7 @@
       <meta name="twitter:image" content="{siteBaseUrl}{post.coverImage}" />
     {/if}
 
-    <script type="application/ld+json">
-      {{
-        "@context": "https://schema.org",
-        "@type": "BlogPosting",
-        "headline": post.title,
-        "description": post.excerpt,
-        "author": {
-          "@type": "Person",
-          "name": "Fatih Jawwad",
-          "url": siteBaseUrl
-        },
-        "datePublished": post.date,
-        "dateModified": post.updated || post.date,
-        "image": post.coverImage ? siteBaseUrl + post.coverImage : undefined,
-        "url": siteBaseUrl + post.slug,
-        "mainEntityOfPage": {
-          "@type": "WebPage",
-          "@id": siteBaseUrl + post.slug
-        },
-        "publisher": {
-          "@type": "Person",
-          "name": "Fatih Jawwad"
-        },
-        "keywords": (post.tags || []).join(", ")
-      }}
-    </script>
+    {@html jsonLdHtml}
   {/if}
 </svelte:head>
 
