@@ -314,6 +314,14 @@
 
   :global(.content blockquote p) {
     margin: 0;
+    font-style: italic;
+  }
+
+  :global(.content .sign-off) {
+    text-align: right;
+    font-style: italic;
+    margin-top: 32px;
+    color: var(--text-variant);
   }
 
   :global(.content table) {
