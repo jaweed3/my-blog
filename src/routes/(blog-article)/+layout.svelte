@@ -1,400 +1,397 @@
 <script lang="ts">
-  import Header from '$lib/components/organisms/Header.svelte';
-  import Footer from '$lib/components/organisms/Footer.svelte';
-  import Tag from '$lib/components/atoms/Tag.svelte';
-  import dateformat from 'dateformat';
+	import Header from '$lib/components/organisms/Header.svelte';
+	import Footer from '$lib/components/organisms/Footer.svelte';
+	import Tag from '$lib/components/atoms/Tag.svelte';
+	import dateformat from 'dateformat';
 
-  import { keywords, siteBaseUrl, title } from '$lib/data/meta';
-  import type { BlogPost } from '$lib/utils/types';
-  import RelatedPosts from '$lib/components/organisms/RelatedPosts.svelte';
-  import Image from '$lib/components/atoms/Image.svelte';
+	import { keywords, siteBaseUrl, title } from '$lib/data/meta';
+	import type { BlogPost } from '$lib/utils/types';
+	import RelatedPosts from '$lib/components/organisms/RelatedPosts.svelte';
+	import Image from '$lib/components/atoms/Image.svelte';
+	import { reveal } from '$lib/actions/reveal';
 
-  export let data: { post: BlogPost };
-  $: ({ post } = data);
+	export let data: { post: BlogPost };
+	$: ({ post } = data);
 
-  let metaKeywords = keywords;
-  let jsonLdHtml = '';
+	let metaKeywords = keywords;
+	let jsonLdHtml = '';
 
-  $: {
-    if (post?.tags?.length) {
-      metaKeywords = post.tags.concat(metaKeywords);
-    }
-    if (post?.keywords?.length) {
-      metaKeywords = post.keywords.concat(metaKeywords);
-    }
+	$: {
+		if (post?.tags?.length) {
+			metaKeywords = post.tags.concat(metaKeywords);
+		}
+		if (post?.keywords?.length) {
+			metaKeywords = post.keywords.concat(metaKeywords);
+		}
 
-    if (post) {
-      const obj = {
-        "@context": "https://schema.org",
-        "@type": "BlogPosting",
-        "headline": post.title,
-        "description": post.excerpt,
-        "author": {
-          "@type": "Person",
-          "name": "Fatih Jawwad",
-          "url": siteBaseUrl
-        },
-        "datePublished": post.date,
-        "dateModified": post.updated || post.date,
-        "url": siteBaseUrl + post.slug,
-        "mainEntityOfPage": {
-          "@type": "WebPage",
-          "@id": siteBaseUrl + post.slug
-        },
-        "publisher": {
-          "@type": "Person",
-          "name": "Fatih Jawwad"
-        },
-        "keywords": (post.tags || []).join(", ")
-      };
-      if (post.coverImage) {
-        obj.image = siteBaseUrl + post.coverImage;
-      }
-      jsonLdHtml =
-        '<script type="application/ld+json">' +
-        JSON.stringify(obj) +
-        '</' +
-        'script>';
-    }
-  }
+		if (post) {
+			const obj = {
+				'@context': 'https://schema.org',
+				'@type': 'BlogPosting',
+				headline: post.title,
+				description: post.excerpt,
+				author: {
+					'@type': 'Person',
+					name: 'Fatih Jawwad',
+					url: siteBaseUrl
+				},
+				datePublished: post.date,
+				dateModified: post.updated || post.date,
+				url: siteBaseUrl + post.slug,
+				mainEntityOfPage: {
+					'@type': 'WebPage',
+					'@id': siteBaseUrl + post.slug
+				},
+				publisher: {
+					'@type': 'Person',
+					name: 'Fatih Jawwad'
+				},
+				keywords: (post.tags || []).join(', '),
+				...(post.coverImage ? { image: siteBaseUrl + post.coverImage } : {})
+			};
+			jsonLdHtml = '<script type="application/ld+json">' + JSON.stringify(obj) + '</' + 'script>';
+		}
+	}
 </script>
 
 <svelte:head>
-  {#if post}
-    <meta name="keywords" content={metaKeywords.join(', ')} />
-    <meta name="author" content="Fatih Jawwad" />
-    <meta name="description" content={post.excerpt} />
-    <meta property="og:description" content={post.excerpt} />
-    <meta name="twitter:description" content={post.excerpt} />
-    <link rel="canonical" href="{siteBaseUrl}/{post.slug}" />
+	{#if post}
+		<meta name="keywords" content={metaKeywords.join(', ')} />
+		<meta name="author" content="Fatih Jawwad" />
+		<meta name="description" content={post.excerpt} />
+		<meta property="og:description" content={post.excerpt} />
+		<meta name="twitter:description" content={post.excerpt} />
+		<link rel="canonical" href="{siteBaseUrl}/{post.slug}" />
 
-    <title>{post.title} - {title}</title>
-    <meta property="og:title" content="{post.title} - {title}" />
-    <meta name="twitter:title" content="{post.title} - {title}" />
+		<title>{post.title} - {title}</title>
+		<meta property="og:title" content="{post.title} - {title}" />
+		<meta name="twitter:title" content="{post.title} - {title}" />
 
-    <meta property="article:published_time" content={post.date} />
-    {#if post.updated}
-      <meta property="article:modified_time" content={post.updated} />
-    {/if}
-    <meta property="article:author" content="Fatih Jawwad" />
+		<meta property="article:published_time" content={post.date} />
+		{#if post.updated}
+			<meta property="article:modified_time" content={post.updated} />
+		{/if}
+		<meta property="article:author" content="Fatih Jawwad" />
 
-    {#if post.coverImage}
-      <meta property="og:image" content="{siteBaseUrl}{post.coverImage}" />
-      <meta name="twitter:image" content="{siteBaseUrl}{post.coverImage}" />
-    {/if}
+		{#if post.coverImage}
+			<meta property="og:image" content="{siteBaseUrl}{post.coverImage}" />
+			<meta name="twitter:image" content="{siteBaseUrl}{post.coverImage}" />
+		{/if}
 
-    {@html jsonLdHtml}
-  {/if}
+		{@html jsonLdHtml}
+	{/if}
 </svelte:head>
 
 <Header showBackground />
 
 <main>
-  <div class="container">
-    <article id="article-content">
-      <header class="article-header">
-        {#if post}
-          <div class="post-meta">
-            <span class="post-date">{dateformat(post.date, 'UTC:dd mmmm yyyy')}</span>
-            {#if post.readingTime}
-              <span class="meta-sep">·</span>
-              <span class="post-reading">{post.readingTime}</span>
-            {/if}
-          </div>
-          <h1>{post.title}</h1>
-          {#if post.updated}
-            <div class="post-updated">Updated {dateformat(post.updated, 'UTC:dd mmmm yyyy')}</div>
-          {/if}
-          {#if post.tags?.length}
-            <div class="tags">
-              {#each post.tags as tag}
-                <Tag>{tag}</Tag>
-              {/each}
-            </div>
-          {/if}
-        {/if}
-      </header>
+	<div class="container">
+		<article id="article-content" use:reveal>
+			<header class="article-header">
+				{#if post}
+					<div class="post-meta">
+						<span class="post-date">{dateformat(post.date, 'UTC:dd mmmm yyyy')}</span>
+						{#if post.readingTime}
+							<span class="meta-sep">·</span>
+							<span class="post-reading">{post.readingTime}</span>
+						{/if}
+					</div>
+					<h1>{post.title}</h1>
+					{#if post.updated}
+						<div class="post-updated">Updated {dateformat(post.updated, 'UTC:dd mmmm yyyy')}</div>
+					{/if}
+					{#if post.tags?.length}
+						<div class="tags">
+							{#each post.tags as tag}
+								<Tag>{tag}</Tag>
+							{/each}
+						</div>
+					{/if}
+				{/if}
+			</header>
 
-      {#if post && post.coverImage}
-        <figure class="cover-image">
-          <Image src={post.coverImage} alt={post.title} />
-        </figure>
-      {/if}
+			{#if post && post.coverImage}
+				<figure class="cover-image">
+					<Image src={post.coverImage} alt={post.title} />
+				</figure>
+			{/if}
 
-      <div class="content">
-        <slot />
-      </div>
-    </article>
+			<div class="content">
+				<slot />
+			</div>
+		</article>
 
-    {#if post?.relatedPosts?.length > 0}
-      <section class="related-section">
-        <span class="section-label">Related</span>
-        <RelatedPosts posts={post.relatedPosts} />
-      </section>
-    {/if}
-  </div>
+		{#if post?.relatedPosts?.length > 0}
+			<section class="related-section">
+				<span class="section-label">Related</span>
+				<RelatedPosts posts={post.relatedPosts} />
+			</section>
+		{/if}
+	</div>
 </main>
 
 <Footer />
 
 <style lang="scss">
-  @import '$lib/scss/breakpoints.scss';
+	@import '$lib/scss/breakpoints.scss';
 
-  #article-content {
-    max-width: 720px;
-    margin: 0 auto;
-    padding: 48px 0 64px;
+	#article-content {
+		max-width: 720px;
+		margin: 0 auto;
+		padding: 48px 0 64px;
 
-    .article-header {
-      margin-bottom: 48px;
+		.article-header {
+			margin-bottom: 48px;
 
-      .post-meta {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-bottom: 12px;
+			.post-meta {
+				display: flex;
+				align-items: center;
+				gap: 8px;
+				margin-bottom: 12px;
 
-        .post-date,
-        .post-reading {
-          font-family: var(--font-mono);
-          font-size: 12px;
-          color: var(--muted);
-          letter-spacing: 0.05em;
-        }
+				.post-date,
+				.post-reading {
+					font-family: var(--font-mono);
+					font-size: 12px;
+					color: var(--muted);
+					letter-spacing: 0.05em;
+				}
 
-        .meta-sep {
-          color: var(--muted);
-        }
-      }
+				.meta-sep {
+					color: var(--muted);
+				}
+			}
 
-      h1 {
-        margin: 0 0 8px;
-      }
+			h1 {
+				margin: 0 0 8px;
+			}
 
-      .post-updated {
-        font-family: var(--font-mono);
-        font-size: 11px;
-        color: var(--muted);
-        margin-bottom: 16px;
-      }
+			.post-updated {
+				font-family: var(--font-mono);
+				font-size: 11px;
+				color: var(--muted);
+				margin-bottom: 16px;
+			}
 
-      .tags {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 6px;
-        margin-top: 16px;
-      }
-    }
+			.tags {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 6px;
+				margin-top: 16px;
+			}
+		}
 
-    .cover-image {
-      margin: 0 0 40px;
-      border: 2px solid var(--border);
+		.cover-image {
+			margin: 0 0 40px;
+			border: 2px solid var(--border);
 
-      :global(img) {
-        width: 100%;
-        max-height: 400px;
-        object-fit: cover;
-        display: block;
-      }
-    }
-  }
+			:global(img) {
+				width: 100%;
+				max-height: 400px;
+				object-fit: cover;
+				display: block;
+			}
+		}
+	}
 
-  /* ── Content Body (Global Styling for {@html} slot) ── */
-  :global(.content) {
-    max-width: 720px;
-    margin: 0 auto;
-  }
+	/* ── Content Body (Global Styling for {@html} slot) ── */
+	// 680px at 16px ≈ 82 characters per line. The outer #article-content stays wider so
+	// code blocks and tables can use the extra space; prose gets the comfortable measure.
+	:global(.content) {
+		max-width: 680px;
+		margin: 0 auto;
+	}
 
-  :global(.content a) {
-    color: var(--accent);
-    text-decoration: underline;
-    text-underline-offset: 0.15em;
-  }
+	:global(.content a) {
+		color: var(--accent);
+		text-decoration: underline;
+		text-underline-offset: 0.15em;
+	}
 
-  :global(.content a:hover) {
-    text-underline-offset: 0.3em;
-  }
+	:global(.content a:hover) {
+		text-underline-offset: 0.3em;
+	}
 
-  :global(.content p) {
-    font-family: var(--font-body);
-    font-size: 16px;
-    line-height: 1.7;
-    color: var(--text);
-    margin: 1em 0;
-  }
+	:global(.content p) {
+		font-family: var(--font-body);
+		font-size: 16px;
+		line-height: 1.7;
+		color: var(--text);
+		margin: 1em 0;
+	}
 
-  :global(.content h2) {
-    font-family: var(--font-display);
-    font-size: clamp(24px, 3vw, 32px);
-    font-weight: 600;
-    color: var(--text);
-    margin-top: 48px;
-    margin-bottom: 16px;
-  }
+	:global(.content h2) {
+		font-family: var(--font-display);
+		font-size: clamp(24px, 3vw, 32px);
+		font-weight: 600;
+		color: var(--text);
+		margin-top: 48px;
+		margin-bottom: 16px;
+	}
 
-  :global(.content h3) {
-    font-family: var(--font-display);
-    font-size: 20px;
-    font-weight: 500;
-    color: var(--text);
-    margin-top: 32px;
-    margin-bottom: 8px;
-  }
+	:global(.content h3) {
+		font-family: var(--font-display);
+		font-size: 20px;
+		font-weight: 500;
+		color: var(--text);
+		margin-top: 32px;
+		margin-bottom: 8px;
+	}
 
-  :global(.content ul) {
-    list-style: none;
-    padding: 0;
-  }
+	:global(.content ul) {
+		list-style: none;
+		padding: 0;
+	}
 
-  :global(.content ul li) {
-    font-family: var(--font-body);
-    font-size: 16px;
-    padding: 8px 0 8px 20px;
-    border-bottom: 1px solid var(--border);
-    position: relative;
-    line-height: 1.6;
-  }
+	:global(.content ul li) {
+		font-family: var(--font-body);
+		font-size: 16px;
+		padding: 8px 0 8px 20px;
+		border-bottom: 1px solid var(--border);
+		position: relative;
+		line-height: 1.6;
+	}
 
-  :global(.content ul li::before) {
-    content: '▸';
-    position: absolute;
-    left: 0;
-    color: var(--accent);
-    font-size: 12px;
-    top: 10px;
-  }
+	:global(.content ul li::before) {
+		content: '▸';
+		position: absolute;
+		left: 0;
+		color: var(--accent);
+		font-size: 12px;
+		top: 10px;
+	}
 
-  :global(.content ol li) {
-    font-family: var(--font-body);
-    font-size: 16px;
-    line-height: 1.6;
-    color: var(--text);
-    margin: 8px 0;
-  }
+	:global(.content ol li) {
+		font-family: var(--font-body);
+		font-size: 16px;
+		line-height: 1.6;
+		color: var(--text);
+		margin: 8px 0;
+	}
 
-  :global(.content pre) {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-left: 3px solid var(--accent);
-    padding: 24px;
-    overflow-x: auto;
-    font-family: var(--font-mono);
-    font-size: 13px;
-    line-height: 1.6;
-    color: var(--code);
-    margin: 32px 0;
-  }
+	:global(.content pre) {
+		background: var(--surface);
+		border: 1px solid var(--border);
+		border-left: 3px solid var(--accent);
+		padding: 24px;
+		overflow-x: auto;
+		font-family: var(--font-mono);
+		font-size: 13px;
+		line-height: 1.6;
+		color: var(--code);
+		margin: 32px 0;
+	}
 
-  :global(.content pre code) {
-    background: none;
-    border: none;
-    padding: 0;
-    font-size: inherit;
-    color: inherit;
-  }
+	:global(.content pre code) {
+		background: none;
+		border: none;
+		padding: 0;
+		font-size: inherit;
+		color: inherit;
+	}
 
-  :global(.content code) {
-    font-family: var(--font-mono);
-    font-size: 0.85em;
-  }
+	:global(.content code) {
+		font-family: var(--font-mono);
+		font-size: 0.85em;
+	}
 
-  :global(.content code:not(pre code)) {
-    color: var(--code);
-    background: var(--surface);
-    padding: 2px 6px;
-    border: 1px solid var(--border);
-  }
+	:global(.content code:not(pre code)) {
+		color: var(--code);
+		background: var(--surface);
+		padding: 2px 6px;
+		border: 1px solid var(--border);
+	}
 
-  :global(.content blockquote) {
-    border-left: 3px solid var(--accent);
-    background: var(--surface);
-    padding: 16px 20px;
-    margin: 32px 0;
-  }
+	:global(.content blockquote) {
+		border-left: 3px solid var(--accent);
+		background: var(--surface);
+		padding: 16px 20px;
+		margin: 32px 0;
+	}
 
-  :global(.content blockquote p) {
-    margin: 0;
-    font-style: italic;
-  }
+	:global(.content blockquote p) {
+		margin: 0;
+		font-style: italic;
+	}
 
-  :global(.content .sign-off) {
-    text-align: right;
-    font-style: italic;
-    margin-top: 32px;
-    color: var(--text-variant);
-  }
+	:global(.content .sign-off) {
+		text-align: right;
+		font-style: italic;
+		margin-top: 32px;
+		color: var(--text-variant);
+	}
 
-  :global(.content table) {
-    width: 100%;
-    border-collapse: collapse;
-    font-family: var(--font-mono);
-    font-size: 13px;
-    margin: 40px 0;
-  }
+	:global(.content table) {
+		width: 100%;
+		border-collapse: collapse;
+		font-family: var(--font-mono);
+		font-size: 13px;
+		margin: 40px 0;
+	}
 
-  :global(.content th) {
-    text-align: left;
-    padding: 12px 16px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    color: var(--accent);
-    font-size: 11px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-  }
+	:global(.content th) {
+		text-align: left;
+		padding: 12px 16px;
+		background: var(--surface);
+		border: 1px solid var(--border);
+		color: var(--accent);
+		font-size: 11px;
+		letter-spacing: 0.1em;
+		text-transform: uppercase;
+	}
 
-  :global(.content td) {
-    padding: 14px 16px;
-    border: 1px solid var(--border);
-    color: var(--text);
-    font-family: var(--font-body);
-    font-size: 16px;
-    vertical-align: top;
-  }
+	:global(.content td) {
+		padding: 14px 16px;
+		border: 1px solid var(--border);
+		color: var(--text);
+		font-family: var(--font-body);
+		font-size: 16px;
+		vertical-align: top;
+	}
 
-  :global(.content tr:hover td) {
-    background: var(--surface);
-  }
+	:global(.content tr:hover td) {
+		background: var(--surface);
+	}
 
-  :global(.content strong) {
-    color: var(--text);
-    font-weight: 600;
-  }
+	:global(.content strong) {
+		color: var(--text);
+		font-weight: 600;
+	}
 
-  :global(.content hr) {
-    border: none;
-    border-top: 1px solid var(--border);
-    margin: 48px 0;
-  }
+	:global(.content hr) {
+		border: none;
+		border-top: 1px solid var(--border);
+		margin: 48px 0;
+	}
 
-  :global(.content img) {
-    display: block;
-    margin: 2rem auto;
-    max-width: 100%;
-    border: 2px solid var(--border);
-  }
+	:global(.content img) {
+		display: block;
+		margin: 2rem auto;
+		max-width: 100%;
+		border: 2px solid var(--border);
+	}
 
-  /* ── Related Posts ── */
-  .related-section {
-    border-top: 1px solid var(--border);
-    padding-top: 48px;
-    margin-bottom: 64px;
+	/* ── Related Posts ── */
+	.related-section {
+		border-top: 1px solid var(--border);
+		padding-top: 48px;
+		margin-bottom: 64px;
 
-    .section-label {
-      display: block;
-      font-family: var(--font-mono);
-      font-size: 11px;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 24px;
-    }
-  }
+		.section-label {
+			display: block;
+			font-family: var(--font-mono);
+			font-size: 11px;
+			letter-spacing: 0.12em;
+			text-transform: uppercase;
+			color: var(--muted);
+			margin-bottom: 24px;
+		}
+	}
 
-  @media (prefers-reduced-motion: reduce) {
-    .content :global(a),
-    .content :global(tr:hover td) {
-      transition: none;
-    }
-  }
+	@media (prefers-reduced-motion: reduce) {
+		.content :global(a),
+		.content :global(tr:hover td) {
+			transition: none;
+		}
+	}
 </style>

@@ -1,0 +1,51 @@
+// KaTeX ships light-theme colours that disappear on this site's dark background, and its
+// inline/block display styles are opinionated. Loaded after katex.min.css (imported in
+// src/routes/+layout.svelte) so these win without needing !important.
+
+.katex {
+	font-size: 1.05em;
+}
+
+// KaTeX hardcodes #000 for most glyphs and leaves rules/borders near-black.
+.katex .mord,
+.katex .mbin,
+.katex .mrel,
+.katex .mopen,
+.katex .mclose,
+.katex .mpunct,
+.katex .mop,
+.katex .mtop,
+.katex .mtext {
+	color: var(--text);
+}
+
+.katex .frac-line,
+.katex .overline .overline-line,
+.katex .underline .underline-line,
+.katex .vlist-t > .vlist-r > svg > line {
+	border-color: var(--text);
+}
+
+.katex .sqrt > .root {
+	color: var(--text);
+}
+
+// Fractions and radicals shrink their contents; give them room so the glyphs stay legible.
+.katex .mfrac .frac-line {
+	border-style: solid;
+}
+
+.katex-display {
+	margin: 1.6rem 0;
+	padding: 0.75rem 0;
+	overflow-x: auto;
+	overflow-y: hidden;
+}
+
+// Inline math should sit on the text baseline, not stretch the line box.
+p > .katex,
+li > .katex,
+td > .katex,
+th > .katex {
+	white-space: nowrap;
+}

@@ -1,23 +1,19 @@
 <script>
 	import Header from '$lib/components/organisms/Header.svelte';
 	import Footer from '$lib/components/organisms/Footer.svelte';
-	import { page } from '$app/stores';
 
 	import { description, image, keywords, title, siteBaseUrl } from '$lib/data/meta';
 
 	const personJsonHtml =
 		'<script type="application/ld+json">' +
 		JSON.stringify({
-			"@context": "https://schema.org",
-			"@type": "Person",
-			"name": "Fatih Jawwad",
-			"url": siteBaseUrl,
-			"jobTitle": "Machine Learning Engineer",
-			"knowsAbout": ["Edge ML", "MLOps", "Quantization", "Embedded Systems", "Computer Vision"],
-			"sameAs": [
-				"https://github.com/jaweed3",
-				"https://linkedin.com/in/jaweed3"
-			]
+			'@context': 'https://schema.org',
+			'@type': 'Person',
+			name: 'Fatih Jawwad',
+			url: siteBaseUrl,
+			jobTitle: 'Machine Learning Engineer',
+			knowsAbout: ['Edge ML', 'MLOps', 'Quantization', 'Embedded Systems', 'Computer Vision'],
+			sameAs: ['https://github.com/jaweed3', 'https://linkedin.com/in/jaweed3']
 		}) +
 		'</' +
 		'script>';

@@ -1,34 +1,35 @@
-<script>
-  import { onMount, onDestroy } from 'svelte';
+<script lang="ts">
+	import { onMount } from 'svelte';
 
-  let canvas;
-  let animId;
+	let canvas: HTMLCanvasElement;
+	let animId: number;
 
-  onMount(() => {
-    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-    if (!gl) return;
+	onMount(() => {
+		const gl = (canvas.getContext('webgl') ||
+			canvas.getContext('experimental-webgl')) as WebGLRenderingContext | null;
+		if (!gl) return;
 
-    function syncSize() {
-      const w = canvas.clientWidth || 1280;
-      const h = canvas.clientHeight || 720;
-      if (canvas.width !== w || canvas.height !== h) {
-        canvas.width = w;
-        canvas.height = h;
-      }
-    }
-    if (typeof ResizeObserver !== 'undefined') {
-      new ResizeObserver(syncSize).observe(canvas);
-    }
-    syncSize();
+		function syncSize() {
+			const w = canvas.clientWidth || 1280;
+			const h = canvas.clientHeight || 720;
+			if (canvas.width !== w || canvas.height !== h) {
+				canvas.width = w;
+				canvas.height = h;
+			}
+		}
+		if (typeof ResizeObserver !== 'undefined') {
+			new ResizeObserver(syncSize).observe(canvas);
+		}
+		syncSize();
 
-    const vs = `attribute vec2 a_position;
+		const vs = `attribute vec2 a_position;
 varying vec2 v_texCoord;
 void main() {
   v_texCoord = a_position * 0.5 + 0.5;
   gl_Position = vec4(a_position, 0.0, 1.0);
 }`;
 
-    const fs = `precision highp float;
+		const fs = `precision highp float;
 uniform float u_time;
 uniform vec2 u_resolution;
 uniform vec2 u_mouse;
@@ -89,82 +90,87 @@ void main() {
     gl_FragColor = vec4(col, 0.3);
 }`;
 
-    function cs(type, src) {
-      const s = gl.createShader(type);
-      gl.shaderSource(s, src);
-      gl.compileShader(s);
-      return s;
-    }
+		// Arrow consts, not hoisted declarations, so TS keeps the `gl` null-narrowing
+		// from the guard above inside these closures.
+		const cs = (type: number, src: string) => {
+			const s = gl.createShader(type) as WebGLShader;
+			gl.shaderSource(s, src);
+			gl.compileShader(s);
+			return s;
+		};
 
-    const prog = gl.createProgram();
-    gl.attachShader(prog, cs(gl.VERTEX_SHADER, vs));
-    gl.attachShader(prog, cs(gl.FRAGMENT_SHADER, fs));
-    gl.linkProgram(prog);
-    gl.useProgram(prog);
+		const prog = gl.createProgram() as WebGLProgram;
+		gl.attachShader(prog, cs(gl.VERTEX_SHADER, vs));
+		gl.attachShader(prog, cs(gl.FRAGMENT_SHADER, fs));
+		gl.linkProgram(prog);
+		gl.useProgram(prog);
 
-    const buf = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+		const buf = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
 
-    const pos = gl.getAttribLocation(prog, 'a_position');
-    gl.enableVertexAttribArray(pos);
-    gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
+		const pos = gl.getAttribLocation(prog, 'a_position');
+		gl.enableVertexAttribArray(pos);
+		gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
 
-    const uTime = gl.getUniformLocation(prog, 'u_time');
-    const uRes = gl.getUniformLocation(prog, 'u_resolution');
-    const uMouse = gl.getUniformLocation(prog, 'u_mouse');
+		const uTime = gl.getUniformLocation(prog, 'u_time');
+		const uRes = gl.getUniformLocation(prog, 'u_resolution');
+		const uMouse = gl.getUniformLocation(prog, 'u_mouse');
 
-    let mouse = { x: canvas.width / 2, y: canvas.height / 2 };
+		let mouse = { x: canvas.width / 2, y: canvas.height / 2 };
 
-    function onMouse(e) {
-      const rect = canvas.getBoundingClientRect();
-      if (rect.width && rect.height) {
-        const nx = (e.clientX - rect.left) / rect.width;
-        const ny = 1.0 - (e.clientY - rect.top) / rect.height;
-        mouse.x = nx * canvas.width;
-        mouse.y = ny * canvas.height;
-      }
-    }
-    window.addEventListener('mousemove', onMouse);
+		function onMouse(e: MouseEvent) {
+			const rect = canvas.getBoundingClientRect();
+			if (rect.width && rect.height) {
+				const nx = (e.clientX - rect.left) / rect.width;
+				const ny = 1.0 - (e.clientY - rect.top) / rect.height;
+				mouse.x = nx * canvas.width;
+				mouse.y = ny * canvas.height;
+			}
+		}
+		window.addEventListener('mousemove', onMouse);
 
-    function render(t) {
-      if (typeof ResizeObserver === 'undefined') syncSize();
-      gl.viewport(0, 0, canvas.width, canvas.height);
-      if (uTime) gl.uniform1f(uTime, t * 0.001);
-      if (uRes) gl.uniform2f(uRes, canvas.width, canvas.height);
-      if (uMouse) gl.uniform2f(uMouse, mouse.x, mouse.y);
-      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-      animId = requestAnimationFrame(render);
-    }
-    animId = requestAnimationFrame(render);
+		const render = (t: number) => {
+			if (typeof ResizeObserver === 'undefined') syncSize();
+			gl.viewport(0, 0, canvas.width, canvas.height);
+			if (uTime) gl.uniform1f(uTime, t * 0.001);
+			if (uRes) gl.uniform2f(uRes, canvas.width, canvas.height);
+			if (uMouse) gl.uniform2f(uMouse, mouse.x, mouse.y);
+			gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+			animId = requestAnimationFrame(render);
+		};
+		animId = requestAnimationFrame(render);
 
-    onDestroy(() => {
-      cancelAnimationFrame(animId);
-      window.removeEventListener('mousemove', onMouse);
-    });
-  });
+		// Cleanup must be the return value of onMount. Calling onDestroy() from inside
+		// onMount throws "Function called outside component initialization" in Svelte, so
+		// the RAF loop and the mousemove listener were never actually torn down.
+		return () => {
+			cancelAnimationFrame(animId);
+			window.removeEventListener('mousemove', onMouse);
+		};
+	});
 </script>
 
-<canvas bind:this={canvas} class="shader-canvas"></canvas>
+<canvas bind:this={canvas} class="shader-canvas" />
 
-<div class="mesh-overlay"></div>
+<div class="mesh-overlay" />
 
 <style>
-  .shader-canvas {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    display: block;
-    pointer-events: none;
-    z-index: 0;
-  }
+	.shader-canvas {
+		position: absolute;
+		inset: 0;
+		width: 100%;
+		height: 100%;
+		display: block;
+		pointer-events: none;
+		z-index: 0;
+	}
 
-  .mesh-overlay {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 1;
-    background: radial-gradient(circle at 50% 50%, rgba(94,106,210,0.05) 0%, transparent 50%);
-  }
+	.mesh-overlay {
+		position: absolute;
+		inset: 0;
+		pointer-events: none;
+		z-index: 1;
+		background: radial-gradient(circle at 50% 50%, rgba(94, 106, 210, 0.05) 0%, transparent 50%);
+	}
 </style>

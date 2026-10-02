@@ -1,64 +1,107 @@
 .container {
-  width: 100%;
-  max-width: var(--container-max);
-  margin: 0 auto;
-  padding: 0 var(--margin-mobile);
+	width: 100%;
+	max-width: var(--container-max);
+	margin: 0 auto;
+	padding: 0 var(--margin-mobile);
 
-  @media (min-width: 768px) {
-    padding: 0 var(--margin-desktop);
-  }
+	@media (min-width: 768px) {
+		padding: 0 var(--margin-desktop);
+	}
 }
 
-ul, ol {
-  margin: 10px 0 10px 24px;
-  padding: 0;
-  li {
-    margin: 6px 0;
-  }
+ul,
+ol {
+	margin: 1.1rem 0 1.1rem 26px;
+	padding: 0;
+	li {
+		margin: 0.5rem 0;
+		line-height: 1.7em;
+	}
 }
 
 .section-label {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-bottom: 16px;
+	font-family: var(--font-mono);
+	font-size: 11px;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+	color: var(--muted);
+	margin-bottom: 16px;
 }
 
 .stagger-fade {
-  opacity: 0;
-  transform: translateY(16px);
-  animation: fadeUp 400ms ease-out forwards;
+	opacity: 0;
+	transform: translateY(16px);
+	animation: fadeUp 400ms ease-out forwards;
 }
 
 @keyframes fadeUp {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
 }
 
 @keyframes fadeUpScroll {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
 }
 
 .is-visible {
-  opacity: 1;
-  transform: translateY(0);
+	opacity: 1;
+	transform: translateY(0);
+}
+
+// Hidden state for `use:reveal`. Applied by the action (client-side only) so
+// server-rendered content stays visible without JS. Drives the `fadeUpScroll`
+// keyframe that was already defined above.
+.fade-in-scroll {
+	opacity: 0;
+	transform: translateY(16px);
+	will-change: opacity, transform;
+
+	&.is-visible {
+		animation: fadeUpScroll 500ms ease-out forwards;
+	}
+}
+
+// rehype-autolink-headings prepends a "#" permalink inside every heading. Unstyled it
+// renders as literal "# Heading" text at full heading size, so tone it down and bring
+// it up on hover. Faint rather than hidden by default — touch devices never hover.
+.heading-link {
+	margin-right: 0.3em;
+	color: var(--muted);
+	font-size: 0.7em;
+	opacity: 0.35;
+	text-decoration: none;
+	transition: opacity 0.15s ease;
+
+	&:hover,
+	&:focus-visible {
+		opacity: 1;
+	}
+}
+
+:is(h1, h2, h3, h4, h5, h6):hover .heading-link,
+.heading-link:focus-visible {
+	opacity: 1;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-  .stagger-fade {
-    opacity: 1;
-    transform: none;
-  }
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+	}
+	.stagger-fade {
+		opacity: 1;
+		transform: none;
+	}
+	.fade-in-scroll {
+		opacity: 1;
+		transform: none;
+	}
 }

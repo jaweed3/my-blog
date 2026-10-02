@@ -1,20 +1,17 @@
 import { description, siteBaseUrl, title } from '$lib/data/meta';
 import type { BlogPost } from '$lib/utils/types';
 import dateformat from 'dateformat';
-import { filterPosts, importPosts } from '$lib/data/blog-posts/utils';
+import { filteredPosts } from '$lib/data/blog-posts';
 
 export const prerender = true;
 
 export async function GET() {
-  const allPosts = importPosts(true);
-  const filteredPosts = filterPosts(allPosts);
-
-  const body = xml(filteredPosts);
-  const headers = {
-    'Cache-Control': 'max-age=0, s-maxage=3600',
-    'Content-Type': 'application/xml'
-  };
-  return new Response(body, { headers });
+	const body = xml(filteredPosts);
+	const headers = {
+		'Cache-Control': 'max-age=0, s-maxage=3600',
+		'Content-Type': 'application/xml'
+	};
+	return new Response(body, { headers });
 }
 
 const xml = (posts: BlogPost[]) => `
@@ -41,8 +38,8 @@ const xml = (posts: BlogPost[]) => `
       <height>32</height>
     </image>
     ${posts
-    .map(
-      (post) => `
+			.map(
+				(post) => `
         <item>
           <guid>${siteBaseUrl}/${post.slug}</guid>
           <title>${post.title}</title>
@@ -62,11 +59,19 @@ const xml = (posts: BlogPost[]) => `
 
             ${post.html}
           ]]></content:encoded>
-          ${post.coverImage ? `<media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="${siteBaseUrl}/${post.coverImage}"/>` : ''}
-          ${post.coverImage ? `<media:content xmlns:media="http://search.yahoo.com/mrss/" medium="image" url="${siteBaseUrl}/${post.coverImage}"/>` : ''}          
+          ${
+						post.coverImage
+							? `<media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="${siteBaseUrl}/${post.coverImage}"/>`
+							: ''
+					}
+          ${
+						post.coverImage
+							? `<media:content xmlns:media="http://search.yahoo.com/mrss/" medium="image" url="${siteBaseUrl}/${post.coverImage}"/>`
+							: ''
+					}          
         </item>
       `
-    )
-    .join('')}
+			)
+			.join('')}
   </channel>
 </rss>`;
