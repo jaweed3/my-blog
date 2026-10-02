@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { title } from '$lib/data/meta';
+	import ContributionGrid from '$lib/components/molecules/ContributionGrid.svelte';
+	import { reveal } from '$lib/actions/reveal';
 </script>
 
 <svelte:head>
@@ -34,6 +36,10 @@
 			<span class="hero-stat-label">Repos</span>
 		</div>
 	</div>
+</section>
+
+<section class="roadmap-activity" use:reveal>
+	<ContributionGrid />
 </section>
 
 <div class="roadmap-grid">
@@ -300,6 +306,12 @@
 				letter-spacing: 0.05em;
 			}
 		}
+	}
+
+	.roadmap-activity {
+		max-width: var(--container-max);
+		margin: 0 auto;
+		padding: 48px var(--margin-mobile) 0;
 	}
 
 	.roadmap-grid {
