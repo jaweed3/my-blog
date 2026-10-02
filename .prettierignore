@@ -11,3 +11,10 @@ node_modules
 pnpm-lock.yaml
 package-lock.json
 yarn.lock
+
+# Agent tooling / design exports
+taste-skill.md
+stitch_portfolio_ui_redesign/
+
+# Vercel
+.vercel

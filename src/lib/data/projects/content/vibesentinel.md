@@ -23,27 +23,28 @@ featured: true
 hidden: false
 impact: Predicts industrial equipment failure before it happens — using a $20 microcontroller with zero cloud dependency
 stats:
-  - value: "$20"
-    label: "Hardware Cost"
-  - value: "524"
-    label: "Parameters"
-  - value: "200Hz"
-    label: "Sample Rate"
-  - value: "~2KB"
-    label: "Model Size"
+  - value: '$20'
+    label: 'Hardware Cost'
+  - value: '524'
+    label: 'Parameters'
+  - value: '200Hz'
+    label: 'Sample Rate'
+  - value: '~2KB'
+    label: 'Model Size'
 problem: Industrial predictive maintenance requires expensive sensor infrastructure ($500+/node), cloud subscriptions, and specialized expertise — inaccessible for small factories, remote equipment, and budget-constrained operations
 results:
-  - "524-parameter autoencoder — smallest model in its class (~2 KB)"
-  - "100% Rust — from training in Burn to no_std inference on ESP32-S3"
-  - "Bit-exact golden vectors guarantee identical output across x86 and Xtensa"
-  - "10 structured error codes (E001-E010) for every possible failure mode"
-  - "200 Hz 3-axis sampling with FFT, RMS, kurtosis, and spectral analysis"
+  - '524-parameter autoencoder — smallest model in its class (~2 KB)'
+  - '100% Rust — from training in Burn to no_std inference on ESP32-S3'
+  - 'Bit-exact golden vectors guarantee identical output across x86 and Xtensa'
+  - '10 structured error codes (E001-E010) for every possible failure mode'
+  - '200 Hz 3-axis sampling with FFT, RMS, kurtosis, and spectral analysis'
 outcome: Brings enterprise-grade predictive maintenance to budget-constrained operations — preventing costly downtime without cloud infrastructure or expensive hardware
 ---
 
 ## Problem
 
 Industrial predictive maintenance today:
+
 - **Expensive sensors**: $500-2000 per monitoring node
 - **Cloud dependency**: Most solutions require constant internet for ML inference
 - **Complex setup**: Specialized expertise needed for installation and configuration
@@ -64,11 +65,11 @@ Sensor → 128-sample window → 26 features → Z-score norm → AE → MSE > t
 
 ## Business Impact
 
-| Before | After |
-|--------|-------|
-| Predictive maintenance node: $500-2000 | $20 microcontroller — 25x cheaper |
-| Cloud-dependent — internet required | Fully offline, works in remote areas |
-| Weeks to deploy per machine | Flash firmware in minutes |
+| Before                                     | After                                               |
+| ------------------------------------------ | --------------------------------------------------- |
+| Predictive maintenance node: $500-2000     | $20 microcontroller — 25x cheaper                   |
+| Cloud-dependent — internet required        | Fully offline, works in remote areas                |
+| Weeks to deploy per machine                | Flash firmware in minutes                           |
 | Enterprise only — small factories excluded | Accessible to any operation with rotating machinery |
 
 ## Results

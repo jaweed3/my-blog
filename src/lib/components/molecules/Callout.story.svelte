@@ -3,11 +3,10 @@
 	import type { ComponentProps } from 'svelte';
 	import type { Hst } from '@histoire/plugin-svelte';
 	import Callout from './Callout.svelte';
-	import type { NoUndefinedField } from '$lib/utils/types';
 
 	export let Hst: Hst;
 
-	let props: NoUndefinedField<ComponentProps<Callout>> = {
+	let props: ComponentProps<Callout> = {
 		type: 'info'
 	};
 </script>

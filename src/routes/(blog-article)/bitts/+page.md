@@ -1,6 +1,6 @@
 ---
 slug: bitts
-title: "BitJETS: What Happens When You Train a 1.58-bit TTS on Commodity Hardware"
+title: 'BitJETS: What Happens When You Train a 1.58-bit TTS on Commodity Hardware'
 date: 2026-04-05T10:00:00.000Z
 excerpt: "Implementing BitNet b1.58 quantization for TTS — 5x compression (12 MB → 2.5 MB), 200x faster-than-real-time inference, but the audio is robotic and timing is broken. Here's exactly why, and what it would take to fix it."
 coverImage: /images/posts/bitts.png
@@ -57,13 +57,13 @@ The compression numbers are genuine. The quality is not. Here's why.
 
 ## Honest summary
 
-| Can claim | Cannot claim |
-|-----------|--------------|
+| Can claim                                        | Cannot claim                   |
+| ------------------------------------------------ | ------------------------------ |
 | Correct BitNet b1.58 quantization implementation | Production-quality naturalness |
-| 5x acoustic model compression vs FP32 | Paper-equivalent MOS |
-| Working end-to-end: text → intelligible speech | End-to-end 1.58-bit system |
-| Faster-than-real-time inference (CPU and GPU) | Multi-speaker or cross-lingual |
-| Reproducible on commodity GPU | Mobile/edge deployment |
+| 5x acoustic model compression vs FP32            | Paper-equivalent MOS           |
+| Working end-to-end: text → intelligible speech   | End-to-end 1.58-bit system     |
+| Faster-than-real-time inference (CPU and GPU)    | Multi-speaker or cross-lingual |
+| Reproducible on commodity GPU                    | Mobile/edge deployment         |
 
 The real story: I implemented 1.58-bit TTS quantization from scratch, correctly matching the paper's quantization math, and trained it on a single RTX 4060. The audio quality doesn't need to match Google's TTS for the implementation to demonstrate real capability.
 
@@ -100,6 +100,7 @@ cd bitts
 ```
 
 19 tests covering quantization math, model forward/backward, weight packing roundtrip, and training loop smoke test:
+
 ```bash
 python -m pytest tests/ -v
 ```

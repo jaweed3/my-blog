@@ -1,8 +1,8 @@
 ---
 slug: perpusgate
-title: "PerpusGate: Running a Campus Library on Laravel + Filament"
+title: 'PerpusGate: Running a Campus Library on Laravel + Filament'
 date: 2026-06-05T10:00:00.000Z
-excerpt: "165+ users, full-text search with Meilisearch, MySQL crash recovery — shipping a production library system for UNIDA Gontor when spreadsheets and WhatsApp stopped scaling."
+excerpt: '165+ users, full-text search with Meilisearch, MySQL crash recovery — shipping a production library system for UNIDA Gontor when spreadsheets and WhatsApp stopped scaling.'
 coverImage: /images/posts/perpusgate.svg
 tags:
   - Backend
@@ -48,14 +48,14 @@ This was the moment the system stopped being a side project and became a product
 
 ## Before and after
 
-| Before | After |
-|--------|-------|
-| Catalog search: shared spreadsheet, ~10 min/book lookup | Full-text search: 12ms, instant availability check |
-| Borrowing: paper logbook, limited to front-desk hours | Digital circulation with auto-calculated due dates |
-| Thesis submission: email → manual sort → manual entry, ~30 min/thesis | Upload → auto-categorize → published, ~5 min |
-| Staff schedule: WhatsApp group, no audit trail | Task assignments, shift calendar, complete history |
-| Backups: none | Automated 6-hourly backups + disk monitoring |
-| Disaster recovery: hope | Documented crash recovery procedure (learned the hard way) |
+| Before                                                                | After                                                      |
+| --------------------------------------------------------------------- | ---------------------------------------------------------- |
+| Catalog search: shared spreadsheet, ~10 min/book lookup               | Full-text search: 12ms, instant availability check         |
+| Borrowing: paper logbook, limited to front-desk hours                 | Digital circulation with auto-calculated due dates         |
+| Thesis submission: email → manual sort → manual entry, ~30 min/thesis | Upload → auto-categorize → published, ~5 min               |
+| Staff schedule: WhatsApp group, no audit trail                        | Task assignments, shift calendar, complete history         |
+| Backups: none                                                         | Automated 6-hourly backups + disk monitoring               |
+| Disaster recovery: hope                                               | Documented crash recovery procedure (learned the hard way) |
 
 ## What I'd tell myself starting over
 
@@ -77,4 +77,4 @@ Face recognition attendance is in development — integrating face-lib with Perp
 
 Laravel 12 · Filament v3 · Meilisearch · MySQL 8 · Tailwind v4
 
-*Internal system — no public repo (campus data privacy). June 2026. Built for UNIDA Gontor's library staff and 165+ campus members.*
+_Internal system — no public repo (campus data privacy). June 2026. Built for UNIDA Gontor's library staff and 165+ campus members._

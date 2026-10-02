@@ -22,20 +22,20 @@ featured: true
 hidden: false
 impact: Democratizes landslide early warning — turning everyday smartphones into life-saving geohazard sensors for rural communities
 stats:
-  - value: "84.9%"
-    label: "Accuracy"
-  - value: "2.6MB"
-    label: "Model Size"
-  - value: "50ms"
-    label: "Inference"
-  - value: "3,547"
-    label: "Samples"
+  - value: '84.9%'
+    label: 'Accuracy'
+  - value: '2.6MB'
+    label: 'Model Size'
+  - value: '50ms'
+    label: 'Inference'
+  - value: '3,547'
+    label: 'Samples'
 problem: "41 landslides in 4 months in Jenangan, Ponorogo. Existing solutions (IoT sensors, satellite imagery, drone surveys) are too expensive and can't reach rural villages"
 results:
-  - "84.9% test accuracy on soil crack classification (MobileNetV2 INT8)"
-  - "Runs fully offline on $200 Android phones — zero infrastructure"
-  - "Multi-factor risk engine: slope, rainfall, elevation, soil type (5 factors, 300ms)"
-  - "Delta OTA updates — 70-90% bandwidth savings for model updates"
+  - '84.9% test accuracy on soil crack classification (MobileNetV2 INT8)'
+  - 'Runs fully offline on $200 Android phones — zero infrastructure'
+  - 'Multi-factor risk engine: slope, rainfall, elevation, soil type (5 factors, 300ms)'
+  - 'Delta OTA updates — 70-90% bandwidth savings for model updates'
 outcome: Enables rural communities to detect landslide risks early without any infrastructure investment — just a smartphone and the app
 ---
 
@@ -59,12 +59,12 @@ All ML inference runs **fully offline on-device** — no internet required in de
 
 ## Business Impact
 
-| Before | After |
-|--------|-------|
-| Zero early warning system in rural areas | Free app turns phones into landslide sensors |
-| BPBD relies on manual reports (hours late) | Real-time dashboard with geotagged reports |
-| IoT sensor deployment: $500+/location | Zero infrastructure cost — uses existing smartphones |
-| Satellite imagery: $1000+/km², days to process | Instant AI analysis, 300ms per photo |
+| Before                                         | After                                                |
+| ---------------------------------------------- | ---------------------------------------------------- |
+| Zero early warning system in rural areas       | Free app turns phones into landslide sensors         |
+| BPBD relies on manual reports (hours late)     | Real-time dashboard with geotagged reports           |
+| IoT sensor deployment: $500+/location          | Zero infrastructure cost — uses existing smartphones |
+| Satellite imagery: $1000+/km², days to process | Instant AI analysis, 300ms per photo                 |
 
 ## Results
 

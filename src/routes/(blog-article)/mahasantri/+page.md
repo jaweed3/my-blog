@@ -1,8 +1,8 @@
 ---
 slug: mahasantri
-title: "Mahasantri: Zero-Knowledge Whistleblower for Pesantren"
+title: 'Mahasantri: Zero-Knowledge Whistleblower for Pesantren'
 date: 2026-06-05T12:00:00.000Z
-excerpt: "ZK token scheme, Tink ECIES encryption, air-gapped admin — building a whistleblower app where the server itself cannot link a report to its submitter."
+excerpt: 'ZK token scheme, Tink ECIES encryption, air-gapped admin — building a whistleblower app where the server itself cannot link a report to its submitter.'
 coverImage: /images/posts/mahasantri.svg
 tags:
   - Cryptography
@@ -25,7 +25,7 @@ This is research-phase. The core cryptographic scheme works, but it hasn't under
 The flow is simple in theory, paranoid in practice:
 
 1. Student opens the app, writes a report, submits
-2. App encrypts the report with the admin's ECIES public key *before* sending
+2. App encrypts the report with the admin's ECIES public key _before_ sending
 3. Server receives an opaque encrypted blob — no plaintext, no metadata, no IP stored
 4. Server returns a cryptographic token to the student
 5. Admin periodically downloads encrypted blobs to USB drive
@@ -83,4 +83,4 @@ This level of paranoia is necessary because the adversary model includes the sys
 
 Kotlin/Compose (Android) · FastAPI (Python) · Tink (ECIES) · PostgreSQL
 
-*Internal research project — not deployed to production, no public repo (pesantren data privacy). June 2026.*
+_Internal research project — not deployed to production, no public repo (pesantren data privacy). June 2026._

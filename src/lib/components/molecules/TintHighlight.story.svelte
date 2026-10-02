@@ -3,11 +3,10 @@
 	import type { ComponentProps } from 'svelte';
 	import type { Hst } from '@histoire/plugin-svelte';
 	import TintHighlight from './TintHighlight.svelte';
-	import type { NoUndefinedField } from '$lib/utils/types';
 
 	export let Hst: Hst;
 
-	let props: NoUndefinedField<ComponentProps<TintHighlight>> = {
+	let props: ComponentProps<TintHighlight> = {
 		color: 'primary'
 	};
 </script>

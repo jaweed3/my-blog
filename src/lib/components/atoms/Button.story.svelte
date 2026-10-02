@@ -3,18 +3,18 @@
 	import type { ComponentProps } from 'svelte';
 	import type { Hst } from '@histoire/plugin-svelte';
 	import Button from './Button.svelte';
-	import type { NoUndefinedField } from '$lib/utils/types';
 	import Icon from '$lib/icons/chat.svelte';
 
 	export let Hst: Hst;
 
-	let props: NoUndefinedField<ComponentProps<Button>> = {
+	let props: ComponentProps<Button> = {
 		color: 'primary',
 		style: 'solid',
 		size: 'medium',
 		href: '',
 		target: '_blank',
-		rel: 'noopener noreferrer'
+		rel: 'noopener noreferrer',
+		additionalClass: ''
 	};
 
 	let text = 'This is a Button';

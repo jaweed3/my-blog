@@ -1,8 +1,8 @@
 ---
 slug: optimisme-checklist-dresden
-title: "Optimisme = Bukti + Kontrol: Checklist Dresden"
+title: 'Optimisme = Bukti + Kontrol: Checklist Dresden'
 date: 2026-09-16T10:00:00.000Z
-excerpt: "Insecure soal Dresden itu data yang valid, bukan kelemahan. Optimisme bukan sifat — itu output dari bukti yang numpuk dan hal yang bisa dikontrol."
+excerpt: 'Insecure soal Dresden itu data yang valid, bukan kelemahan. Optimisme bukan sifat — itu output dari bukti yang numpuk dan hal yang bisa dikontrol.'
 tags:
   - Essay
   - Personal

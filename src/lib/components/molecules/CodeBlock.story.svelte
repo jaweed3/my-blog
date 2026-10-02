@@ -3,11 +3,10 @@
 	import type { ComponentProps } from 'svelte';
 	import type { Hst } from '@histoire/plugin-svelte';
 	import CodeBlock from './CodeBlock.svelte';
-	import type { NoUndefinedField } from '$lib/utils/types';
 
 	export let Hst: Hst;
 
-	let props: NoUndefinedField<ComponentProps<CodeBlock>> = {
+	let props: ComponentProps<CodeBlock> = {
 		filename: '+page.svelte',
 		lang: 'svelte'
 	};

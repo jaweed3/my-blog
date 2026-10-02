@@ -3,11 +3,10 @@
 	import type { ComponentProps } from 'svelte';
 	import type { Hst } from '@histoire/plugin-svelte';
 	import SparklingHighlight from './SparklingHighlight.svelte';
-	import type { NoUndefinedField } from '$lib/utils/types';
 
 	export let Hst: Hst;
 
-	let props: NoUndefinedField<ComponentProps<SparklingHighlight>> = {
+	let props: ComponentProps<SparklingHighlight> = {
 		color: 'default',
 		sparkleColor: 'default'
 	};

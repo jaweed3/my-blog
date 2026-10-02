@@ -24,26 +24,27 @@ featured: true
 hidden: false
 impact: Production-grade MLOps pipeline with 360° observability — from data versioning to live model monitoring
 stats:
-  - value: "DVC"
-    label: "Data Pipeline"
-  - value: "MLflow"
-    label: "Experiment Tracking"
-  - value: "1-Cmd"
-    label: "Docker Setup"
-  - value: "ONNX"
-    label: "Multi-Format Export"
+  - value: 'DVC'
+    label: 'Data Pipeline'
+  - value: 'MLflow'
+    label: 'Experiment Tracking'
+  - value: '1-Cmd'
+    label: 'Docker Setup'
+  - value: 'ONNX'
+    label: 'Multi-Format Export'
 problem: ML teams struggle to track experiments, version data, and monitor deployed models — leading to unreproducible results, silent performance degradation, and costly production failures
 results:
-  - "Automated DVC data versioning with S3-compatible remote storage"
-  - "MLflow experiment tracking with full reproducibility"
-  - "Prometheus + Grafana dashboards for live model monitoring"
-  - "Dockerized one-command reproducible pipeline"
+  - 'Automated DVC data versioning with S3-compatible remote storage'
+  - 'MLflow experiment tracking with full reproducibility'
+  - 'Prometheus + Grafana dashboards for live model monitoring'
+  - 'Dockerized one-command reproducible pipeline'
 outcome: Provides ML teams a battle-tested MLOps infrastructure that ensures reproducibility, observability, and production readiness for computer vision deployments
 ---
 
 ## Problem
 
 ML teams in production face recurring infrastructure gaps:
+
 - **Data versioning**: "Which dataset was this model trained on?"
 - **Experiment tracking**: "Which hyperparameters produced the best result?"
 - **Model monitoring**: "Is my model performance degrading in production?"
@@ -69,12 +70,12 @@ Prometheus + Grafana (Live Monitoring)
 
 ## Business Impact
 
-| Before | After |
-|--------|-------|
+| Before                                        | After                                  |
+| --------------------------------------------- | -------------------------------------- |
 | Data stored in random folders — no versioning | DVC-tracked datasets with full lineage |
-| Experiments lost in notebook history | MLflow UI with every run logged |
-| Silent model degradation in production | Prometheus alerts on metric drift |
-| Hours to reproduce old results | One-command `docker-compose up` |
+| Experiments lost in notebook history          | MLflow UI with every run logged        |
+| Silent model degradation in production        | Prometheus alerts on metric drift      |
+| Hours to reproduce old results                | One-command `docker-compose up`        |
 
 ## Results
 

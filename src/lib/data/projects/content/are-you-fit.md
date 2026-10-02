@@ -21,26 +21,27 @@ featured: false
 hidden: false
 impact: Automates resume screening with AI — matching candidates to jobs in seconds instead of hours
 stats:
-  - value: "2-3s"
-    label: "Per Resume"
-  - value: "Auto"
-    label: "PDF/DOCX Parse"
-  - value: "TF-IDF"
-    label: "Matching"
-  - value: "SQLite"
-    label: "Persistence"
+  - value: '2-3s'
+    label: 'Per Resume'
+  - value: 'Auto'
+    label: 'PDF/DOCX Parse'
+  - value: 'TF-IDF'
+    label: 'Matching'
+  - value: 'SQLite'
+    label: 'Persistence'
 problem: HR teams spend hours manually screening resumes against job descriptions, applying inconsistent criteria and introducing unconscious bias into the hiring pipeline
 results:
-  - "Parse PDF and DOCX resumes automatically with PyMuPDF + python-docx"
-  - "TF-IDF vectorization + cosine similarity for objective skill matching"
-  - "Personalized improvement suggestions with skill gap analysis"
-  - "Course recommendations for missing skills"
+  - 'Parse PDF and DOCX resumes automatically with PyMuPDF + python-docx'
+  - 'TF-IDF vectorization + cosine similarity for objective skill matching'
+  - 'Personalized improvement suggestions with skill gap analysis'
+  - 'Course recommendations for missing skills'
 outcome: Accelerates hiring pipelines by automating initial resume screening with objective, data-driven candidate-job matching
 ---
 
 ## Problem
 
 Recruitment teams face a scalability crisis:
+
 - **Hours wasted**: Screening 100+ resumes per position manually
 - **Inconsistent criteria**: Different reviewers weigh different factors
 - **Unconscious bias**: Human reviewers are susceptible to bias in initial screening
@@ -51,6 +52,7 @@ Junior and mid-level positions receive hundreds of applications — the bottlene
 ## Solution
 
 AreUFit automates the initial screening with AI:
+
 1. **Upload resume** (PDF/DOCX) — automatically parsed and structured
 2. **Enter job description** — system analyzes requirements
 3. **Instant match score** — TF-IDF + NLP-based skill matching
@@ -58,12 +60,12 @@ AreUFit automates the initial screening with AI:
 
 ## Business Impact
 
-| Before | After |
-|--------|-------|
-| 15-30 minutes per resume for initial screen | 2-3 seconds per resume — fully automated |
-| Inconsistent criteria across reviewers | Objective, reproducible scoring algorithm |
-| High risk of unconscious bias | Data-driven matching based on job requirements |
-| 2-3 weeks time-to-hire for positions | Initial screening done in hours, not days |
+| Before                                      | After                                          |
+| ------------------------------------------- | ---------------------------------------------- |
+| 15-30 minutes per resume for initial screen | 2-3 seconds per resume — fully automated       |
+| Inconsistent criteria across reviewers      | Objective, reproducible scoring algorithm      |
+| High risk of unconscious bias               | Data-driven matching based on job requirements |
+| 2-3 weeks time-to-hire for positions        | Initial screening done in hours, not days      |
 
 ## Results
 

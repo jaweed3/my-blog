@@ -1,6 +1,6 @@
 ---
 slug: burn
-title: "5 PRs to tracel-ai/burn: From ROUGE-L to Compiler Ergonomics"
+title: '5 PRs to tracel-ai/burn: From ROUGE-L to Compiler Ergonomics'
 date: 2026-06-05T16:00:00.000Z
 excerpt: "One month, five merged pull requests to a Rust deep learning framework. ROUGE-L metric, SGD config fix, better shape errors, derive macro diagnostics, and a TensorNotFound hint. Here's the progression from first-time contributor to core crate patches."
 coverImage: /images/posts/burn.svg
@@ -36,6 +36,7 @@ Final diff: +2/-2 lines. Doc fix only. This was the most valuable rejection I've
 This one came from pure frustration. Burn's tensor and NN module errors would say "incompatible shapes" without telling you which shapes. Debugging a 10-layer neural network means adding print statements everywhere.
 
 I added shape, rank, and dimension context to four error sites:
+
 - Matmul: panic now includes tensor rank and incompatible dimensions
 - Broadcast: includes arg count and expected minimum dims
 - Squeeze: shows requested vs actual dim count

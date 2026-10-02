@@ -1,8 +1,8 @@
 ---
 slug: esp
-title: "ESP32-S3 Neural Camera: MJPEG Streaming at 5MB on a $15 MCU"
+title: 'ESP32-S3 Neural Camera: MJPEG Streaming at 5MB on a $15 MCU'
 date: 2026-05-05T10:00:00.000Z
-excerpt: "Pushing a 1600x1200 camera pipeline through 8MB PSRAM with zero heap fragmentation — captive portal WiFi, dual-core FreeRTOS pinning, and why DRAM is the real bottleneck on ESP32-S3."
+excerpt: 'Pushing a 1600x1200 camera pipeline through 8MB PSRAM with zero heap fragmentation — captive portal WiFi, dual-core FreeRTOS pinning, and why DRAM is the real bottleneck on ESP32-S3.'
 coverImage: /images/posts/esp32.png
 tags:
   - Embedded Systems
@@ -110,6 +110,7 @@ esp32-jarvis/
 ```
 
 Four build environments for isolated testing:
+
 ```bash
 pio run -e full          # Integrated firmware
 pio run -e test_cam      # Camera + WiFi + Stream only

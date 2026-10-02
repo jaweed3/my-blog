@@ -21,20 +21,20 @@ featured: true
 hidden: false
 impact: Reduces TTS model size by 79% while maintaining voice quality — making AI speech viable on edge devices
 stats:
-  - value: "79%"
-    label: "Compression Ratio"
-  - value: "5x"
-    label: "Smaller than FP32"
-  - value: "3.2ms"
-    label: "Inference Time"
-  - value: "1.58-bit"
-    label: "Ternary Weights"
+  - value: '79%'
+    label: 'Compression Ratio'
+  - value: '5x'
+    label: 'Smaller than FP32'
+  - value: '3.2ms'
+    label: 'Inference Time'
+  - value: '1.58-bit'
+    label: 'Ternary Weights'
 problem: Text-to-speech models are too large for edge deployment, requiring cloud connectivity for voice synthesis and preventing offline accessibility applications
 results:
-  - "79% compression vs FP32 (12.4MB → 2.5MB)"
-  - "Real-time inference — faster than real-time (sub-millisecond per sample)"
-  - "1.58-bit ternary weights {-1, 0, 1} via quantization-aware training"
-  - "5x model size reduction with minimal quality loss"
+  - '79% compression vs FP32 (12.4MB → 2.5MB)'
+  - 'Real-time inference — faster than real-time (sub-millisecond per sample)'
+  - '1.58-bit ternary weights {-1, 0, 1} via quantization-aware training'
+  - '5x model size reduction with minimal quality loss'
 outcome: Enables on-device voice synthesis for IoT, automotive infotainment, assistive technology, and accessibility applications without cloud connectivity
 ---
 
@@ -60,12 +60,12 @@ Text → [Embedding] → [BitEncoder × 4] → [VarianceAdaptor] → [BitDecoder
 
 ## Business Impact
 
-| Before | After |
-|--------|-------|
+| Before                                              | After                                                   |
+| --------------------------------------------------- | ------------------------------------------------------- |
 | 12.4MB FP32 model — too large for most edge devices | 2.5MB packed model — fits on any modern microcontroller |
-| Cloud dependency for voice synthesis | Fully on-device, zero latency, zero bandwidth |
-| 45ms+ inference on edge CPU | Real-time — faster than real-time (RTF less than 0.005) |
-| Limited to connected devices | Works anywhere — car, airplane, remote areas |
+| Cloud dependency for voice synthesis                | Fully on-device, zero latency, zero bandwidth           |
+| 45ms+ inference on edge CPU                         | Real-time — faster than real-time (RTF less than 0.005) |
+| Limited to connected devices                        | Works anywhere — car, airplane, remote areas            |
 
 ## Results
 

@@ -21,20 +21,20 @@ featured: true
 hidden: false
 impact: Accelerated search & rescue operations by 2.5x with on-device AI victim detection on drones
 stats:
-  - value: "40ms"
-    label: "Inference Latency"
-  - value: "71%"
-    label: "Model Compression"
-  - value: "37%"
-    label: "Faster than FP32"
-  - value: "3.6MB"
-    label: "Model Size"
+  - value: '40ms'
+    label: 'Inference Latency'
+  - value: '71%'
+    label: 'Model Compression'
+  - value: '37%'
+    label: 'Faster than FP32'
+  - value: '3.6MB'
+    label: 'Model Size'
 problem: Search & rescue teams rely on manual visual inspection of drone footage, which is slow, error-prone, and delays critical response in the golden hour
 results:
-  - "Sub-40ms inference latency on-device — 37% faster than FP32"
-  - "71% model size reduction via INT8 quantization (12.4MB → 3.6MB)"
-  - "GPS-tagged victim coordinates in under 38ms per frame"
-  - "Zero cloud dependency — fully autonomous on-drone processing"
+  - 'Sub-40ms inference latency on-device — 37% faster than FP32'
+  - '71% model size reduction via INT8 quantization (12.4MB → 3.6MB)'
+  - 'GPS-tagged victim coordinates in under 38ms per frame'
+  - 'Zero cloud dependency — fully autonomous on-drone processing'
 outcome: Enables faster, more accurate disaster response with autonomous AI-powered aerial assessment, eliminating the need for constant cloud connectivity in remote disaster zones
 ---
 
@@ -60,12 +60,12 @@ Each detection is instantly geotagged using DJI EXIF metadata, giving rescue tea
 
 ## Business Impact
 
-| Before | After |
-|--------|-------|
-| Manual video inspection requires 2-3 operators per drone | Single drone operates autonomously |
-| 30+ second delay per frame (human reaction + cloud round-trip) | Under 40ms per frame on-device |
-| Limited to clear weather (cloud dependency) | Works in fully offline environments |
-| GPS coordinates estimated manually | Automated sub-meter victim geotagging |
+| Before                                                         | After                                 |
+| -------------------------------------------------------------- | ------------------------------------- |
+| Manual video inspection requires 2-3 operators per drone       | Single drone operates autonomously    |
+| 30+ second delay per frame (human reaction + cloud round-trip) | Under 40ms per frame on-device        |
+| Limited to clear weather (cloud dependency)                    | Works in fully offline environments   |
+| GPS coordinates estimated manually                             | Automated sub-meter victim geotagging |
 
 ## Results
 

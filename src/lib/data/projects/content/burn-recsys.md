@@ -20,19 +20,19 @@ featured: true
 hidden: false
 impact: High-performance recommendation engine in Rust — blazing fast inference with memory safety and zero Python overhead
 stats:
-  - value: "100%"
-    label: "Rust End-to-End"
-  - value: "Zero"
-    label: "GIL Bottleneck"
-  - value: "Safe"
-    label: "Compile-Time"
-  - value: "Any"
-    label: "Platform Target"
+  - value: '100%'
+    label: 'Rust End-to-End'
+  - value: 'Zero'
+    label: 'GIL Bottleneck'
+  - value: 'Safe'
+    label: 'Compile-Time'
+  - value: 'Any'
+    label: 'Platform Target'
 problem: Recommendation systems in Python face latency and memory bottlenecks at scale, while C++ alternatives are error-prone and unsafe. Production teams need a safe, fast, and concurrent alternative
 results:
-  - "100% Rust — training and inference in a single language"
-  - "Memory-safe and thread-safe by design (Rust compiler guarantees)"
-  - "CPU-native inference without Python GIL or interpreter overhead"
+  - '100% Rust — training and inference in a single language'
+  - 'Memory-safe and thread-safe by design (Rust compiler guarantees)'
+  - 'CPU-native inference without Python GIL or interpreter overhead'
   - "Burn framework — modern deep learning with Rust's type system"
 outcome: Delivers fast, safe, and scalable personalized recommendations for e-commerce, content platforms, and streaming services with predictable performance and zero memory bugs
 ---
@@ -40,6 +40,7 @@ outcome: Delivers fast, safe, and scalable personalized recommendations for e-co
 ## Problem
 
 Production recommendation systems face a language trade-off:
+
 - **Python (PyTorch/TensorFlow)**: Easy development but GIL-bound, high memory usage, difficult to scale
 - **C++ (LibTorch)**: Fast but unsafe — memory bugs, dangling pointers, segfaults in production
 
@@ -55,12 +56,12 @@ burn-recsys implements a complete deep learning recommendation system entirely i
 
 ## Business Impact
 
-| Before (Python) | After (Rust) |
-|--------|-------|
+| Before (Python)                             | After (Rust)                                        |
+| ------------------------------------------- | --------------------------------------------------- |
 | GIL limits throughput under concurrent load | Full parallel inference with Rust's threading model |
-| 500MB+ memory for inference server | Predictable, minimal memory footprint |
-| 3-language stack (Python + C++ + CUDA) | Single language: Rust |
-| Opaque errors in production | Compiler catches memory bugs at build time |
+| 500MB+ memory for inference server          | Predictable, minimal memory footprint               |
+| 3-language stack (Python + C++ + CUDA)      | Single language: Rust                               |
+| Opaque errors in production                 | Compiler catches memory bugs at build time          |
 
 ## Results
 

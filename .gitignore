@@ -10,3 +10,17 @@ vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .histoire
 .jampack
+
+# Agent tooling / design exports
+taste-skill.md
+stitch_portfolio_ui_redesign/
+stitch_portfolio_ui_redesign.zip
+
+# Vercel
+.vercel
+
+# Agent tooling config — contains an MCP API key, must stay local
+opencode.json
+opencode.local.json
+# Playwright MCP artifacts
+.playwright-mcp/

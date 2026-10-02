@@ -1,8 +1,8 @@
 ---
 slug: jetson-nano-bringup
-title: "Jetson Nano B01 Bring-Up: 13.8GB Image, Failed Flash, and a Hung Splash Screen"
+title: 'Jetson Nano B01 Bring-Up: 13.8GB Image, Failed Flash, and a Hung Splash Screen'
 date: 2026-09-16T08:00:00.000Z
-excerpt: "Board-only Jetson Nano P3450 B01, 64GB microSD, JetPack 4.6. Etcher failed, dd at 5.7MB/s, first boot stuck on NVIDIA logo. What was normal, what was actually broken."
+excerpt: 'Board-only Jetson Nano P3450 B01, 64GB microSD, JetPack 4.6. Etcher failed, dd at 5.7MB/s, first boot stuck on NVIDIA logo. What was normal, what was actually broken.'
 tags:
   - Edge ML
   - Jetson Nano

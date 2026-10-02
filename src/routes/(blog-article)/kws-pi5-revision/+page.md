@@ -1,8 +1,8 @@
 ---
 slug: kws-pi5-revision
-title: "KWS on Pi 5: Answering a Major Revision in One Borrowed Afternoon"
+title: 'KWS on Pi 5: Answering a Major Revision in One Borrowed Afternoon'
 date: 2026-09-16T07:00:00.000Z
-excerpt: "Major revision, due 30 Sep. Five reviewer points, one 2-3 hour Pi 5 session. How I ordered eval 12-class, thread scaling, full-int8 DS-CNN, and power measurement by payoff."
+excerpt: 'Major revision, due 30 Sep. Five reviewer points, one 2-3 hour Pi 5 session. How I ordered eval 12-class, thread scaling, full-int8 DS-CNN, and power measurement by payoff.'
 tags:
   - Edge ML
   - Keyword Spotting
@@ -18,7 +18,7 @@ keywords:
 hidden: false
 ---
 
-Paper A — *Benchmarking Keyword Spotting Architectures Across TensorFlow Lite and ONNX Runtime on a Raspberry Pi 5* — came back Major Revision from ICAITech (#1571339978, due 30 Sep 2026). Five reviewer points. One borrowed Pi 5, one afternoon, 2-3 hours total.
+Paper A — _Benchmarking Keyword Spotting Architectures Across TensorFlow Lite and ONNX Runtime on a Raspberry Pi 5_ — came back Major Revision from ICAITech (#1571339978, due 30 Sep 2026). Five reviewer points. One borrowed Pi 5, one afternoon, 2-3 hours total.
 
 This is the plan I actually run, in payoff order. If time gets cut, the highest-value data is already in the bag.
 
@@ -48,12 +48,12 @@ Highest payoff first:
 
 ## Baselines already in hand
 
-| Config | TFLite fp32 | ONNX fp32 | Ratio |
-|---|---|---|---|
-| DS-CNN | 0.2107 ms | 0.1702 ms | 0.81 (ONNX wins) |
-| DNN | 0.0158 ms | 0.0286 ms | 1.81 |
-| LSTM | 0.3722 ms | 0.7782 ms | 2.09 |
-| CRNN | 0.2586 ms | 0.3609 ms | 1.40 |
+| Config | TFLite fp32 | ONNX fp32 | Ratio            |
+| ------ | ----------- | --------- | ---------------- |
+| DS-CNN | 0.2107 ms   | 0.1702 ms | 0.81 (ONNX wins) |
+| DNN    | 0.0158 ms   | 0.0286 ms | 1.81             |
+| LSTM   | 0.3722 ms   | 0.7782 ms | 2.09             |
+| CRNN   | 0.2586 ms   | 0.3609 ms | 1.40             |
 
 The single-model finding (ONNX 19.2% faster on DS-CNN) reverses everywhere else. DS-CNN is operator-dispatch-bound — many small ops, graph fusion pays off. The rest are matmul-bound or sequential-bound, where ONNX session overhead dominates. That mechanism paragraph is the paper's actual contribution, not the table.
 

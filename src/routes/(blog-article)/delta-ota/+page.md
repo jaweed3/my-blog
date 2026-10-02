@@ -1,8 +1,8 @@
 ---
 slug: delta-ota
-title: "Delta OTA: Shrinking Model Updates from 2.6MB to 47KB"
+title: 'Delta OTA: Shrinking Model Updates from 2.6MB to 47KB'
 date: 2026-06-05T18:00:00.000Z
-excerpt: "Custom binary format, byte-level region patching, 98.2% bandwidth savings — shipping TensorFlow Lite model updates over WhatsApp-data connections in rural Indonesia."
+excerpt: 'Custom binary format, byte-level region patching, 98.2% bandwidth savings — shipping TensorFlow Lite model updates over WhatsApp-data connections in rural Indonesia.'
 coverImage: /images/posts/delta-ota.svg
 tags:
   - Edge AI
@@ -55,14 +55,14 @@ If model sizes differ (architecture change), the full model is sent as a single 
 
 ## Real-world numbers
 
-| Metric | Value |
-|--------|-------|
-| Full model (MobileNetV2 INT8) | 2,710,280 bytes (2.6 MB) |
-| Changed regions (v3a → v3b) | 15,706 contiguous byte regions |
-| Changed bytes total | 16,195 bytes (0.6% of model) |
-| Raw delta size (before gzip) | 141,851 bytes |
-| Compressed delta (.rkd) | 48,451 bytes (47 KB) |
-| Bandwidth savings | 98.2% |
+| Metric                        | Value                          |
+| ----------------------------- | ------------------------------ |
+| Full model (MobileNetV2 INT8) | 2,710,280 bytes (2.6 MB)       |
+| Changed regions (v3a → v3b)   | 15,706 contiguous byte regions |
+| Changed bytes total           | 16,195 bytes (0.6% of model)   |
+| Raw delta size (before gzip)  | 141,851 bytes                  |
+| Compressed delta (.rkd)       | 48,451 bytes (47 KB)           |
+| Bandwidth savings             | 98.2%                          |
 
 Only the fine-tuned classification head changed. Feature extractor layers were identical — and the delta format captured exactly that.
 
@@ -99,4 +99,4 @@ Patching against the model shipped in the APK, not a downloaded copy, ensures de
 - `deploy_delta.py`: `backend/scripts/deploy_delta.py`
 - Edge function: `backend/edge-functions/check-model-update/index.ts`
 
-*June 2026. Part of the Retak.id project — landslide early detection for rural Indonesia.*
+_June 2026. Part of the Retak.id project — landslide early detection for rural Indonesia._

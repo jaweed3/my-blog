@@ -1,6 +1,6 @@
 ---
 slug: edge-power-protocol
-title: "Measuring Millijoules on a $5 USB Meter: Power Protocol for Edge Inference"
+title: 'Measuring Millijoules on a $5 USB Meter: Power Protocol for Edge Inference'
 date: 2026-09-16T09:00:00.000Z
 excerpt: "mJ/inf = W × mean_ms. How to get honest energy numbers for edge ML papers with an inline USB meter, and when to admit you don't have the data."
 tags:

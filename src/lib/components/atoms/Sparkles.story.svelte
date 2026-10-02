@@ -3,12 +3,11 @@
 	import type { ComponentProps } from 'svelte';
 	import type { Hst } from '@histoire/plugin-svelte';
 	import Sparkles from './Sparkles.svelte';
-	import type { NoUndefinedField } from '$lib/utils/types';
 	import Button from '$lib/components/atoms/Button.svelte';
 
 	export let Hst: Hst;
 
-	let props: NoUndefinedField<ComponentProps<Sparkles>> = {
+	let props: ComponentProps<Sparkles> = {
 		color: 'default'
 	};
 </script>

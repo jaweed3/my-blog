@@ -21,26 +21,27 @@ featured: true
 hidden: false
 impact: Eliminated manual ID checks for a university library — replacing card-based entry with face recognition
 stats:
-  - value: "10x"
-    label: "Throughput"
-  - value: "<1s"
-    label: "Recognition"
-  - value: "0"
-    label: "Staff Needed"
-  - value: "Live"
-    label: "Production"
+  - value: '10x'
+    label: 'Throughput'
+  - value: '<1s'
+    label: 'Recognition'
+  - value: '0'
+    label: 'Staff Needed'
+  - value: 'Live'
+    label: 'Production'
 problem: University libraries waste 10-15 seconds per student on manual ID card checks during peak hours, creating long queues and requiring multiple security staff at entrances
 results:
-  - "Production deployment — serving real users daily"
-  - "Sub-second face recognition with InsightFace"
-  - "Replaced physical ID cards with face-based entry"
-  - "10x faster throughput during peak hours"
+  - 'Production deployment — serving real users daily'
+  - 'Sub-second face recognition with InsightFace'
+  - 'Replaced physical ID cards with face-based entry'
+  - '10x faster throughput during peak hours'
 outcome: Eliminated entry bottlenecks at peak hours, reduced staffing requirements, and modernized library access with zero-touch face recognition
 ---
 
 ## Problem
 
 University library entry during peak hours:
+
 - **Long queues**: 10-15 seconds per student for manual ID card check
 - **Staff cost**: Multiple security/attendant staff needed at entrances
 - **ID card issues**: Forgotten cards, damaged cards, temporary replacements
@@ -49,6 +50,7 @@ University library entry during peak hours:
 ## Solution
 
 PerpusGate is a production face recognition system that:
+
 1. **Detects and recognizes** faces at the library entrance
 2. **Grants access** automatically — no cards, no tokens
 3. **Logs entries** with timestamps and face embeddings
@@ -58,13 +60,13 @@ Built with InsightFace for high-accuracy face recognition, FastAPI for the backe
 
 ## Business Impact
 
-| Before (Manual ID Check) | After (Face Recognition) |
-|--------|-------|
-| 10-15 seconds per entry | Under 1 second per entry |
-| 2-3 staff needed at peak hours | 0 staff at gate — automated entry |
-| Queue buildup during class changes | Smooth flow with no bottlenecks |
-| Card replacement costs | Zero consumable costs |
-| No visitor analytics | Full entry analytics and usage patterns |
+| Before (Manual ID Check)           | After (Face Recognition)                |
+| ---------------------------------- | --------------------------------------- |
+| 10-15 seconds per entry            | Under 1 second per entry                |
+| 2-3 staff needed at peak hours     | 0 staff at gate — automated entry       |
+| Queue buildup during class changes | Smooth flow with no bottlenecks         |
+| Card replacement costs             | Zero consumable costs                   |
+| No visitor analytics               | Full entry analytics and usage patterns |
 
 ## Results
 

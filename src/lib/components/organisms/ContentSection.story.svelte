@@ -1,6 +1,5 @@
 <script lang="ts">
 	import '$lib/scss/global.scss';
-	import type { NoUndefinedField } from '$lib/utils/types';
 	import type { Hst } from '@histoire/plugin-svelte';
 	import type { ComponentProps } from 'svelte';
 	import Button from '$lib/components/atoms/Button.svelte';
@@ -8,7 +7,7 @@
 
 	export let Hst: Hst;
 
-	let props: NoUndefinedField<ComponentProps<ContentSection>> = {
+	let props: ComponentProps<ContentSection> = {
 		title: 'Content Section',
 		description: 'This is a section of content that can be used in a bunch of places',
 		align: 'top'

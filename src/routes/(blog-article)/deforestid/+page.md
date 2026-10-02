@@ -1,8 +1,8 @@
 ---
 slug: deforestid
-title: "Deforest.id: Legal-Aware Forest Monitoring with Satellite ML"
+title: 'Deforest.id: Legal-Aware Forest Monitoring with Satellite ML'
 date: 2026-06-05T14:00:00.000Z
-excerpt: "YOLOv8 + GEE + government One Map Policy — detecting deforestation per grid cell, cross-referencing with official forest zone data, and sending WhatsApp alerts with criminal law citations."
+excerpt: 'YOLOv8 + GEE + government One Map Policy — detecting deforestation per grid cell, cross-referencing with official forest zone data, and sending WhatsApp alerts with criminal law citations.'
 coverImage: /images/posts/deforestid.svg
 tags:
   - Edge AI
@@ -69,4 +69,4 @@ GEE fetcher + grid generator is production-ready. YOLOv8 training pipeline is co
 - Code: [github.com/FarrelGhozy/Deforest.id](https://github.com/FarrelGhozy/Deforest.id)
 - Stack: Python (GEE, YOLOv8) · Bun + Elysia · PostgreSQL + PostGIS · React + Leaflet · Docker
 
-*June 2026. Collaborative research with Farrel Ghozy. ML pipeline, architecture, and paper by Jaweed.*
+_June 2026. Collaborative research with Farrel Ghozy. ML pipeline, architecture, and paper by Jaweed._
