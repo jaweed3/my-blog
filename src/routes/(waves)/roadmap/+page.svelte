@@ -311,7 +311,9 @@
 	.roadmap-activity {
 		max-width: var(--container-max);
 		margin: 0 auto;
-		padding: 48px var(--margin-mobile) 0;
+		// Bottom padding matters: the graph card's border sat flush against the
+		// "External Repos" column titles with a 0px gap.
+		padding: 48px var(--margin-mobile) 64px;
 	}
 
 	.roadmap-grid {
