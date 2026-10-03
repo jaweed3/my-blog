@@ -39,9 +39,12 @@ query($login: String!) {
   }
 }`;
 
-function fetchJson() {
+// Must be async: without `await` on the fetch, `res` is a Promise, `res.ok` is undefined,
+// and `!undefined` throws "GitHub API undefined undefined". That bug was invisible locally
+// because running without GH_TOKEN fell through to the synchronous `gh` branch below.
+async function fetchJson() {
 	if (process.env.GH_TOKEN) {
-		const res = fetch('https://api.github.com/graphql', {
+		const res = await fetch('https://api.github.com/graphql', {
 			method: 'POST',
 			headers: {
 				authorization: `bearer ${process.env.GH_TOKEN}`,
@@ -51,7 +54,14 @@ function fetchJson() {
 			body: JSON.stringify({ query, variables: { login: LOGIN } })
 		});
 		if (!res.ok) throw new Error(`GitHub API ${res.status} ${res.statusText}`);
-		return res.json();
+
+		const json = await res.json();
+		// GraphQL answers 200 with an `errors` array for auth/scope problems, so res.ok alone
+		// is not enough to tell success from failure.
+		if (json.errors?.length) {
+			throw new Error(`GraphQL: ${json.errors.map((e) => e.message).join('; ')}`);
+		}
+		return json;
 	}
 
 	const out = execFileSync(
@@ -63,7 +73,7 @@ function fetchJson() {
 }
 
 try {
-	const json = fetchJson();
+	const json = await fetchJson();
 	const calendar = json?.data?.user?.contributionsCollection?.contributionCalendar;
 	if (!calendar) throw new Error('no contributionCalendar in response (check the login)');
 
