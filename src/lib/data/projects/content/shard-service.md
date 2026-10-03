@@ -3,6 +3,7 @@ title: Sharded Storage Service
 slug: shard-service
 description: A plan-to-production architecture for horizontally sharded storage — consistent-hash router, shard registry with heartbeats, and async replica lag via RabbitMQ.
 excerpt: Architecture for horizontal database sharding in Java — a consistent-hashing router, a shard registry with heartbeat health, and replicas that catch up asynchronously over RabbitMQ.
+coverImage: images/features/shard-service.png
 date: 2026-09-27
 tags:
   - Distributed Systems

@@ -3,6 +3,7 @@ title: wpp-tui
 slug: wpp-tui
 description: A terminal-based WhatsApp client with chat, archive, rename, poll decryption and event logging — built on Baileys and Ink.
 excerpt: WhatsApp in the terminal — chat, archive, rename, poll decryption and event logging, built on the reverse-engineered web protocol with Ink for the TUI.
+coverImage: images/features/wpp-tui.png
 date: 2026-07-26
 tags:
   - Developer Tools

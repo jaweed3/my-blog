@@ -3,6 +3,7 @@ title: Burn vs TFLite vs ONNX Runtime
 slug: edge-burn-benchmark
 description: The official benchmark harness benchmarking Burn, TensorFlow Lite and ONNX Runtime for inference on ARM64 edge hardware.
 excerpt: A controlled harness comparing Burn, TensorFlow Lite and ONNX Runtime on ARM64 edge hardware — testing whether a Rust-native tensor library can hold its own on-device.
+coverImage: images/features/edge-burn-benchmark.png
 date: 2026-07-31
 tags:
   - Edge AI

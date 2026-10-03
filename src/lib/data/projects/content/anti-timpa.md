@@ -3,6 +3,7 @@ title: AntiTimpa (FactLens)
 slug: anti-timpa
 description: An Android scam detector that reads the screen on demand — hold the floating button, the text is OCR'd and checked, and a verdict comes back.
 excerpt: Scam detection that works on the message you are already reading — hold a floating button to blur the screen, OCR the text, and get a verdict.
+coverImage: images/features/anti-timpa.png
 date: 2026-07-25
 tags:
   - Mobile

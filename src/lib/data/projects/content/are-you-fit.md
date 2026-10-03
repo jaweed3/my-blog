@@ -3,7 +3,7 @@ title: AreUFit
 slug: are-you-fit
 description: AI-powered resume analyzer that matches candidates to job descriptions with personalized improvement recommendations.
 excerpt: Automates resume screening with AI — parses PDF/DOCX resumes, matches skills to job descriptions, and delivers actionable improvement suggestions.
-coverImage:
+coverImage: images/features/are-you-fit.png
 date: 2025-03-22
 tags:
   - NLP

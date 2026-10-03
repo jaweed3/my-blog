@@ -3,6 +3,7 @@ title: Poultry Edge Disease Detection
 slug: poultry-edge
 description: Two-paper edge ML research line on INT8 quantization for poultry disease detection — characterization, then pruning as mitigation.
 excerpt: Characterizing INT8 quantization across MobileNetV2, ShuffleNetV2 and EfficientNet-B0 — and finding that on CPU, quantization made inference 6–30× slower.
+coverImage: images/features/poultry-edge.png
 date: 2026-09-30
 tags:
   - Edge AI

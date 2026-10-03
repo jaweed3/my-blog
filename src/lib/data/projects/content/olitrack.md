@@ -3,6 +3,7 @@ title: OliTrack — Lingkar Oli Semarang
 slug: olitrack
 description: Circular B3 traceability for used motor oil from informal workshops — closing the first mile of the used-oil loop with offline-first mobile capture.
 excerpt: DSDC 2026 — closing the used-motor-oil loop at the first mile, with offline drum capture, B3 risk scoring and a digital manifest for licensed collectors.
+coverImage: images/features/olitrack.png
 date: 2026-08-23
 tags:
   - Circular Economy

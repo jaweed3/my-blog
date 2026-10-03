@@ -3,6 +3,7 @@ title: KWS Pi5 Benchmark
 slug: kws-pi5-benchmark
 description: Four keyword-spotting architectures benchmarked across TensorFlow Lite and ONNX Runtime on a Raspberry Pi 5 under one controlled protocol.
 excerpt: DS-CNN, dense, LSTM and CNN-GRU benchmarked against TFLite and ONNX Runtime on Raspberry Pi 5 — with on-board PMIC energy measurement and a 1,000-pass protocol.
+coverImage: images/features/kws-pi5-benchmark.png
 date: 2026-09-22
 tags:
   - Edge AI

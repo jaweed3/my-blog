@@ -3,6 +3,7 @@ title: Yapping — anonymous venting on Nostr
 slug: yapping
 description: An anonymous, anti-buzzer, anti-censorship venting app built on the Nostr protocol — no central server that can be switched off.
 excerpt: Anonymous Indonesian-language venting app on Nostr — identity is a cryptographic key you hold, not an account on someone's server. Live at yapping.my.id.
+coverImage: images/features/yapping.png
 date: 2026-08-16
 tags:
   - Web3

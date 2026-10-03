@@ -3,6 +3,7 @@ title: Mahasantri — anonymous reporting
 slug: mahasantri
 description: End-to-end encrypted anonymous reporting app for pesantren students — identity is never stored, and admins decrypt offline on an air-gapped machine.
 excerpt: 'Zero-knowledge reporting for pesantren students — E2E-encrypted submissions, a dual-PIN decoy, no IP storage, and admin decryption on an air-gapped machine.'
+coverImage: images/features/mahasantri.png
 date: 2026-08-07
 tags:
   - Security

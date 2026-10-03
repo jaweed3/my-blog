@@ -17,7 +17,9 @@
 		"postbuild": "svelte-sitemap --domain https://wedjaw.my.id --change-freq weekly",
 		"vercel-sitemap": "svelte-sitemap --out-dir .vercel/output/static --domain https://wedjaw.my.id --change-freq weekly",
 		"vercel-optimize-images": "image-transmutation --run --sourceFolder '.vercel/output/static/images' --targetFolder '.vercel/output/static/images' --inputFormats 'jpg' --inputFormats 'jpeg' --inputFormats 'png' --outputFormats 'png' --outputFormats 'webp' --outputFormats 'avif'",
-		"vercel-build": "npm run build && npm run vercel-sitemap && npm run vercel-optimize-images"
+		"vercel-build": "npm run build && npm run vercel-sitemap && npm run vercel-optimize-images",
+		"contributions": "node scripts/fetch-contributions.mjs",
+		"covers": "node scripts/generate-covers.mjs"
 	},
 	"devDependencies": {
 		"@fontsource/jetbrains-mono": "^5.2.8",

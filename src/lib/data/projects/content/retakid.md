@@ -3,7 +3,7 @@ title: Retak.id
 slug: retakid
 description: Crowdsourcing early detection of landslide soil cracks via Android + Web platform with on-device ML.
 excerpt: Community-powered landslide early warning system — 84.9% accurate soil crack classification, fully offline, running on smartphones.
-coverImage:
+coverImage: images/features/retakid.png
 date: 2026-04-29
 tags:
   - Computer Vision

@@ -3,7 +3,7 @@ title: VibeSentinel
 slug: vibesentinel
 description: Edge AI predictive maintenance — autoencoder anomaly detection running 100% in Rust on ESP32-S3.
 excerpt: Predicts industrial equipment failure before it happens using a $20 microcontroller — 524-parameter autoencoder, 100% Rust, no cloud.
-coverImage:
+coverImage: images/features/vibesentinel.png
 date: 2026-05-09
 tags:
   - Edge AI

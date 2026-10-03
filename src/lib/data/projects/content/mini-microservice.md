@@ -3,6 +3,7 @@ title: mini-microservice
 slug: mini-microservice
 description: A deliberately small event-driven order service in Go — transactional outbox, NATS JetStream consumers, and a SQLite database per service.
 excerpt: 'A compact Go reference for event-driven microservices — transactional outbox, NATS JetStream, one SQLite database per service, and a shared contract module.'
+coverImage: images/features/mini-microservice.png
 date: 2026-09-23
 tags:
   - Distributed Systems
