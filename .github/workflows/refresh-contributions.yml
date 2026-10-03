@@ -1,0 +1,42 @@
+name: Refresh contribution graph
+
+on:
+  schedule:
+    # 06:17 UTC daily. An off-peak minute on the hour, so this does not pile onto the
+    # top-of-hour scheduling spike that delays every scheduled workflow.
+    - cron: '17 6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+
+      - name: Refresh snapshot
+        env:
+          # The script prefers GH_TOKEN and falls back to the gh CLI. Either way, if the
+          # fetch fails it only warns and leaves the committed snapshot alone, so a GitHub
+          # outage cannot blank the graph — and the diff check below then commits nothing.
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/fetch-contributions.mjs
+
+      - name: Commit only if the data actually moved
+        run: |
+          if git diff --quiet -- src/lib/data/contributions.json; then
+            echo "snapshot unchanged — nothing to commit"
+            exit 0
+          fi
+          git config user.name  'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src/lib/data/contributions.json
+          git commit -m 'chore: refresh contribution snapshot'
+          git push

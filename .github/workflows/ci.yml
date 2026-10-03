@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Cancel superseded runs on the same branch. Vercel builds from every push to main, so a
+# stale run finishing late just wastes minutes.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          # 20 is deprecated on GitHub runners (forced onto 24) and went EOL in April
+          # 2026. Nothing in the lockfile requires more than 20 any more.
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run check
+      # Fail the build rather than shipping it: prerender errors surface as 500 pages.
+      - run: npm run build
+# This used to deploy to GitHub Pages. It no longer does, on purpose: wedjaw.my.id resolves
+# to Vercel (Cloudflare -> Vercel), and the Pages job published to
+# jaweed3.github.io/my-blog, which nothing links to. It cost ~2 minutes of runner time per
+# push to keep a mirror nobody opened.
+#
+# The build half was genuinely useful though — it is what caught katex 0.19 pulling
+# commander@15 (needs Node >=22.12) and failing `npm ci`. That is why this file still
+# exists as validation only.
+#
+# To publish on Pages as well, add back configure-pages + upload-pages-artifact +
+# deploy-pages, and give this workflow `pages: write` and `id-token: write`.
